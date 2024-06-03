@@ -1,7 +1,6 @@
 import createCache from "@emotion/cache";
 import { CacheProvider } from "@emotion/react";
 import { useState } from "react";
-import { Helmet, HelmetProvider } from "react-helmet-async";
 import "./App.css";
 
 const emotionCache = createCache({ key: "css" });
