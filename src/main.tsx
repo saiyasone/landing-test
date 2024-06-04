@@ -5,19 +5,20 @@ import {
   createHttpLink,
   from,
 } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
+import "animate.css/animate.min.css";
+import { ENV_KEYS } from "constants/env.constant.ts";
+import { ThemeProvider } from "contexts/ThemeContext.tsx";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import store from "stores/index.ts";
 import App from "./App.tsx";
-import "./index.css";
-import { ENV_KEYS } from "constants/env.constant.ts";
-import { setContext } from "@apollo/client/link/context";
 
 const authLink = setContext((_, { headers }) => {
   const token = localStorage.getItem(
-    ENV_KEYS.REACT_APP_ACCESS_TOKEN_KEY as string,
+    ENV_KEYS.VITE_APP_ACCESS_TOKEN_KEY as string,
   );
 
   return {
@@ -32,7 +33,7 @@ const client = new ApolloClient({
   link: from([
     authLink.concat(
       createHttpLink({
-        uri: ENV_KEYS.REACT_APP_API_URL,
+        uri: ENV_KEYS.VITE_APP_API_URL,
       }),
     ),
   ]),
@@ -46,9 +47,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Provider store={store}>
       <ApolloProvider client={client}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <ThemeProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </ThemeProvider>
       </ApolloProvider>
     </Provider>
   </React.StrictMode>,
