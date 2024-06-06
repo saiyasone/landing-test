@@ -16,8 +16,8 @@ import {
 } from "api/graphql/support.graphql";
 import { useDropzone } from "react-dropzone";
 import { NavLink } from "react-router-dom";
-import "styles/presentation/presentation.css";
 import * as MUI from "styles/presentation/presentation.style";
+import "styles/presentation/presentation.style.css";
 
 // material ui component
 import backgroundVector from "assets/images/background-vector.svg";
@@ -63,8 +63,6 @@ function Home() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [files, setFiles] = useState<any[]>([]);
-
-  console.log(theme, customTheme);
 
   // Pass value to Show File Dialog
   const [expireDateLinks, setExpireDateLinks] = useState([]);

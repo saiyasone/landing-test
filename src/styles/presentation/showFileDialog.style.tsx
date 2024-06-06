@@ -9,7 +9,7 @@ export const BoxUploadTitle = styled(Box)({
   justifyContent: "space-between",
   padding: "0.8rem",
   span: {
-    fontSize: "1rem",
+    ontSize: "1rem",
     fontWeight: 600,
     [theme.breakpoints.down("sm")]: {
       fontSize: "0.9rem",

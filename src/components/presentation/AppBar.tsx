@@ -2,7 +2,7 @@ import * as React from "react";
 // material ui components
 import shareLogo from "assets/images/logo-vshare-all-white-11.svg";
 import blackShareLogo from "assets/images/vshare-black-logo.png";
-import "styles/presentation/presentation.css";
+import "styles/presentation/presentation.style.css";
 
 // material ui components
 import MuiAppBar from "@mui/material/AppBar";
@@ -133,8 +133,8 @@ function AppBar() {
         </ListItemButton>
         <ListItemButton
           component={NavLink}
-          to="/feedback-page"
-          selected={"/feedback-page" === location.pathname}
+          to="/feedback"
+          selected={"/feedback" === location.pathname}
           sx={{
             padding: "0.2rem 0 0.2rem 1rem",
             borderBottom: "1px solid #DBDBDB",
@@ -186,11 +186,8 @@ function AppBar() {
     </Box>
   );
 
-  const navActive = ({
-    isActive,
-  }: {
-    isActive: boolean;
-  }): React.CSSProperties => {
+  const navActive = (pathName: string): React.CSSProperties => {
+    const isActive = location.pathname === pathName;
     return {
       color: isActive ? "#ffffff" : "white",
       borderBottom: isActive ? "1px solid #ffffff" : "none",
@@ -233,8 +230,7 @@ function AppBar() {
                 className="menuList"
                 component={NavLink}
                 to="/pricing-plans"
-                /* style={navActive} */
-                sx={{ borderRadius: "0" }}
+                sx={{ ...navActive("/pricing-plans") }}
               >
                 Pricing
               </Button>
@@ -244,8 +240,7 @@ function AppBar() {
                 className="menuList"
                 component={NavLink}
                 to="/contact-us"
-                /* style={navActive} */
-                sx={{ borderRadius: "0" }}
+                sx={{ ...navActive("/contact-us") }}
               >
                 Contact us
               </Button>
@@ -255,8 +250,8 @@ function AppBar() {
                 className="menuList"
                 component={NavLink}
                 to="/filedrops"
-                /* style={navActive} */
-                sx={{ borderRadius: "0" }}
+                style={{ ...navActive }}
+                sx={{ ...navActive("/filedrops") }}
               >
                 File drop
               </Button>
@@ -265,9 +260,8 @@ function AppBar() {
               <Button
                 className="menuList"
                 component={NavLink}
-                to="/feedback-page"
-                /* style={navActive} */
-                sx={{ borderRadius: "0" }}
+                to="/feedback"
+                sx={{ ...navActive("/feedback") }}
               >
                 Feedback
               </Button>
@@ -279,8 +273,9 @@ function AppBar() {
                     className="menuList"
                     component={NavLink}
                     to="/auth/sign-in"
-                    /* style={navActive} */
                     sx={{
+                      ...navActive("/auth/sign-in"),
+                      borderRadius: "4px",
                       border: "1px solid #ffffff",
                       borderBottom: "1px solid #ffffff !important",
                       "&:hover": {
@@ -297,8 +292,9 @@ function AppBar() {
                     className="menuList"
                     component={NavLink}
                     to="/auth/sign-up"
-                    /* style={navActive} */
                     sx={{
+                      ...navActive("/auth/sign-up"),
+                      borderRadius: "4px",
                       border: "1px solid #ffffff",
                       background: "#ffffff",
                       color: "#17766B !important",
@@ -320,8 +316,9 @@ function AppBar() {
                   className="menuList"
                   component={NavLink}
                   to="/dashboard"
-                  /* style={navActive} */
                   sx={{
+                    ...navActive("/dashboard"),
+                    borderRadius: "4px",
                     border: "1px solid #ffffff",
                     background: "#ffffff",
                     color: "black",

@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import React from "react";
-import "styles/presentation/presentation.css";
 import * as MUI from "styles/presentation/presentation.style";
+import "styles/presentation/presentation.style.css";
 import AppBar from "./AppBar";
 import Footer from "./Footer";
 

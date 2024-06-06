@@ -120,14 +120,14 @@ function Footer() {
             </NavLink>
             <br />
             <NavLink to="/contact-us">
-              <span>contact us</span>
+              <span>Contact us</span>
             </NavLink>
             <br />
             <NavLink to="/filedrops">
               <span>File drop</span>
             </NavLink>
             <br />
-            <NavLink to="/feedback-page">
+            <NavLink to="/feedback">
               <span>Feedback</span>
             </NavLink>
           </MUI.BoxRightFooter>

@@ -1,5 +1,13 @@
 import { gql } from "@apollo/client";
 
+export const MUTATION_FEEDBACK = gql`
+  mutation CreateFeedback($input: FeedbackInput!) {
+    createFeedback(input: $input) {
+      _id
+    }
+  }
+`;
+
 export const MUTATION_CONTACT = gql`
   mutation CreateContact($body: ContactInput!) {
     createContact(body: $body) {
