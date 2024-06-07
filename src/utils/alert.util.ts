@@ -66,7 +66,7 @@ export const stopLoading = () => {
 
 export const deleteModalConfirm = (
   message: string,
-  action?: (...args: any[]) => void,
+  _action?: (...args: any[]) => void,
 ) => {
   Notiflix.Confirm.init({
     width: "300px",

@@ -62,7 +62,7 @@ export const BoxRectangleTop = styled(Box)({
   borderRadius: "8px",
   zIndex: -99,
   backgroundRepeat: "no-repeat",
-  [theme.breakpoints.down("730")]: {
+  [theme.breakpoints.down("md")]: {
     display: "none",
   },
 });
@@ -78,7 +78,7 @@ export const BoxRectangleTop1 = styled(Box)({
   zIndex: -99,
   border: "1px solid #ddd",
   backgroundRepeat: "no-repeat",
-  [theme.breakpoints.down("730")]: {
+  [theme.breakpoints.down("md")]: {
     display: "none",
   },
 });
@@ -95,7 +95,7 @@ export const BoxRectangleBottom = styled(Box)({
   border: "3px dashed #E3DFF8",
   padding: "1rem",
   backgroundRepeat: "no-repeat",
-  [theme.breakpoints.down("730")]: {
+  [theme.breakpoints.down("md")]: {
     display: "none",
   },
 });
@@ -120,7 +120,7 @@ export const MainBox = styled(Box)({
 
 export const LeftBox = styled(Box)({
   width: "50%",
-  [theme.breakpoints.down("730")]: {
+  [theme.breakpoints.down("md")]: {
     width: "100%",
     display: "flex",
     alignItems: "center",
@@ -133,7 +133,7 @@ export const LeftBoxRow1 = styled(Box)({
   img: {
     width: "40%",
   },
-  [theme.breakpoints.down("730")]: {
+  [theme.breakpoints.down("md")]: {
     textAlign: "center",
     img: {
       width: "60%",

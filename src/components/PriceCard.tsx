@@ -186,7 +186,7 @@ function PriceCard(props) {
           ...(isCost
             ? {
                 "&:hover": {
-                  backgroundColor: theme.palette.primaryTheme.main,
+                  backgroundColor: theme.palette.primaryTheme!.main,
                   color: "white !important",
                 },
               }

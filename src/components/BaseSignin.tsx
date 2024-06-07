@@ -107,7 +107,7 @@ function BaseSignin(props) {
           username: Yup.string().max(255).required("Username is required"),
           password: Yup.string().max(255).required("Password is required"),
         })}
-        onSubmit={async (values, { setErrors, setStatus }) => {
+        onSubmit={async (values, { setStatus }) => {
           try {
             if (!captchaKey) {
               const enabled2FA = await signIn(values.username, values.password);
@@ -120,7 +120,7 @@ function BaseSignin(props) {
           } catch (error: any) {
             setCaptchaKey(false);
             handleLoginFailure(error);
-            const message = error.message || "Something went wrong";
+            const _message = error.message || "Something went wrong";
             setStatus({ success: false });
             /* setErrors({ submit: message }); */
           }
@@ -220,9 +220,11 @@ function BaseSignin(props) {
               type="submit"
               variant="contained"
               color="success"
-              my={touched.username && errors.username ? 0 : 2}
               size="large"
-              sx={{ padding: "0.8rem 5rem" }}
+              sx={{
+                padding: "0.8rem 5rem",
+                my: touched.username && errors.username ? 0 : 2,
+              }}
               disabled={captchaKey}
             >
               Login

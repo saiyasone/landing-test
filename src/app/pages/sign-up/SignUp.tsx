@@ -215,9 +215,9 @@ function SignUp() {
                 login with your personal info
               </Typography>
             </MUI.BoxShowDetail>
-            <MUI.ButtonLogin component={NavLink} to="/auth/sign-in">
-              Login
-            </MUI.ButtonLogin>
+            <NavLink to="/auth/sign-in">
+              <MUI.ButtonLogin>Login</MUI.ButtonLogin>
+            </NavLink>
           </MUI.BoxShowText>
         </MUI.LeftBox>
         <MUI.RightBox>

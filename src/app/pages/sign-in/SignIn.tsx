@@ -319,9 +319,9 @@ function SignIn() {
               and Start journey with us
             </Typography>
           </MUI.BoxShowDetail>
-          <MUI.ButtonGetStarted component={NavLink} to="/auth/sign-up">
-            Get Started
-          </MUI.ButtonGetStarted>
+          <NavLink to="/auth/sign-up">
+            <MUI.ButtonGetStarted>Get Started</MUI.ButtonGetStarted>
+          </NavLink>
         </MUI.RightBox>
       </MUI.MainBox>
     </React.Fragment>

@@ -138,7 +138,7 @@ export default function CustomizedDialog(props: CustomizedDialogProps) {
   } = props;
   const theme = createTheme();
   const [createFilePublic] = useMutation(CREATE_FILE_PUBLIC);
-  const [fileData, setFileData] = useState(files);
+  const [_fileData, setFileData] = useState(files);
   const [primaryLock, setPrimaryLock] = useState(false);
   const [mainPassword, setMainPassword] = useState("");
 
@@ -149,7 +149,7 @@ export default function CustomizedDialog(props: CustomizedDialogProps) {
   });
   const [isUploading, setIsUploading] = useState(false);
   const [isDone, setIsDone] = useState(0);
-  const [numUploadedFiles, setNumUploadedFiles] = useState(0);
+  const [numUploadedFiles, _setNumUploadedFiles] = useState(0);
   const [fileMaxSize, setFileMaxSize] = useState("");
   const [uploadSpeed, setUploadSpeed] = useState(0);
   const [overallProgress, setOverallProgress] = useState(0);
@@ -501,7 +501,7 @@ export default function CustomizedDialog(props: CustomizedDialogProps) {
               onUploadProgress: (progressEvent: any) => {
                 const currentFileUploadedSize =
                   (progressEvent.loaded * dataFile[i].size) /
-                    progressEvent.total ?? 0;
+                    progressEvent.total || 0;
                 currentUploadPercentage = (
                   ((uploadedSize + currentFileUploadedSize) / totalSize) *
                   100

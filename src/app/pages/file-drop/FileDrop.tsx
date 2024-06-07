@@ -92,12 +92,12 @@ function FileDrop() {
   const theme = createTheme();
   const isMobile = useMediaQuery("(max-width:768px)");
   const captchaRef = useRef<ReCAPTCHA | null>(null);
-  const [fileDrop, setFileDrop] = useState(null);
+  const [_fileDrop, setFileDrop] = useState(null);
   const link = ENV_KEYS.VITE_APP_FILE_DROP_LINK;
   const [value, setValue] = React.useState(link);
   const [copied, setCopied] = React.useState(false);
-  const [usedCaptcha, setUsedCaptcha] = useState(false);
-  const [showCaptcha, setShowCaptcha] = useState(false);
+  const [_usedCaptcha, setUsedCaptcha] = useState(false);
+  const [_showCaptcha, setShowCaptcha] = useState(false);
   const [filedropLinkCreation] = useMutation(CREATE_FILEDROP_LINK);
   const [captchaKey, setCaptchaKey] = useState(false);
   const useDataSettings = useManageSetting();

@@ -17,17 +17,18 @@ import {
 import { useDropzone } from "react-dropzone";
 import { NavLink } from "react-router-dom";
 import * as MUI from "styles/presentation/presentation.style";
-import "styles/presentation/presentation.style.css";
 
 // material ui component
 import backgroundVector from "assets/images/background-vector.svg";
 import catImage from "assets/images/cat-logo.png";
 import showMap from "assets/images/network.jpg";
 import vectorImage from "assets/images/vector.svg";
-import FAQAccordion from "components/presentation/FAQAccordion";
-import Feature from "components/presentation/Feature";
 import { mapAnimation } from "constants/animation.constant";
 import { errorMessage, successMessage } from "utils/alert.util";
+const Feature = React.lazy(() => import("components/presentation/Feature"));
+const FAQAccordion = React.lazy(
+  () => import("components/presentation/FAQAccordion"),
+);
 
 // material ui component icons
 import { useLazyQuery, useMutation } from "@apollo/client";
@@ -47,7 +48,6 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import ShowFileDialog from "components/presentation/ShowFileDialog";
 import serverZone from "constants/serverZone.constant";
 import useManageSetting from "hooks/useManageSetting";
 import useTheme from "hooks/useTheme";
@@ -55,6 +55,9 @@ import { FaArrowUpFromBracket } from "react-icons/fa6";
 import "swiper/css";
 import createTheme from "theme";
 import { Id } from "types";
+const ShowFileDialog = React.lazy(
+  () => import("components/presentation/ShowFileDialog"),
+);
 
 function Home() {
   const customTheme = useTheme();
