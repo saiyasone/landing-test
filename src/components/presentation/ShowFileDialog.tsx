@@ -50,9 +50,8 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import { FileIcon, defaultStyles } from "react-file-icon";
 import { Id } from "types";
 import { errorMessage, successMessage } from "utils/alert.util";
-import { getFileType } from "utils/file.util";
+import { cutFileName, getFileType } from "utils/file.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
-import { cutFileName } from "utils/string.util";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {

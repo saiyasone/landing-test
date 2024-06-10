@@ -12,7 +12,7 @@ import {
 } from "api/graphql/secure.graphql";
 import React, { createContext, useEffect, useReducer, useState } from "react";
 
-import { GET_USERS } from "api/graphql/user.graphql";
+import { QUERY_USER } from "api/graphql/user.graphql";
 import axios from "axios";
 import WarningDialog from "components/WarningDialog";
 import { ENV_KEYS } from "constants/env.constant";
@@ -113,7 +113,7 @@ function AuthProvider() {
   const [isLoading, setIsLoading] = useState<boolean | null>(null);
   const manageGraphqlError = useManageGraphqlError();
 
-  const [getUsers] = useLazyQuery(GET_USERS, {
+  const [getUsers] = useLazyQuery(QUERY_USER, {
     fetchPolicy: "no-cache",
   });
 

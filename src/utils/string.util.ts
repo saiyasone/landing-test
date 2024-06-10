@@ -11,13 +11,6 @@ export const createShortcut = (text: string, limit: number) => {
   return text;
 };
 
-export function cutFileName(fileName: string, maxLength = 10) {
-  const extension = fileName.split(".").pop();
-  const nameWithoutExtension = fileName.replace(`.${extension}`, "");
-  if (nameWithoutExtension.length <= maxLength) return fileName;
-  return `${nameWithoutExtension.slice(0, maxLength)}...${extension}`;
-}
-
 export function limitContent(fileName: string, maxLength: number) {
   let truncatedText = "";
   if (fileName.length > maxLength) {

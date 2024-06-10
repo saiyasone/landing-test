@@ -38,17 +38,36 @@ export const QUERY_FILE_PUBLIC = gql`
       total
       data {
         _id
-        filePassword
         filename
         newFilename
+        filePassword
         passwordUrlAll
-        expired
+        fileType
         size
-        path
         newPath
-        url
-        urlAll
+        totalDownload
         status
+        isPublic
+        checkFile
+        path
+        detail
+        urlAll
+        url
+        permissionSharePublic
+        aproveDownloadPublic
+        ip
+        folder_id {
+          _id
+          path
+          folder_name
+        }
+        shortUrl
+        favorite
+        actionStatus
+        expired
+        createdAt
+        updatedAt
+        actionDate
       }
     }
   }

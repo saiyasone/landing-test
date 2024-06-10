@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
-export const GET_USERS = gql`
-  query GET_USERS(
+export const QUERY_USER = gql`
+  query QUERY_USER(
     $where: UserWhereInput
     $orderBy: OrderByInput
     $skip: Int
