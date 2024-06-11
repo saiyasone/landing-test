@@ -133,7 +133,6 @@ export default function CustomizedDialog(props: CustomizedDialogProps) {
     dataMaxSize,
     dataExpire,
     dataExpires,
-    // onClose,
   } = props;
   const theme = createTheme();
   const [createFilePublic] = useMutation(CREATE_FILE_PUBLIC);
@@ -148,6 +147,7 @@ export default function CustomizedDialog(props: CustomizedDialogProps) {
   });
   const [isUploading, setIsUploading] = useState(false);
   const [isDone, setIsDone] = useState(0);
+  const [isDialogQRCodeOpen, setIsDialogQRCodeOpen] = useState(false);
   const [numUploadedFiles, _setNumUploadedFiles] = useState(0);
   const [fileMaxSize, setFileMaxSize] = useState("");
   const [uploadSpeed, setUploadSpeed] = useState(0);
@@ -363,6 +363,7 @@ export default function CustomizedDialog(props: CustomizedDialogProps) {
 
   const handleCloseModal = () => {
     setIsUploading(true);
+    setIsDialogQRCodeOpen(false);
     _functionResetValue();
     onRemoveAll();
   };
@@ -390,6 +391,7 @@ export default function CustomizedDialog(props: CustomizedDialogProps) {
     setInformation(mergedArray);
     setIsUploading(true);
     handleUpload(mergedArray);
+    setIsDialogQRCodeOpen(true);
   };
 
   const handleUpload = async (files: any[]) => {
@@ -535,10 +537,10 @@ export default function CustomizedDialog(props: CustomizedDialogProps) {
                 [i]: true,
               }));
             }
-            setIsDone(1);
+            /* setIsDone(1);
             setValue(`${value}${getUrlAllWhenReturn?.urlAll}`);
             setCheckUpload(true);
-            successMessage("Upload successful!!", 3000);
+            successMessage("Upload successful!!", 3000); */
           } catch (error) {
             errorMessage("Error uploading file. Please try againn later", 3000);
           }
@@ -547,10 +549,10 @@ export default function CustomizedDialog(props: CustomizedDialogProps) {
           break;
         }
       }
-      // setIsDone(1);
-      // setValue(`${value}${getUrlAllWhenReturn?.urlAll}`);
-      // setCheckUpload(true);
-      // successMessage("Upload successful!!", 3000);
+      setIsDone(1);
+      setValue(`${value}${getUrlAllWhenReturn?.urlAll}`);
+      setCheckUpload(true);
+      successMessage("Upload successful!!", 3000);
     } catch (error: any) {
       const cutError = error.message.replace(/(ApolloError: )?Error: /, "");
       const fileUploadSize = dataMaxSize?.action?.split(".")[0];
@@ -1043,289 +1045,300 @@ export default function CustomizedDialog(props: CustomizedDialogProps) {
           </DialogActions>
         </BootstrapDialog>
       ) : isDone === 0 ? (
-        <BootstrapDialog
-          onClose={() => {}}
-          aria-labelledby="customized-dialog-title"
-          open={open}
-          sx={{ padding: "1rem" }}
-        >
-          <MUI.BoxProgressHeader>
-            <Typography sx={{ fontSize: "1rem" }}>
-              Uploading in progress...
-            </Typography>
-            {checkUpload ? (
-              <>
-                <IconButton
-                  onClick={() => {
-                    setIsDone(1);
-                  }}
-                >
-                  <CloseIcon sx={{ fontSize: "25px" }} />
-                </IconButton>
-              </>
-            ) : (
-              <>
-                <IconButton onClick={handleCloseAndDeleteFile}>
-                  <CloseIcon sx={{ fontSize: "25px" }} />
-                </IconButton>
-              </>
-            )}
-          </MUI.BoxProgressHeader>
-          <DialogContent sx={{ paddingBottom: "2rem" }}>
-            <MUI.BoxUploadProgress>
-              <div style={{ marginLeft: 8, width: 100, height: 100 }}>
-                <CircularProgressbar
-                  value={overallProgress}
-                  text={`${overallProgress}%`}
-                  styles={buildStyles({
-                    strokeLinecap: "butt",
-                    textSize: "12px",
-                    pathTransitionDuration: 0.5,
-                    pathColor: "#17766B",
-                    textColor: "#0F6C61",
-                    trailColor: "#d6d6d6",
-                    backgroundColor: "#17766B",
-                  })}
-                />
-              </div>
-
-              <MUI.BoxUploadProgressDetail>
-                <Typography
-                  sx={{ fontSize: "0.9rem !important", fontWeight: 600 }}
-                >
-                  Sending {filesArray.length} files in progress,
-                  {convertBytetoMBandGB(dataSizeAll)} in total
-                </Typography>
-                <Typography sx={{ fontSize: "0.7rem" }}>
-                  {numUploadedFiles}/{filesArray.length} uploaded files
-                </Typography>
-                <Typography sx={{ fontSize: "0.8rem" }}>
-                  {convertBytetoMBandGB(uploadSpeed)}/s
-                </Typography>
-              </MUI.BoxUploadProgressDetail>
-            </MUI.BoxUploadProgress>
-            <br />
-            <br />
-            {filesArray?.map((data, index) => (
-              <MUI.BoxUploadFiles key={index}>
-                <MUI.BoxUploadFileDetail>
-                  <Box sx={{ width: "25px" }}>
-                    <FileIcon
-                      extension={getFileType(data.name)}
-                      {...defaultStyles[getFileType(data.name) as any]}
-                    />
-                  </Box>
-                  &nbsp;&nbsp;&nbsp;
-                  <MUI.BoxFilesName>
-                    <Typography sx={{ fontSize: "0.8rem !important" }}>
-                      {cutFileName(data?.name, 10)}
-                    </Typography>
-                    <Typography
-                      sx={{
-                        fontSize: "0.7rem !important",
-                        color: "#17766B",
-                      }}
-                    >
-                      ({convertBytetoMBandGB(data?.size)})
-                    </Typography>
-                  </MUI.BoxFilesName>
-                </MUI.BoxUploadFileDetail>
-                <Box sx={{ marginLeft: "1.5rem" }}>
-                  {uploadStatus[index] ? (
-                    <DownloadDoneIcon fontSize="small" color="success" />
-                  ) : (
-                    <CircularProgress size={16} color="success" />
-                  )}
-                </Box>
-              </MUI.BoxUploadFiles>
-            ))}
-            <br />
-          </DialogContent>
-        </BootstrapDialog>
-      ) : isDone === 1 ? (
-        <BootstrapDialog
-          onClose={handleCloseModal}
-          aria-labelledby="customized-dialog-title"
-          open={open}
-          sx={{ padding: "1rem 0" }}
-        >
-          <MUI.BoxProgressHeader>
-            <Typography
-              sx={{
-                fontSize: "1rem",
-                [theme.breakpoints.down("sm")]: {
-                  marginLeft: "1rem",
-                },
-              }}
-            >
-              All done!
-            </Typography>
-            <IconButton
-              onClick={() => {
-                setIsDone(2);
-                setIsUploading(true);
-                _functionResetValue();
-              }}
-            >
-              <CloseIcon sx={{ fontSize: "25px" }} />
-            </IconButton>
-          </MUI.BoxProgressHeader>
-          <DialogContent>
-            <MUI.BoxUploadDoneTitle>
-              <Typography variant="h5">
-                <CheckIcon sx={{ color: "#0F6C61" }} />
-                &nbsp;{filesArray.length} files uploaded,{" "}
-                {convertBytetoMBandGB(dataSizeAll)} in total
+        <>
+          <BootstrapDialog
+            onClose={() => {}}
+            aria-labelledby="customized-dialog-title"
+            open={open}
+            sx={{ padding: "1rem" }}
+          >
+            <MUI.BoxProgressHeader>
+              <Typography sx={{ fontSize: "1rem" }}>
+                Uploading in progress...
               </Typography>
-            </MUI.BoxUploadDoneTitle>
-            {information?.every((obj) => obj.password == "") &&
-            information?.every((obj) => obj.URLpassword == "") ? (
-              ""
-            ) : (
-              <MUI.BoxShowAndCopyPassword>
-                <Box ref={ref}>
-                  {information?.[0].URLpassword && (
-                    <h5>
-                      <strong>Download link password:</strong>&nbsp;
-                      {information[0].URLpassword}
-                    </h5>
-                  )}
-                  <h5>
-                    {!information?.every((obj) => obj.password == "") && (
-                      <strong>Files password:</strong>
-                    )}
-                  </h5>
-                  {information?.map((val, index) => (
-                    <Box key={index}>
-                      {val.password && (
-                        <Typography component="p" sx={{ fontSize: "1rem" }}>
-                          {index + 1}.&nbsp;&nbsp;{val.name}:{" "}
-                          <strong> {val.password}</strong>
-                        </Typography>
-                      )}
-                    </Box>
-                  ))}
-                </Box>
-                <MUI.buttonCopyPasswordDetail onClick={downloadPasswordAsImage}>
-                  Download
-                </MUI.buttonCopyPasswordDetail>
-              </MUI.BoxShowAndCopyPassword>
-            )}
-
-            <MUI.BoxUploadDoneBody>
-              <MUI.BoxUploadDoneContent>
-                <MUI.BoxCopyDownloadLink>
-                  <Typography
-                    sx={{
-                      fontSize: "0.8rem",
-                      [theme.breakpoints.down("sm")]: {
-                        marginTop: "0.5rem",
-                      },
+              {checkUpload ? (
+                <>
+                  <IconButton
+                    onClick={() => {
+                      setIsDone(1);
                     }}
                   >
-                    Download link:
-                  </Typography>
-                  <MUI.BoxShowDownloadLink>
-                    <input
-                      value={value || ""}
-                      onChange={(e) => setValue(e.target.value)}
-                      style={{
-                        border: "none",
-                        outline: "none",
-                        backgroundColor: "#E9E9E9",
-                        width: "40ch",
-                        fontSize: "14px",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    />
-                    {copied ? (
-                      <TaskAltIcon sx={{ color: "#17766B" }} />
-                    ) : (
-                      <CopyToClipboard text={value || ""} onCopy={handleCopy}>
-                        <ContentCopyIcon />
-                      </CopyToClipboard>
-                    )}
-                  </MUI.BoxShowDownloadLink>
-                </MUI.BoxCopyDownloadLink>
-                <MUI.BoxShareToSocialMedia>
-                  <Typography variant="h5">
-                    Share download link to social media:
-                  </Typography>
-                  <MUI.BoxShowSocialMedia sx={{ width: "90%" }}>
-                    <MUI.BoxShowIcon onClick={() => _shareEmail()}>
-                      <EmailIcon />
-                      <Typography variant="h6">Email</Typography>
-                    </MUI.BoxShowIcon>
-                    <MUI.BoxShowIcon onClick={() => _shareWhatsapp()}>
-                      <WhatsAppIcon />
-                      <Typography variant="h6">WhatsApp</Typography>
-                    </MUI.BoxShowIcon>
-                    <MUI.BoxShowIcon onClick={() => _shareFacebook()}>
-                      <FacebookIcon />
-                      <Typography variant="h6">Facebook</Typography>
-                    </MUI.BoxShowIcon>
-                    <MUI.BoxShowIcon onClick={() => _shareTelegrame()}>
-                      <TelegramIcon />
-                      <Typography variant="h6">Telegram</Typography>
-                    </MUI.BoxShowIcon>
-                  </MUI.BoxShowSocialMedia>
-                </MUI.BoxShareToSocialMedia>
-              </MUI.BoxUploadDoneContent>
-              <MUI.BoxUploadDoneQR>
-                <div
-                  style={{
-                    position: "relative",
-                    display: "inline-block",
-                    textAlign: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <QRCode
-                    id="qr-code-canvas"
-                    value={value || ""}
-                    size={200}
-                    level="H"
-                    fgColor="#000000"
-                    bgColor="#FFFFFF"
-                    renderAs="canvas"
-                  />
-                  <img
-                    src={imageIcon}
-                    alt="icon"
-                    style={{
-                      position: "absolute",
-                      left: "50%",
-                      top: "50%",
-                      transform: "translate(-50%, -50%)",
-                      width: "50px",
-                      height: "40px",
-                    }}
+                    <CloseIcon sx={{ fontSize: "25px" }} />
+                  </IconButton>
+                </>
+              ) : (
+                <>
+                  <IconButton onClick={handleCloseAndDeleteFile}>
+                    <CloseIcon sx={{ fontSize: "25px" }} />
+                  </IconButton>
+                </>
+              )}
+            </MUI.BoxProgressHeader>
+            <DialogContent sx={{ paddingBottom: "2rem" }}>
+              <MUI.BoxUploadProgress>
+                <div style={{ marginLeft: 8, width: 100, height: 100 }}>
+                  <CircularProgressbar
+                    value={overallProgress}
+                    text={`${overallProgress}%`}
+                    styles={buildStyles({
+                      strokeLinecap: "butt",
+                      textSize: "12px",
+                      pathTransitionDuration: 0.5,
+                      pathColor: "#17766B",
+                      textColor: "#0F6C61",
+                      trailColor: "#d6d6d6",
+                      backgroundColor: "#17766B",
+                    })}
                   />
                 </div>
-                <Button
+
+                <MUI.BoxUploadProgressDetail>
+                  <Typography
+                    sx={{ fontSize: "0.9rem !important", fontWeight: 600 }}
+                  >
+                    Sending {filesArray.length} files in progress,
+                    {convertBytetoMBandGB(dataSizeAll)} in total
+                  </Typography>
+                  <Typography sx={{ fontSize: "0.7rem" }}>
+                    {numUploadedFiles}/{filesArray.length} uploaded files
+                  </Typography>
+                  <Typography sx={{ fontSize: "0.8rem" }}>
+                    {convertBytetoMBandGB(uploadSpeed)}/s
+                  </Typography>
+                </MUI.BoxUploadProgressDetail>
+              </MUI.BoxUploadProgress>
+              <br />
+              <br />
+              {filesArray?.map((data, index) => (
+                <MUI.BoxUploadFiles key={index}>
+                  <MUI.BoxUploadFileDetail>
+                    <Box sx={{ width: "25px" }}>
+                      <FileIcon
+                        extension={getFileType(data.name)}
+                        {...defaultStyles[getFileType(data.name) as any]}
+                      />
+                    </Box>
+                    &nbsp;&nbsp;&nbsp;
+                    <MUI.BoxFilesName>
+                      <Typography sx={{ fontSize: "0.8rem !important" }}>
+                        {cutFileName(data?.name, 10)}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: "0.7rem !important",
+                          color: "#17766B",
+                        }}
+                      >
+                        ({convertBytetoMBandGB(data?.size)})
+                      </Typography>
+                    </MUI.BoxFilesName>
+                  </MUI.BoxUploadFileDetail>
+                  <Box sx={{ marginLeft: "1.5rem" }}>
+                    {uploadStatus[index] ? (
+                      <DownloadDoneIcon fontSize="small" color="success" />
+                    ) : (
+                      <CircularProgress size={16} color="success" />
+                    )}
+                  </Box>
+                </MUI.BoxUploadFiles>
+              ))}
+              <br />
+            </DialogContent>
+          </BootstrapDialog>
+        </>
+      ) : isDone === 1 ? (
+        <>
+          {open && isDialogQRCodeOpen && (
+            <BootstrapDialog
+              onClose={handleCloseModal}
+              aria-labelledby="customized-dialog-title"
+              open={open}
+              sx={{ padding: "1rem 0" }}
+            >
+              <MUI.BoxProgressHeader>
+                <Typography
                   sx={{
-                    background: "#ffffff",
-                    color: "#17766B",
-                    fontSize: "14px",
-                    padding: "2px 2rem",
-                    borderRadius: "6px",
-                    border: "1px solid #17766B",
-                    "&:hover": {
-                      border: "1px solid #17766B",
-                      color: "#17766B",
+                    fontSize: "1rem",
+                    [theme.breakpoints.down("sm")]: {
+                      marginLeft: "1rem",
                     },
-                    margin: "1rem 0",
                   }}
-                  onClick={() => downloadQR()}
                 >
-                  Download
-                </Button>
-              </MUI.BoxUploadDoneQR>
-            </MUI.BoxUploadDoneBody>
-          </DialogContent>
-        </BootstrapDialog>
+                  All done!
+                </Typography>
+                <IconButton
+                  onClick={() => {
+                    setIsDone(2);
+                    setIsUploading(true);
+                    _functionResetValue();
+                  }}
+                >
+                  <CloseIcon sx={{ fontSize: "25px" }} />
+                </IconButton>
+              </MUI.BoxProgressHeader>
+              <DialogContent>
+                <MUI.BoxUploadDoneTitle>
+                  <Typography variant="h5">
+                    <CheckIcon sx={{ color: "#0F6C61" }} />
+                    &nbsp;{filesArray.length} files uploaded,{" "}
+                    {convertBytetoMBandGB(dataSizeAll)} in total
+                  </Typography>
+                </MUI.BoxUploadDoneTitle>
+                {information?.every((obj) => obj.password == "") &&
+                information?.every((obj) => obj.URLpassword == "") ? (
+                  ""
+                ) : (
+                  <MUI.BoxShowAndCopyPassword>
+                    <Box ref={ref}>
+                      {information?.[0].URLpassword && (
+                        <h5>
+                          <strong>Download link password:</strong>&nbsp;
+                          {information[0].URLpassword}
+                        </h5>
+                      )}
+                      <h5>
+                        {!information?.every((obj) => obj.password == "") && (
+                          <strong>Files password:</strong>
+                        )}
+                      </h5>
+                      {information?.map((val, index) => (
+                        <Box key={index}>
+                          {val.password && (
+                            <Typography component="p" sx={{ fontSize: "1rem" }}>
+                              {index + 1}.&nbsp;&nbsp;{val.name}:{" "}
+                              <strong> {val.password}</strong>
+                            </Typography>
+                          )}
+                        </Box>
+                      ))}
+                    </Box>
+                    <MUI.buttonCopyPasswordDetail
+                      onClick={downloadPasswordAsImage}
+                    >
+                      Download
+                    </MUI.buttonCopyPasswordDetail>
+                  </MUI.BoxShowAndCopyPassword>
+                )}
+
+                <MUI.BoxUploadDoneBody>
+                  <MUI.BoxUploadDoneContent>
+                    <MUI.BoxCopyDownloadLink>
+                      <Typography
+                        sx={{
+                          fontSize: "0.8rem",
+                          [theme.breakpoints.down("sm")]: {
+                            marginTop: "0.5rem",
+                          },
+                        }}
+                      >
+                        Download link:
+                      </Typography>
+                      <MUI.BoxShowDownloadLink>
+                        <input
+                          value={value || ""}
+                          onChange={(e) => setValue(e.target.value)}
+                          style={{
+                            border: "none",
+                            outline: "none",
+                            backgroundColor: "#E9E9E9",
+                            width: "40ch",
+                            fontSize: "14px",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        />
+                        {copied ? (
+                          <TaskAltIcon sx={{ color: "#17766B" }} />
+                        ) : (
+                          <CopyToClipboard
+                            text={value || ""}
+                            onCopy={handleCopy}
+                          >
+                            <ContentCopyIcon />
+                          </CopyToClipboard>
+                        )}
+                      </MUI.BoxShowDownloadLink>
+                    </MUI.BoxCopyDownloadLink>
+                    <MUI.BoxShareToSocialMedia>
+                      <Typography variant="h5">
+                        Share download link to social media:
+                      </Typography>
+                      <MUI.BoxShowSocialMedia sx={{ width: "90%" }}>
+                        <MUI.BoxShowIcon onClick={() => _shareEmail()}>
+                          <EmailIcon />
+                          <Typography variant="h6">Email</Typography>
+                        </MUI.BoxShowIcon>
+                        <MUI.BoxShowIcon onClick={() => _shareWhatsapp()}>
+                          <WhatsAppIcon />
+                          <Typography variant="h6">WhatsApp</Typography>
+                        </MUI.BoxShowIcon>
+                        <MUI.BoxShowIcon onClick={() => _shareFacebook()}>
+                          <FacebookIcon />
+                          <Typography variant="h6">Facebook</Typography>
+                        </MUI.BoxShowIcon>
+                        <MUI.BoxShowIcon onClick={() => _shareTelegrame()}>
+                          <TelegramIcon />
+                          <Typography variant="h6">Telegram</Typography>
+                        </MUI.BoxShowIcon>
+                      </MUI.BoxShowSocialMedia>
+                    </MUI.BoxShareToSocialMedia>
+                  </MUI.BoxUploadDoneContent>
+                  <MUI.BoxUploadDoneQR>
+                    <div
+                      style={{
+                        position: "relative",
+                        display: "inline-block",
+                        textAlign: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <QRCode
+                        id="qr-code-canvas"
+                        value={value || ""}
+                        size={200}
+                        level="H"
+                        fgColor="#000000"
+                        bgColor="#FFFFFF"
+                        renderAs="canvas"
+                      />
+                      <img
+                        src={imageIcon}
+                        alt="icon"
+                        style={{
+                          position: "absolute",
+                          left: "50%",
+                          top: "50%",
+                          transform: "translate(-50%, -50%)",
+                          width: "50px",
+                          height: "40px",
+                        }}
+                      />
+                    </div>
+                    <Button
+                      sx={{
+                        background: "#ffffff",
+                        color: "#17766B",
+                        fontSize: "14px",
+                        padding: "2px 2rem",
+                        borderRadius: "6px",
+                        border: "1px solid #17766B",
+                        "&:hover": {
+                          border: "1px solid #17766B",
+                          color: "#17766B",
+                        },
+                        margin: "1rem 0",
+                      }}
+                      onClick={() => downloadQR()}
+                    >
+                      Download
+                    </Button>
+                  </MUI.BoxUploadDoneQR>
+                </MUI.BoxUploadDoneBody>
+              </DialogContent>
+            </BootstrapDialog>
+          )}
+        </>
       ) : null}
     </Fragment>
   );

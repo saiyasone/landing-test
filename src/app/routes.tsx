@@ -7,6 +7,7 @@ import { RouteObject } from "react-router-dom";
 import ContactUs from "./pages/contact-us/ContactUs";
 import Feedback from "./pages/feedback/FeedBack";
 import FileDrop from "./pages/file-drop/FileDrop";
+import FileUploader from "./pages/file-uploader/FileUploader";
 import Home from "./pages/home/Home";
 import PricingPlan from "./pages/pricing-plan/PricingPlan";
 import PrivacyPolicy from "./pages/privacy-and-policy/PrivacyPolicy";
@@ -23,6 +24,14 @@ const routes: RouteObject[] = [
         element: (
           <Landing>
             <Home />
+          </Landing>
+        ),
+      },
+      {
+        path: "df",
+        element: (
+          <Landing>
+            <FileUploader />
           </Landing>
         ),
       },

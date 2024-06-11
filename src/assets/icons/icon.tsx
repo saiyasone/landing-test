@@ -1,11 +1,11 @@
 import Brave from "assets/images/browsers/brave.svg?react";
-import Safari from "assets/images/browsers/chrome.svg/safari.svg?react";
-import Vivalid from "assets/images/browsers/chrome.svg/vivaldi.svg?react";
 import Chrome from "assets/images/browsers/chrome.svg?react";
 import Duckgo from "assets/images/browsers/duck-duck-go.svg?react";
 import Edge from "assets/images/browsers/edge.svg?react";
 import FireFox from "assets/images/browsers/firefox.svg?react";
 import Opera from "assets/images/browsers/opera.svg?react";
+import Safari from "assets/images/browsers/safari.svg?react";
+import Vivalid from "assets/images/browsers/vivaldi.svg?react";
 import Folder from "assets/images/folder.svg?react";
 
 export const FolderIcon = () => {

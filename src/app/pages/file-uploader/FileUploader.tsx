@@ -4,7 +4,6 @@ import React, { Fragment, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 // components
-import { Helmet } from "react-helmet-async";
 import * as MUI from "./styles/fileUploader.style";
 import "./styles/fileUploader.style.css";
 
@@ -98,13 +97,13 @@ function FileUploader() {
   const userqrcode = params.get("qr");
   const currentURL = window.location.href;
 
-  const ACCESS_KEY = ENV_KEYS.REACT_APP_ACCESSKEY_BUNNY;
-  const BUNNY_STORAGE_ZONE = ENV_KEYS.REACT_APP_STORAGE_ZONE;
-  const LOAD_GET_IP_URL = ENV_KEYS.REACT_APP_LOAD_GETIP_URL;
-  const ENCODE_KEY = ENV_KEYS.REACT_APP_ENCODE_KEY;
+  const ACCESS_KEY = ENV_KEYS.VITE_APP_ACCESSKEY_BUNNY;
+  const BUNNY_STORAGE_ZONE = ENV_KEYS.VITE_APP_STORAGE_ZONE;
+  const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
+  const ENCODE_KEY = ENV_KEYS.VITE_APP_ENCODE_KEY;
   const androidScheme = "vshare.app://download?url=" + currentURL;
   const iosScheme = "vshare.app://download?url=" + currentURL;
-  const SECRET_KEY = ENV_KEYS.REACT_APP_UPLOAD_SECRET_KEY;
+  const SECRET_KEY = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
 
   // const [qrcodeUser, setQrcodeUser] = useState([]);
   const [index, setIndex] = useState<any>(null);
@@ -536,7 +535,7 @@ function FileUploader() {
           const ivText = iv.toString(CryptoJS.enc.Base64);
           const encryptedData = cipherText + ":" + ivText;
 
-          const response = await fetch(ENV_KEYS.REACT_APP_DOWNLOAD_URL, {
+          const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
             headers: { encryptedHeaders: encryptedData },
           });
 
@@ -662,7 +661,7 @@ function FileUploader() {
             const ivText = iv.toString(CryptoJS.enc.Base64);
             const encryptedData = cipherText + ":" + ivText;
 
-            const response = await fetch(ENV_KEYS.REACT_APP_DOWNLOAD_URL, {
+            const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
               headers: { encryptedHeaders: encryptedData },
             });
 
@@ -829,7 +828,7 @@ function FileUploader() {
       const ivText = iv.toString(CryptoJS.enc.Base64);
       const encryptedData = cipherText + ":" + ivText;
 
-      const response = await fetch(ENV_KEYS.REACT_APP_DOWNLOAD_URL, {
+      const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
         headers: { encryptedHeaders: encryptedData },
       });
 
@@ -895,7 +894,7 @@ function FileUploader() {
       const changeFilename = combineOldAndNewFileNames(filename, newFilename);
       let real_path;
 
-      if (linkClient.type === "multiple") {
+      if (linkClient?.type === "multiple") {
         if (!dataMultipleFile[0].newPath) {
           real_path = "";
         } else {
@@ -986,7 +985,7 @@ function FileUploader() {
       } else {
         const changeFilename = combineOldAndNewFileNames(filename, newFilename);
         let real_path = "";
-        if (linkClient.type === "multiple") {
+        if (linkClient?.type === "multiple") {
           if (!dataMultipleFile[0].newPath) {
             real_path = "";
           } else {
@@ -1056,7 +1055,7 @@ function FileUploader() {
         AccessKey: ACCESS_KEY,
       };
 
-      const secretKey = ENV_KEYS.REACT_APP_UPLOAD_SECRET_KEY;
+      const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
       const key = CryptoJS.enc.Utf8.parse(secretKey);
       const iv = CryptoJS.lib.WordArray.random(16);
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(headers), key, {
@@ -1068,7 +1067,7 @@ function FileUploader() {
       const ivText = iv.toString(CryptoJS.enc.Base64);
       const encryptedData = cipherText + ":" + ivText;
 
-      const response = await fetch(ENV_KEYS.REACT_APP_DOWNLOAD_URL, {
+      const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
         headers: { encryptedHeaders: encryptedData },
       });
       const reader = response.body!.getReader();
@@ -1136,7 +1135,7 @@ function FileUploader() {
         AccessKey: ACCESS_KEY,
       };
 
-      const secretKey = ENV_KEYS.REACT_APP_UPLOAD_SECRET_KEY;
+      const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
       const key = CryptoJS.enc.Utf8.parse(secretKey);
       const iv = CryptoJS.lib.WordArray.random(16);
       const encrypted = CryptoJS.AES.encrypt(JSON.stringify(headers), key, {
@@ -1148,10 +1147,9 @@ function FileUploader() {
       const ivText = iv.toString(CryptoJS.enc.Base64);
       const encryptedData = cipherText + ":" + ivText;
 
-      const response = await fetch(ENV_KEYS.REACT_APP_DOWNLOAD_URL, {
+      const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
         headers: { encryptedHeaders: encryptedData },
       });
-
       const reader = response.body!.getReader();
       const stream = new ReadableStream({
         async start(controller) {
@@ -1238,7 +1236,7 @@ function FileUploader() {
             AccessKey: ACCESS_KEY,
           };
 
-          const secretKey = ENV_KEYS.REACT_APP_UPLOAD_SECRET_KEY;
+          const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
           const key = CryptoJS.enc.Utf8.parse(secretKey);
           const iv = CryptoJS.lib.WordArray.random(16);
           const encrypted = CryptoJS.AES.encrypt(JSON.stringify(headers), key, {
@@ -1250,11 +1248,12 @@ function FileUploader() {
           const ivText = iv.toString(CryptoJS.enc.Base64);
           const encryptedData = cipherText + ":" + ivText;
 
-          const response = await fetch(ENV_KEYS.REACT_APP_DOWNLOAD_URL, {
+          const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
             headers: { encryptedHeaders: encryptedData },
           });
+
           const downloads = new Promise((resolve, reject) => {
-            return async () => {
+            (async () => {
               const reader = response.body!.getReader();
               const stream = new ReadableStream({
                 async start(controller) {
@@ -1286,7 +1285,7 @@ function FileUploader() {
               a.click();
               a.remove();
               URL.revokeObjectURL(blobUrl);
-            };
+            })();
           });
 
           downloadPromises.push(downloads);
@@ -1303,7 +1302,7 @@ function FileUploader() {
               AccessKey: ACCESS_KEY,
             };
 
-            const secretKey = ENV_KEYS.REACT_APP_UPLOAD_SECRET_KEY;
+            const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
             const key = CryptoJS.enc.Utf8.parse(secretKey);
             const iv = CryptoJS.lib.WordArray.random(16);
             const encrypted = CryptoJS.AES.encrypt(
@@ -1321,11 +1320,11 @@ function FileUploader() {
             const ivText = iv.toString(CryptoJS.enc.Base64);
             const encryptedData = cipherText + ":" + ivText;
 
-            const response = await fetch(ENV_KEYS.REACT_APP_DOWNLOAD_URL, {
+            const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
               headers: { encryptedHeaders: encryptedData },
             });
             const downloads = new Promise((resolve, reject) => {
-              return async () => {
+              (async () => {
                 const reader = response.body!.getReader();
                 const stream = new ReadableStream({
                   async start(controller) {
@@ -1357,7 +1356,7 @@ function FileUploader() {
                 a.click();
                 a.remove();
                 URL.revokeObjectURL(blobUrl);
-              };
+              })();
             });
             downloadPromises.push(downloads);
           }
@@ -1440,7 +1439,7 @@ function FileUploader() {
           };
         }
 
-        const secretKey = ENV_KEYS.REACT_APP_UPLOAD_SECRET_KEY;
+        const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
         const key = CryptoJS.enc.Utf8.parse(secretKey);
         const iv = CryptoJS.lib.WordArray.random(16);
         const encrypted = CryptoJS.AES.encrypt(JSON.stringify(headers), key, {
@@ -1452,7 +1451,7 @@ function FileUploader() {
         const ivText = iv.toString(CryptoJS.enc.Base64);
         const encryptedData = cipherText + ":" + ivText;
 
-        const response = await fetch(ENV_KEYS.REACT_APP_DOWNLOAD_URL, {
+        const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
           headers: { encryptedHeaders: encryptedData },
         });
         const reader = response.body!.getReader();
@@ -1545,9 +1544,9 @@ function FileUploader() {
 
   return (
     <React.Fragment>
-      <Helmet>
-        <meta name="description" content={description} />
-      </Helmet>
+      {/* <Helmet>
+        <meta name="description" content={description}/>
+      </Helmet> */}
       <MUI.ContainerHome maxWidth="xl">
         <Dialog open={open}>
           <DialogTitle

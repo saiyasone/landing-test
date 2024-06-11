@@ -264,7 +264,28 @@ function Home() {
     }
   };
 
-  const data: any = [];
+  const [data, setData] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (files.length > 0) {
+      const fileList = files?.map((file, index) => {
+        const newFile: any = new File([file.data], file.name, {
+          type: file.type,
+        });
+        newFile.id = (index + 1).toString();
+        newFile.path = file.path;
+        newFile.sizeFile = file.size;
+
+        const updatedFile = { file: newFile };
+        return updatedFile;
+      });
+      setData(fileList);
+    } else {
+      setData([]);
+      setOpen(false);
+    }
+  }, [files]);
+
   const isMobile = useMediaQuery("(max-width: 600px)");
 
   const { ref: ref1 } = useInView({
@@ -388,19 +409,8 @@ function Home() {
                 </MUI.ButtonUpload>
               </Box>
             </MUI.BoxShowUploadDetail>
-            {files.map((file, index) => {
-              const newFile: any = new File([file.data], file.name, {
-                type: file.type,
-              });
-              newFile.id = (index + 1).toString();
-              newFile.path = file.path;
-              newFile.sizeFile = file.size;
 
-              const updatedFile = { file: newFile };
-              data.push(updatedFile);
-              return <></>;
-            })}
-            {data.length > 0 ? (
+            {data.length > 0 && (
               <ShowFileDialog
                 open={open}
                 files={data}
@@ -420,8 +430,6 @@ function Home() {
                 dataMaxSize={uploadMaxSize}
                 dataUploadPerTime={uploadPerTime}
               />
-            ) : (
-              ""
             )}
           </MUI.BoxUpload>
         </MUI.ContainerHome>
