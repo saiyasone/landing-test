@@ -56,7 +56,7 @@ import "swiper/css";
 import createTheme from "theme";
 import { Id } from "types";
 const ShowFileDialog = React.lazy(
-  () => import("components/presentation/ShowFileDialog"),
+  () => import("components/dialog/DialogShowFIle"),
 );
 
 function Home() {

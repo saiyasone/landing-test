@@ -14,7 +14,7 @@ import React, { createContext, useEffect, useReducer, useState } from "react";
 
 import { QUERY_USER } from "api/graphql/user.graphql";
 import axios from "axios";
-import WarningDialog from "components/WarningDialog";
+import DialogWarning from "components/dialog/DialogWarning";
 import { ENV_KEYS } from "constants/env.constant";
 import useManageGraphqlError from "hooks/useManageGraphqlError";
 import { jwtDecode } from "jwt-decode";
@@ -694,7 +694,7 @@ function AuthProvider() {
     >
       <Outlet />
       {openWarning && (
-        <WarningDialog
+        <DialogWarning
           title="Your account is inactive now!"
           description="If you want to continue using this account please contact our admin to active it. Thank you!"
           isOpen={openWarning}

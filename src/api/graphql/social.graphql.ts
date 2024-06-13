@@ -164,8 +164,7 @@ export const MUTATION_SOCIAL_AUTH = gql`
         profile
         otpEnabled
         otpVerified
-        base32
-        otpQRcode
+        zipCode
         createdAt
         updatedAt
         userTypeId {

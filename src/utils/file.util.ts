@@ -15,6 +15,16 @@ export function cutFileName(fileName: string, maxLength = 10) {
   return `${nameWithoutExtension.slice(0, maxLength)}...${extension}`;
 }
 
+export function getFileNameExtension(filename: string) {
+  const dotIndex = filename?.lastIndexOf(".");
+  if (dotIndex !== -1) {
+    const fileExtension = filename?.slice?.(dotIndex);
+    return fileExtension;
+  } else {
+    return "";
+  }
+}
+
 export function combineOldAndNewFileNames(
   filename: string,
   newFileName: string,

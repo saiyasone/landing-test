@@ -116,7 +116,7 @@ type CustomizedDialogProps = {
   dataExpires: any;
 };
 
-export default function CustomizedDialog(props: CustomizedDialogProps) {
+export default function DialogShowFIle(props: CustomizedDialogProps) {
   const {
     open,
     files,

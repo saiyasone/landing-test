@@ -101,7 +101,6 @@ function FileDrop() {
   const [filedropLinkCreation] = useMutation(CREATE_FILEDROP_LINK);
   const [captchaKey, setCaptchaKey] = useState(false);
   const useDataSettings = useManageSetting();
-
   const settingKeys = {
     fileDrop: "HMFDCAU",
     fileDropCaptcha: "FDCHPA",

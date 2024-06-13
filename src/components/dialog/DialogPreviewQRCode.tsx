@@ -3,9 +3,9 @@ import React from "react";
 //mui component and style
 import { Box, Button } from "@mui/material";
 import { styled as muiStyled } from "@mui/system";
+import BaseDialogV1 from "components/BaseDialogV1";
 import * as htmlToImage from "html-to-image";
 import QRCode from "react-qr-code";
-import BaseDialogV1 from "./BaseDialogV1";
 
 const DialogPreviewFileV1Boby = muiStyled("div")(({ theme }) => ({
   width: "100%",

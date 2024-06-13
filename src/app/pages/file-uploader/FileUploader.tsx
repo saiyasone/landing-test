@@ -34,7 +34,7 @@ import {
 } from "api/graphql/folder.graphql";
 import { QUERY_SETTING } from "api/graphql/setting.graphql";
 import { QUERY_USER } from "api/graphql/user.graphql";
-import DialogPreviewQRcode from "components/DialogPreviewQRCode";
+import DialogPreviewQRcode from "components/dialog/DialogPreviewQRCode";
 import CardFileDownloader from "components/presentation/CardFileDownloader";
 import DeepLink from "components/presentation/DeepLink";
 import DialogConfirmQRCode from "components/presentation/DialogConfirmQRCode";
@@ -84,7 +84,7 @@ function FileUploader() {
   const [dataValue, setDataValue] = useState<any>(null);
   const [platform, setPlatform] = useState("");
   const [showBottomDeep, setShowBottomDeep] = useState(false);
-  const [description, setDescription] = useState("No description");
+  const [_description, setDescription] = useState("No description");
 
   const [totalMultipleFolder, setTotalMultipleFolder] = useState(0);
   const [totalMultipleFile, setTotalMultipleFile] = useState(0);
@@ -839,7 +839,6 @@ function FileUploader() {
           while (true) {
             try {
               const { done, value } = await reader.read();
-
               if (done) {
                 controller.close();
                 break;
@@ -1077,7 +1076,7 @@ function FileUploader() {
           while (true) {
             try {
               const { done, value } = await reader.read();
-
+              console.log(done, value);
               if (done) {
                 successMessage("Download successful", 3000);
                 setIsHide((prev) => ({
@@ -1157,7 +1156,6 @@ function FileUploader() {
           while (true) {
             try {
               const { done, value } = await reader.read();
-
               if (done) {
                 successMessage("Download successful", 3000);
                 setIsHide((prev) => ({

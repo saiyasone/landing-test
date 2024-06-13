@@ -5,7 +5,7 @@ import * as Mui from "styles/filedrop.style";
 //mui component and style
 import { Typography } from "@mui/material";
 import { styled as muiStyled } from "@mui/system";
-import BaseDialogV1 from "./BaseDialogV1";
+import BaseDialogV1 from "components/BaseDialogV1";
 
 const DialogPreviewFileV1Boby = muiStyled("div")(({ theme }) => ({
   width: "100%",
@@ -17,7 +17,7 @@ const DialogPreviewFileV1Boby = muiStyled("div")(({ theme }) => ({
   },
 }));
 
-const WarningDialog = (props) => {
+const DialogWarning = (props) => {
   return (
     <BaseDialogV1
       {...props}
@@ -49,4 +49,4 @@ const WarningDialog = (props) => {
   );
 };
 
-export default WarningDialog;
+export default DialogWarning;

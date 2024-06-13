@@ -395,7 +395,7 @@ function Feedback() {
                   precision={0.5}
                   sx={{ color: "#17766B", fontSize: "35px" }}
                   value={rating}
-                  onChange={(e, value) => {
+                  onChange={(_e, value) => {
                     setRating(value);
                   }}
                 />
@@ -405,7 +405,7 @@ function Feedback() {
                   <Editor
                     // ref={editorRef}
                     apiKey={ENV_KEYS.VITE_APP_TINYMCE_API}
-                    onInit={(evt, editor) => {
+                    onInit={(_evt, editor) => {
                       editorRef.current = editor;
                     }}
                     init={{

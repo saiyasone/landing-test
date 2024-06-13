@@ -215,8 +215,7 @@ export const QUERY_SINGLE_USER = gql`
         newDevice
         otpEnabled
         otpVerified
-        base32
-        otpQRcode
+        zipCode
         createdAt
         updatedAt
         companyID {

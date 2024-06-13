@@ -10,12 +10,10 @@ export const CREATE_FILE_PUBLIC = gql`
   }
 `;
 
-export const CREATE_FILE_PUBLIC_DROP = gql`
-  mutation CreatePublicFileDrop($data: CreatePublicFileDropInput!) {
-    createPublicFileDrop(data: $data) {
+export const UPDATE_FILE_PUBLIC = gql`
+  mutation UpdateFilesPublic($data: FilesInput!, $where: FilesWhereInputOne!) {
+    updateFilesPublic(data: $data, where: $where) {
       _id
-      urlAll
-      newFilename
     }
   }
 `;

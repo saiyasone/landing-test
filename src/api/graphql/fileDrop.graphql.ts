@@ -39,7 +39,7 @@ export const QUERY_FILE_DROP_PUBLIC = gql`
   }
 `;
 
-export const QUERY_USER_BY_FILE_DROP_URL = gql`
+export const QUERY_FILE_DROP_PUBLIC_URL = gql`
   query GetPublicFileDropUrl($where: PublicFileDropUrlWhereInput) {
     getPublicFileDropUrl(where: $where) {
       total
@@ -63,29 +63,13 @@ export const QUERY_USER_BY_FILE_DROP_URL = gql`
     }
   }
 `;
-export const QUERY_GENERAL_BUTTON_DOWNLOADS = gql`
-  query Data($where: General_settingsWhereInput) {
-    general_settings(where: $where) {
-      data {
-        action
-      }
-    }
-  }
-`;
-export const QUERY_ADVERTISEMENTS = gql`
-  query Data($where: AdvertisementWhereInput) {
-    getAdvertisement(where: $where) {
-      data {
-        _id
-        url
-      }
-    }
-  }
-`;
-export const CREATED_DETAIL_ADVERTISEMENTS = gql`
-  mutation CreateDetailadvertisements($data: DetailadvertisementsInput!) {
-    createDetailadvertisements(data: $data) {
+
+export const CREATE_FILE_DROP_PUBLIC = gql`
+  mutation CreatePublicFileDrop($data: CreatePublicFileDropInput!) {
+    createPublicFileDrop(data: $data) {
       _id
+      urlAll
+      newFilename
     }
   }
 `;

@@ -6,11 +6,11 @@ import {
 
 declare module "@mui/material/styles/createPalette" {
   interface Palette extends MuiPallete {
-    primaryTheme?: { main: string };
+    primaryTheme?: { main: string; brown: (alpha?: number) => string };
   }
 
   interface PaletteOptions extends MuiPaletteOptions {
-    primaryTheme?: { main: string };
+    primaryTheme?: { main: string; brown: (alpha?: number) => string };
   }
 }
 
