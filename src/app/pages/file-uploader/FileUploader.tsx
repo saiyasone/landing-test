@@ -51,6 +51,7 @@ import {
   removeFileNameOutOfPath,
 } from "utils/file.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
+import { encryptDownloadData } from "utils/secure.util";
 
 function FileUploader() {
   const location = useLocation();
@@ -101,9 +102,10 @@ function FileUploader() {
   const BUNNY_STORAGE_ZONE = ENV_KEYS.VITE_APP_STORAGE_ZONE;
   const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
   const ENCODE_KEY = ENV_KEYS.VITE_APP_ENCODE_KEY;
+
+  // Deep linking for mobile devices
   const androidScheme = "vshare.app://download?url=" + currentURL;
   const iosScheme = "vshare.app://download?url=" + currentURL;
-  const SECRET_KEY = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
 
   // const [qrcodeUser, setQrcodeUser] = useState([]);
   const [index, setIndex] = useState<any>(null);
@@ -524,17 +526,7 @@ function FileUploader() {
             AccessKey: ACCESS_KEY,
           };
 
-          const key = CryptoJS.enc.Utf8.parse(SECRET_KEY);
-          const iv = CryptoJS.lib.WordArray.random(16);
-          const encrypted = CryptoJS.AES.encrypt(JSON.stringify(headers), key, {
-            iv: iv,
-            mode: CryptoJS.mode.CBC,
-            padding: CryptoJS.pad.Pkcs7,
-          });
-          const cipherText = encrypted.ciphertext.toString(CryptoJS.enc.Base64);
-          const ivText = iv.toString(CryptoJS.enc.Base64);
-          const encryptedData = cipherText + ":" + ivText;
-
+          const encryptedData = encryptDownloadData(headers);
           const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
             headers: { encryptedHeaders: encryptedData },
           });
@@ -644,23 +636,7 @@ function FileUploader() {
               _id: folderDownload[0]?._id,
             };
 
-            const key = CryptoJS.enc.Utf8.parse(SECRET_KEY);
-            const iv = CryptoJS.lib.WordArray.random(16);
-            const encrypted = CryptoJS.AES.encrypt(
-              JSON.stringify(headers),
-              key,
-              {
-                iv: iv,
-                mode: CryptoJS.mode.CBC,
-                padding: CryptoJS.pad.Pkcs7,
-              },
-            );
-            const cipherText = encrypted.ciphertext.toString(
-              CryptoJS.enc.Base64,
-            );
-            const ivText = iv.toString(CryptoJS.enc.Base64);
-            const encryptedData = cipherText + ":" + ivText;
-
+            const encryptedData = encryptDownloadData(headers);
             const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
               headers: { encryptedHeaders: encryptedData },
             });
@@ -816,18 +792,7 @@ function FileUploader() {
         AccessKey: ACCESS_KEY,
       };
 
-      const secretKey = "jsje3j3,02.3j2jk";
-      const key = CryptoJS.enc.Utf8.parse(secretKey);
-      const iv = CryptoJS.lib.WordArray.random(16);
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(headers), key, {
-        iv: iv,
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7,
-      });
-      const cipherText = encrypted.ciphertext.toString(CryptoJS.enc.Base64);
-      const ivText = iv.toString(CryptoJS.enc.Base64);
-      const encryptedData = cipherText + ":" + ivText;
-
+      const encryptedData = encryptDownloadData(headers);
       const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
         headers: { encryptedHeaders: encryptedData },
       });
@@ -1054,18 +1019,7 @@ function FileUploader() {
         AccessKey: ACCESS_KEY,
       };
 
-      const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
-      const key = CryptoJS.enc.Utf8.parse(secretKey);
-      const iv = CryptoJS.lib.WordArray.random(16);
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(headers), key, {
-        iv: iv,
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7,
-      });
-      const cipherText = encrypted.ciphertext.toString(CryptoJS.enc.Base64);
-      const ivText = iv.toString(CryptoJS.enc.Base64);
-      const encryptedData = cipherText + ":" + ivText;
-
+      const encryptedData = encryptDownloadData(headers);
       const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
         headers: { encryptedHeaders: encryptedData },
       });
@@ -1134,18 +1088,7 @@ function FileUploader() {
         AccessKey: ACCESS_KEY,
       };
 
-      const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
-      const key = CryptoJS.enc.Utf8.parse(secretKey);
-      const iv = CryptoJS.lib.WordArray.random(16);
-      const encrypted = CryptoJS.AES.encrypt(JSON.stringify(headers), key, {
-        iv: iv,
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7,
-      });
-      const cipherText = encrypted.ciphertext.toString(CryptoJS.enc.Base64);
-      const ivText = iv.toString(CryptoJS.enc.Base64);
-      const encryptedData = cipherText + ":" + ivText;
-
+      const encryptedData = encryptDownloadData(headers);
       const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
         headers: { encryptedHeaders: encryptedData },
       });
@@ -1234,18 +1177,7 @@ function FileUploader() {
             AccessKey: ACCESS_KEY,
           };
 
-          const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
-          const key = CryptoJS.enc.Utf8.parse(secretKey);
-          const iv = CryptoJS.lib.WordArray.random(16);
-          const encrypted = CryptoJS.AES.encrypt(JSON.stringify(headers), key, {
-            iv: iv,
-            mode: CryptoJS.mode.CBC,
-            padding: CryptoJS.pad.Pkcs7,
-          });
-          const cipherText = encrypted.ciphertext.toString(CryptoJS.enc.Base64);
-          const ivText = iv.toString(CryptoJS.enc.Base64);
-          const encryptedData = cipherText + ":" + ivText;
-
+          const encryptedData = encryptDownloadData(headers);
           const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
             headers: { encryptedHeaders: encryptedData },
           });
@@ -1300,24 +1232,7 @@ function FileUploader() {
               AccessKey: ACCESS_KEY,
             };
 
-            const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
-            const key = CryptoJS.enc.Utf8.parse(secretKey);
-            const iv = CryptoJS.lib.WordArray.random(16);
-            const encrypted = CryptoJS.AES.encrypt(
-              JSON.stringify(headers),
-              key,
-              {
-                iv: iv,
-                mode: CryptoJS.mode.CBC,
-                padding: CryptoJS.pad.Pkcs7,
-              },
-            );
-            const cipherText = encrypted.ciphertext.toString(
-              CryptoJS.enc.Base64,
-            );
-            const ivText = iv.toString(CryptoJS.enc.Base64);
-            const encryptedData = cipherText + ":" + ivText;
-
+            const encryptedData = encryptDownloadData(headers);
             const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
               headers: { encryptedHeaders: encryptedData },
             });
@@ -1437,18 +1352,7 @@ function FileUploader() {
           };
         }
 
-        const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
-        const key = CryptoJS.enc.Utf8.parse(secretKey);
-        const iv = CryptoJS.lib.WordArray.random(16);
-        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(headers), key, {
-          iv: iv,
-          mode: CryptoJS.mode.CBC,
-          padding: CryptoJS.pad.Pkcs7,
-        });
-        const cipherText = encrypted.ciphertext.toString(CryptoJS.enc.Base64);
-        const ivText = iv.toString(CryptoJS.enc.Base64);
-        const encryptedData = cipherText + ":" + ivText;
-
+        const encryptedData = encryptDownloadData(headers);
         const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
           headers: { encryptedHeaders: encryptedData },
         });
