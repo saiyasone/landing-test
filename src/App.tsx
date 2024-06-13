@@ -1,16 +1,19 @@
 import createCache from "@emotion/cache";
 import { CacheProvider } from "@emotion/react";
-import { useState } from "react";
-import { Helmet, HelmetProvider } from "react-helmet-async";
-import "./App.css";
+import { ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
+import routes from "app/routes";
+import useTheme from "hooks/useTheme";
+import { useRoutes } from "react-router-dom";
+import createTheme from "theme";
 
 const emotionCache = createCache({ key: "css" });
 
 function App() {
-  const [title, setTitle] = useState("");
+  const content = useRoutes(routes);
+  const { theme } = useTheme();
   return (
     <CacheProvider value={emotionCache}>
-      <div>test</div>
+      <MuiThemeProvider theme={createTheme(theme)}>{content}</MuiThemeProvider>
     </CacheProvider>
   );
 }
