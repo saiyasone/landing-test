@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-node_modules
-=======
-=======
->>>>>>> 521113bcad236ce887beafb34d038c4ab4916af5
 # Logs
 logs
 *.log
@@ -39,9 +33,4 @@ dist-ssr
 /.env.development
 /.env.staging
 /.env.production
-<<<<<<< HEAD
 /.eslintcache
->>>>>>> vshareweb/Pasith
-=======
-/.eslintcache
->>>>>>> 521113bcad236ce887beafb34d038c4ab4916af5
