@@ -271,10 +271,11 @@ function AppBar() {
                 <Tooltip title="Sign in">
                   <Button
                     className="menuList"
-                    component={NavLink}
-                    to="/auth/sign-in"
+                    onClick={() =>
+                      (window.location.href =
+                        "https://dash.staging.vshare.net/auth/sign-in")
+                    }
                     sx={{
-                      ...navActive("/auth/sign-in"),
                       borderRadius: "4px",
                       border: "1px solid #ffffff",
                       borderBottom: "1px solid #ffffff !important",
@@ -290,8 +291,10 @@ function AppBar() {
                 <Tooltip title="Get started">
                   <Button
                     className="menuList"
-                    component={NavLink}
-                    to="/auth/sign-up"
+                    onClick={() =>
+                      (window.location.href =
+                        "https://dash.staging.vshare.net/auth/sign-up")
+                    }
                     sx={{
                       ...navActive("/auth/sign-up"),
                       borderRadius: "4px",
