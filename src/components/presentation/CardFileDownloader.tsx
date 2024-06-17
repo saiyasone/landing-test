@@ -108,6 +108,7 @@ function CardFileDownloader(props) {
                         dataFile?.newFilename,
                         dataFile?.filename,
                         dataFile?.filePassword,
+                        dataFile?.newPath ?? "",
                       );
                       setIndex(index);
                       setPassword("");

@@ -17,6 +17,7 @@ function FolderDownloader(props) {
     setFilePasswords,
     handleDownloadFolder,
     folderSize,
+    setIndex,
   } = props;
   return (
     <Fragment>
@@ -38,9 +39,9 @@ function FolderDownloader(props) {
       <Box
         sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
       >
-        {isSuccess ? (
+        {isSuccess[1] ? (
           <FileDownloadDoneIcon sx={{ color: "#17766B" }} />
-        ) : isHide ? (
+        ) : isHide[1] ? (
           <CircularProgress
             color="success"
             sx={{ color: "#17766B" }}
@@ -54,6 +55,7 @@ function FolderDownloader(props) {
               setGetFolderName(folder_name);
               setFilePasswords(folderDownload[0]?.access_password);
               handleDownloadFolder();
+              setIndex(1)
             }}
           >
             {!folderDownload[0]?.access_password ? (

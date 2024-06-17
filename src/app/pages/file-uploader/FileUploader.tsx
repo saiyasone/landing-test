@@ -49,6 +49,7 @@ import {
   combineOldAndNewFileNames,
   cutFileName,
   removeFileNameOutOfPath,
+  truncateName,
 } from "utils/file.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
 import { encryptDownloadData } from "utils/secure.util";
@@ -86,6 +87,10 @@ function FileUploader() {
   const [platform, setPlatform] = useState("");
   const [showBottomDeep, setShowBottomDeep] = useState(false);
   const [_description, setDescription] = useState("No description");
+
+  const [multipleType, setMultipleType] = useState("");
+  const [fileDataSelect, setFileDataSelect] = useState<any>(null);
+  const [folderDataSelect, setFolderDataSelect] = useState<any>(null);
 
   const [totalMultipleFolder, setTotalMultipleFolder] = useState(0);
   const [totalMultipleFile, setTotalMultipleFile] = useState(0);
@@ -168,13 +173,20 @@ function FileUploader() {
 
   try {
     if (urlClient) {
+      const jsonPattern = /(\{.*\})/;
       linkClientData = urlClient?.split("-");
+
+      const dataUserId = handleDecryptFile(linkClientData[1]);
+      const matchUser = dataUserId.replace(/\D/g, "");
+
       userData = {
-        userId: handleDecryptFile(linkClientData[1]),
+        userId: matchUser,
         newName: linkClientData[2],
       };
 
-      linkClient = handleDecryptFile(linkClientData[0]);
+      const dataJson = handleDecryptFile(linkClientData[0]);
+      const match = dataJson.match(jsonPattern);
+      linkClient = JSON.parse(match[0]);
     }
   } catch (error) {
     console.error(error);
@@ -248,7 +260,7 @@ function FileUploader() {
     const getLinkData = async () => {
       try {
         if (linkClient?._id) {
-          if (linkClient?.type === "file") {
+          if (linkClient?.type === "file" || linkClient?.tGpe === "file") {
             setIsLoading(true);
             await getFileLink({
               variables: {
@@ -276,7 +288,7 @@ function FileUploader() {
             }
           }
 
-          if (linkClient?.type === "folder") {
+          if (linkClient?.type === "folder" || linkClient?.tGpe === "folder") {
             setIsLoading(true);
             await getFolderLink({
               variables: {
@@ -343,7 +355,10 @@ function FileUploader() {
 
       try {
         if (linkClient?._id)
-          if (linkClient?.type === "multiple") {
+          if (
+            linkClient?.type === "multiple" ||
+            linkClient?.tGpe === "multiple"
+          ) {
             setIsLoading(true);
 
             await getManageLinkDetail({
@@ -687,6 +702,9 @@ function FileUploader() {
 
   // download multiple folder
   const handleMultipleDownloadFolder = async ({ folder, index }) => {
+    setFolderDataSelect(folder);
+    setMultipleType("folder");
+
     setTotalClickCount((prevCount) => prevCount + 1);
     if (totalClickCount >= getActionButton) {
       setTotalClickCount(0);
@@ -849,8 +867,11 @@ function FileUploader() {
     newFilename,
     filename,
     filePassword,
+    newPath,
   ) => {
     setTotalClickCount((prevCount) => prevCount + 1);
+    setFileDataSelect(newPath);
+    setMultipleType("file");
 
     if (totalClickCount >= getActionButton) {
       setLastClickedButton([...lastClickedButton, buttonId]);
@@ -858,11 +879,11 @@ function FileUploader() {
       const changeFilename = combineOldAndNewFileNames(filename, newFilename);
       let real_path;
 
-      if (linkClient?.type === "multiple") {
-        if (!dataMultipleFile[0].newPath) {
+      if (linkClient?.type === "multiple" || linkClient?.tGpe === "multiple") {
+        if (!newPath) {
           real_path = "";
         } else {
-          real_path = removeFileNameOutOfPath(dataMultipleFile[0].newPath);
+          real_path = removeFileNameOutOfPath(newPath);
         }
       } else {
         if (getDataRes[0].newPath === null) {
@@ -949,11 +970,14 @@ function FileUploader() {
       } else {
         const changeFilename = combineOldAndNewFileNames(filename, newFilename);
         let real_path = "";
-        if (linkClient?.type === "multiple") {
-          if (!dataMultipleFile[0].newPath) {
+        if (
+          linkClient?.type === "multiple" ||
+          linkClient?.tGpe === "multiple"
+        ) {
+          if (!newPath) {
             real_path = "";
           } else {
-            real_path = removeFileNameOutOfPath(dataMultipleFile[0].newPath);
+            real_path = removeFileNameOutOfPath(newPath);
           }
         } else {
           if (getDataRes[0].newPath === null) {
@@ -1305,41 +1329,98 @@ function FileUploader() {
           ...prev,
           [index]: true,
         }));
-        handleClose();
-        // const secretKey = "jsje3j3,02.3j2jk=243j42lj34hj23l24l;2h5345l";
-        let headers: any = null;
-        if (linkClient?._id) {
-          let real_path = "";
-          if (getDataRes[0].newPath) {
-            real_path = removeFileNameOutOfPath(getDataRes[0].newPath);
-          }
+        setIsSuccess((prev) => ({
+          ...prev,
+          [index]: false,
+        }));
 
-          if (linkClient?.type === "folder") {
-            const path = folderDownload[0]?.newPath ?? "";
-            headers = {
-              _id: folderDownload[0]?._id,
-              accept: "/",
-              storageZoneName: BUNNY_STORAGE_ZONE,
-              isFolder: true,
-              path: userData.newName + "-" + userData.userId + "/" + path,
-              fileName: CryptoJS.enc.Utf8.parse(getFolderName),
-              AccessKey: ACCESS_KEY,
-            };
+        handleClose();
+
+        let headers = {};
+        let real_path = "";
+
+        if (linkClient?._id) {
+          if (
+            linkClient?.type === "multiple" ||
+            linkClient?.tGpe === "multiple"
+          ) {
+            if (multipleType === "folder") {
+              setIsMultipleHide((prev) => ({
+                ...prev,
+                [index]: true,
+              }));
+              setIsMultipleSuccess((prev) => ({
+                ...prev,
+                [index]: false,
+              }));
+
+              headers = {
+                _id: folderDataSelect!._id,
+                accept: "/",
+                storageZoneName: BUNNY_STORAGE_ZONE,
+                isFolder: true,
+                path:
+                  userData.newName +
+                    "-" +
+                    userData.userId +
+                    "/" +
+                    folderDataSelect?.newPath ?? "",
+                fileName: CryptoJS.enc.Utf8.parse(getFolderName),
+                AccessKey: ACCESS_KEY,
+              };
+            } else {
+              real_path = truncateName(fileDataSelect ?? "");
+
+              headers = {
+                accept: "*/*",
+                storageZoneName: BUNNY_STORAGE_ZONE,
+                isFolder: false,
+                path:
+                  userData?.newName +
+                  "-" +
+                  userData?.userId +
+                  "/" +
+                  real_path +
+                  getNewFileName,
+                fileName: CryptoJS.enc.Utf8.parse(getNewFileName),
+                AccessKey: ACCESS_KEY,
+              };
+            }
           } else {
-            headers = {
-              accept: "*/*",
-              storageZoneName: BUNNY_STORAGE_ZONE,
-              isFolder: false,
-              path:
-                userData?.newName +
-                "-" +
-                userData?.userId +
-                "/" +
-                real_path +
-                getNewFileName,
-              fileName: CryptoJS.enc.Utf8.parse(getNewFileName),
-              AccessKey: ACCESS_KEY,
-            };
+            if (getDataRes[0]?.newPath) {
+              real_path = truncateName(getDataRes[0].newPath);
+            }
+
+            if (
+              linkClient?.type === "folder" ||
+              linkClient?.tGpe === "folder"
+            ) {
+              const path = folderDownload[0]?.newPath ?? "";
+              headers = {
+                _id: folderDownload[0]?._id,
+                accept: "/",
+                storageZoneName: BUNNY_STORAGE_ZONE,
+                isFolder: true,
+                path: userData.newName + "-" + userData.userId + "/" + path,
+                fileName: CryptoJS.enc.Utf8.parse(getFolderName),
+                AccessKey: ACCESS_KEY,
+              };
+            } else {
+              headers = {
+                accept: "*/*",
+                storageZoneName: BUNNY_STORAGE_ZONE,
+                isFolder: false,
+                path:
+                  userData?.newName +
+                  "-" +
+                  userData?.userId +
+                  "/" +
+                  real_path +
+                  getNewFileName,
+                fileName: CryptoJS.enc.Utf8.parse(getNewFileName),
+                AccessKey: ACCESS_KEY,
+              };
+            }
           }
         } else {
           headers = {
@@ -1396,13 +1477,13 @@ function FileUploader() {
         a.remove();
         URL.revokeObjectURL(blobUrl);
       } else {
-        errorMessage("Invalid password!!", 3000);
+        //
       }
     }
   };
 
   const hasFileWithoutPassword = linkClient?._id
-    ? linkClient?.type === "file"
+    ? linkClient?.type === "file" || linkClient?.tGpe === "file"
       ? dataFileLink?.queryFileGetLinks?.data?.some(
           (item) => !item.filePassword,
         )
@@ -1558,7 +1639,8 @@ function FileUploader() {
                   <Fragment>
                     {linkClient?._id ? (
                       <Fragment>
-                        {linkClient?.type === "file" && (
+                        {(linkClient?.type === "file" ||
+                          linkClient?.tGpe === "file") && (
                           <>
                             {dataFileLink?.queryFileGetLinks?.total > 0 && (
                               <Typography variant="h3">
@@ -1589,13 +1671,15 @@ function FileUploader() {
                       setFilePasswords={setFilePasswords}
                       handleDownloadFolder={handleDownloadFolder}
                       folderSize={folderSize}
+                      setIndex={setIndex}
                     />
                   </MUI.DivDownloadFileBox>
                 )}
                 <Fragment>
                   {linkClient?._id ? (
                     <Fragment>
-                      {linkClient?.type === "file" && (
+                      {(linkClient?.type === "file" ||
+                        linkClient?.tGpe === "file") && (
                         <Fragment>
                           {dataFileLink?.queryFileGetLinks?.total > 0 ? (
                             <CardFileDownloader
@@ -1635,7 +1719,8 @@ function FileUploader() {
                       )}
 
                       {/* File and Folder for multiple */}
-                      {linkClient?.type === "multiple" && (
+                      {(linkClient?.type === "multiple" ||
+                        linkClient?.tGpe === "multiple") && (
                         <Fragment>
                           {dataMultipleFile.length > 0 ||
                           dataMultipleFolder.length > 0 ? (

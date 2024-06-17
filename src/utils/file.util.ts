@@ -8,6 +8,12 @@ export function getFileType(name: string) {
   return fileType;
 }
 
+// function cut file name out Test(1)/Folder/sss.jpg => Test(1)/Folder/
+export function truncateName(path: string): string {
+  const folder_name = path ? path.match(/^(.+)\//)?.[1] || path : "";
+  return folder_name + "/";
+}
+
 export function cutFileName(fileName: string, maxLength = 10) {
   const extension = fileName.split(".").pop();
   const nameWithoutExtension = fileName.replace(`.${extension}`, "");
