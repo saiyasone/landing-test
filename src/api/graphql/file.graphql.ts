@@ -59,6 +59,10 @@ export const QUERY_FILE_PUBLIC = gql`
           path
           folder_name
         }
+        createdBy {
+          _id
+          newName
+        }
         shortUrl
         favorite
         actionStatus

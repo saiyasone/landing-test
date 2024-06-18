@@ -514,7 +514,7 @@ function FileUploader() {
   }, 0);
 
   // download folder
-  const handleDownloadFolder = async () => {
+  const handleDownloadFolder = async ({ createdBy }) => {
     setTotalClickCount((prevCount) => prevCount + 1);
     if (totalClickCount >= getActionButton) {
       setTotalClickCount(0);
@@ -536,7 +536,7 @@ function FileUploader() {
             accept: "/",
             storageZoneName: BUNNY_STORAGE_ZONE,
             isFolder: true,
-            path: userData.newName + "-" + userData.userId + "/" + path,
+            path: createdBy.newName + "-" + createdBy._id + "/" + path,
             fileName: CryptoJS.enc.Utf8.parse(folder_name),
             AccessKey: ACCESS_KEY,
           };
@@ -645,7 +645,7 @@ function FileUploader() {
               accept: "/",
               storageZoneName: BUNNY_STORAGE_ZONE,
               isFolder: true,
-              path: userData.newName + "-" + userData.userId + "/" + path,
+              path: createdBy.newName + "-" + createdBy._id + "/" + path,
               fileName: CryptoJS.enc.Utf8.parse(folder_name),
               AccessKey: ACCESS_KEY,
               _id: folderDownload[0]?._id,
@@ -868,9 +868,10 @@ function FileUploader() {
     filename,
     filePassword,
     newPath,
+    createdBy,
   ) => {
     setTotalClickCount((prevCount) => prevCount + 1);
-    setFileDataSelect(newPath);
+    setFileDataSelect({ newPath, createdBy });
     setMultipleType("file");
 
     if (totalClickCount >= getActionButton) {
@@ -906,6 +907,7 @@ function FileUploader() {
               changeFilename,
               newFilename,
               real_path,
+              createdBy,
             });
           }
         } else {
@@ -1001,6 +1003,7 @@ function FileUploader() {
                 changeFilename,
                 newFilename,
                 real_path,
+                createdBy,
               });
             } else {
               handleDoneDownloadFilesOnPublic({
@@ -1022,6 +1025,7 @@ function FileUploader() {
     real_path,
     newFilename,
     changeFilename,
+    createdBy,
   }) => {
     try {
       setIsHide((prev) => ({
@@ -1032,7 +1036,7 @@ function FileUploader() {
       const userPath =
         userData.userId === 0
           ? "public"
-          : userData?.newName + "-" + userData?.userId;
+          : createdBy?.newName + "-" + createdBy?._id;
 
       const headers = {
         accept: "*/*",
@@ -1369,7 +1373,7 @@ function FileUploader() {
                 AccessKey: ACCESS_KEY,
               };
             } else {
-              real_path = truncateName(fileDataSelect ?? "");
+              real_path = truncateName(fileDataSelect?.newPath ?? "");
 
               headers = {
                 accept: "*/*",

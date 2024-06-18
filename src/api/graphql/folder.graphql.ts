@@ -70,6 +70,10 @@ export const QUERY_FOLDER_PUBLIC = gql`
         path
         url
         expired
+        createdBy {
+          _id
+          newName
+        }
         file_id {
           _id
           filename

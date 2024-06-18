@@ -54,8 +54,10 @@ function FolderDownloader(props) {
               setPassword("");
               setGetFolderName(folder_name);
               setFilePasswords(folderDownload[0]?.access_password);
-              handleDownloadFolder();
-              setIndex(1)
+              setIndex(1);
+              handleDownloadFolder({
+                createdBy: folderDownload[0]?.createdBy,
+              });
             }}
           >
             {!folderDownload[0]?.access_password ? (
