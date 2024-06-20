@@ -166,7 +166,7 @@ function FileUploader() {
     fetchPolicy: "no-cache",
   });
 
-  let linkClient: any = null;
+  let linkClient: any = { _id: "", type: "" };
   let linkClientData: any = "";
 
   let userData: any = { userId: "", newName: "" };
@@ -1055,7 +1055,7 @@ function FileUploader() {
       }));
 
       const userPath =
-      createdBy._id === "0"
+        createdBy._id === "0"
           ? "public"
           : createdBy?.newName + "-" + createdBy?._id;
 
