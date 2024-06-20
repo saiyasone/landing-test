@@ -134,6 +134,7 @@ function CardFileDownloader(props) {
                         dataFile?.newFilename,
                         dataFile?.filename,
                         dataFile?.filePassword,
+                        dataFile?.newPath ?? "",
                         dataFile?.createdBy,
                       );
                       setIndex(index);
@@ -172,6 +173,7 @@ function CardFileDownloader(props) {
                           dataFile?.newFilename,
                           dataFile?.filename,
                           dataFile?.filePassword,
+                          dataFile?.newPath ?? "",
                           dataFile?.createdBy,
                         );
                         setIndex(index);
