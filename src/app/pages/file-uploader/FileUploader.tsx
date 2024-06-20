@@ -187,6 +187,27 @@ function FileUploader() {
       const dataJson = handleDecryptFile(linkClientData[0]);
       const match = dataJson.match(jsonPattern);
       linkClient = JSON.parse(match[0]);
+
+      if (
+        linkClient?.type?.includes("mult") ||
+        linkClient?.tGpe?.includes("mult")
+      ) {
+        linkClient.type = "multiple";
+      }
+
+      if (
+        linkClient?.type?.includes("fle") ||
+        linkClient?.tGpe?.includes("fle")
+      ) {
+        linkClient.type = "file";
+      }
+
+      if (
+        linkClient?.type?.includes("der") ||
+        linkClient?.tGpe?.includes("der")
+      ) {
+        linkClient.type = "folder";
+      }
     }
   } catch (error) {
     console.error(error);
@@ -347,7 +368,7 @@ function FileUploader() {
     return () => {
       document.title = "Download folder and file"; // Reset the title when the component unmounts
     };
-  }, [urlClient, linkValue, resPonData, dataFileLink, dataFolderLink]);
+  }, [linkValue]);
 
   useEffect(() => {
     const getMultipleFileAndFolder = async () => {
@@ -1034,7 +1055,7 @@ function FileUploader() {
       }));
 
       const userPath =
-        userData.userId === 0
+      createdBy._id === "0"
           ? "public"
           : createdBy?.newName + "-" + createdBy?._id;
 
