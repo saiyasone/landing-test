@@ -518,11 +518,11 @@ function FileUploader() {
         } else {
           setIsHide((prev) => ({
             ...prev,
-            [index]: true,
+            [1]: true,
           }));
           setIsSuccess((prev) => ({
             ...prev,
-            [index]: false,
+            [1]: false,
           }));
 
           const headers = {
@@ -552,11 +552,11 @@ function FileUploader() {
                     successMessage("Download successful", 2000);
                     setIsHide((prev) => ({
                       ...prev,
-                      [index]: false,
+                      [1]: false,
                     }));
                     setIsSuccess((prev) => ({
                       ...prev,
-                      [index]: true,
+                      [1]: true,
                     }));
 
                     controller.close();
@@ -567,11 +567,11 @@ function FileUploader() {
                 } catch (error: any) {
                   setIsHide((prev) => ({
                     ...prev,
-                    [index]: false,
+                    [1]: false,
                   }));
                   setIsSuccess((prev) => ({
                     ...prev,
-                    [index]: true,
+                    [1]: true,
                   }));
 
                   errorMessage(error, 2000);
