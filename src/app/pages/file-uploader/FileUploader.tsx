@@ -339,7 +339,7 @@ function FileUploader() {
     return () => {
       document.title = "Download folder and file"; // Reset the title when the component unmounts
     };
-  }, [linkValue]);
+  }, [linkValue, urlClient, dataFileLink, resPonData]);
 
   useEffect(() => {
     const getMultipleFileAndFolder = async () => {
@@ -873,13 +873,13 @@ function FileUploader() {
         if (!newPath) {
           real_path = "";
         } else {
-          real_path = removeFileNameOutOfPath(newPath);
+          real_path = truncateName(newPath);
         }
       } else {
-        if (getDataRes[0].newPath === null) {
+        if (!getDataRes[0]?.newPath) {
           real_path = "";
         } else {
-          real_path = removeFileNameOutOfPath(getDataRes[0].newPath);
+          real_path = truncateName(getDataRes[0].newPath ?? "");
         }
       }
 
@@ -968,7 +968,7 @@ function FileUploader() {
             real_path = removeFileNameOutOfPath(newPath);
           }
         } else {
-          if (getDataRes[0].newPath === null) {
+          if (!getDataRes[0].newPath) {
             real_path = "";
           } else {
             real_path = removeFileNameOutOfPath(getDataRes[0].newPath);
@@ -1044,7 +1044,6 @@ function FileUploader() {
           while (true) {
             try {
               const { done, value } = await reader.read();
-              console.log(done, value);
               if (done) {
                 successMessage("Download successful", 3000);
                 setIsHide((prev) => ({
