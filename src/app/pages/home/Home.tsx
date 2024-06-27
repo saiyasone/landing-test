@@ -55,6 +55,7 @@ import { FaArrowUpFromBracket } from "react-icons/fa6";
 import "swiper/css";
 import createTheme from "theme";
 import { Id } from "types";
+import { ENV_KEYS } from "constants/env.constant";
 const ShowFileDialog = React.lazy(
   () => import("components/dialog/DialogShowFIle"),
 );
@@ -834,7 +835,7 @@ function Home() {
               },
             }}
             component={NavLink}
-            to="/auth/sign-up"
+            to={`${ENV_KEYS.VITE_APP_URL_REDIRECT_CLIENT_PAGE}auth/sign-up`}
           >
             Register
           </Button>
