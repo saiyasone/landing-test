@@ -274,7 +274,6 @@ function AppBar() {
                     component={NavLink}
                     to={`${ENV_KEYS.VITE_APP_URL_REDIRECT_CLIENT_PAGE}auth/sign-in`}
                     sx={{
-                      ...navActive("/auth/sign-in"),
                       borderRadius: "4px",
                       border: "1px solid #ffffff",
                       borderBottom: "1px solid #ffffff !important",
