@@ -44,7 +44,6 @@ import { ENV_KEYS } from "constants/env.constant";
 import CryptoJS from "crypto-js";
 import useManageSetting from "hooks/useManageSetting";
 import { errorMessage, successMessage } from "utils/alert.util";
-import { base64Decode } from "utils/base64.util";
 import {
   combineOldAndNewFileNames,
   cutFileName,
@@ -52,7 +51,7 @@ import {
   truncateName,
 } from "utils/file.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
-import { encryptDownloadData } from "utils/secure.util";
+import { decryptDataLink, encryptDownloadData } from "utils/secure.util";
 
 function FileUploader() {
   const location = useLocation();
@@ -106,7 +105,6 @@ function FileUploader() {
   const ACCESS_KEY = ENV_KEYS.VITE_APP_ACCESSKEY_BUNNY;
   const BUNNY_STORAGE_ZONE = ENV_KEYS.VITE_APP_STORAGE_ZONE;
   const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
-  const ENCODE_KEY = ENV_KEYS.VITE_APP_ENCODE_KEY;
 
   // Deep linking for mobile devices
   const androidScheme = "vshare.app://download?url=" + currentURL;
@@ -167,54 +165,27 @@ function FileUploader() {
   });
 
   let linkClient: any = { _id: "", type: "" };
-  let linkClientData: any = "";
 
   let userData: any = { userId: "", newName: "" };
 
   try {
     if (urlClient) {
-      const jsonPattern = /(\{.*\})/;
-      linkClientData = urlClient?.split("-");
-
-      const dataUserId = handleDecryptFile(linkClientData[1]);
-      const matchUser = dataUserId.replace(/\D/g, "");
-
+      const decode = handleDecryptFile(urlClient);
       userData = {
-        userId: matchUser,
-        newName: linkClientData[2],
+        userId: decode?.userId,
+        newName: decode?.newName,
       };
-
-      const dataJson = handleDecryptFile(linkClientData[0]);
-      const match = dataJson.match(jsonPattern);
-      linkClient = JSON.parse(match[0]);
-
-      if (
-        linkClient?.type?.includes("mult") ||
-        linkClient?.tGpe?.includes("mult")
-      ) {
-        linkClient.type = "multiple";
-      }
-
-      if (
-        linkClient?.type?.includes("fle") ||
-        linkClient?.tGpe?.includes("fle")
-      ) {
-        linkClient.type = "file";
-      }
-
-      if (
-        linkClient?.type?.includes("der") ||
-        linkClient?.tGpe?.includes("der")
-      ) {
-        linkClient.type = "folder";
-      }
+      linkClient = {
+        _id: decode?._id,
+        type: decode?.type,
+      };
     }
   } catch (error) {
     console.error(error);
   }
 
   function handleDecryptFile(val) {
-    const decryptedData = JSON.parse(base64Decode(val, ENCODE_KEY));
+    const decryptedData = decryptDataLink(val);
     return decryptedData;
   }
 
@@ -281,7 +252,7 @@ function FileUploader() {
     const getLinkData = async () => {
       try {
         if (linkClient?._id) {
-          if (linkClient?.type === "file" || linkClient?.tGpe === "file") {
+          if (linkClient?.type === "file") {
             setIsLoading(true);
             await getFileLink({
               variables: {
@@ -309,7 +280,7 @@ function FileUploader() {
             }
           }
 
-          if (linkClient?.type === "folder" || linkClient?.tGpe === "folder") {
+          if (linkClient?.type === "folder") {
             setIsLoading(true);
             await getFolderLink({
               variables: {
@@ -376,10 +347,7 @@ function FileUploader() {
 
       try {
         if (linkClient?._id)
-          if (
-            linkClient?.type === "multiple" ||
-            linkClient?.tGpe === "multiple"
-          ) {
+          if (linkClient?.type === "multiple") {
             setIsLoading(true);
 
             await getManageLinkDetail({
@@ -901,7 +869,7 @@ function FileUploader() {
       const changeFilename = combineOldAndNewFileNames(filename, newFilename);
       let real_path;
 
-      if (linkClient?.type === "multiple" || linkClient?.tGpe === "multiple") {
+      if (linkClient?.type === "multiple") {
         if (!newPath) {
           real_path = "";
         } else {
@@ -993,10 +961,7 @@ function FileUploader() {
       } else {
         const changeFilename = combineOldAndNewFileNames(filename, newFilename);
         let real_path = "";
-        if (
-          linkClient?.type === "multiple" ||
-          linkClient?.tGpe === "multiple"
-        ) {
+        if (linkClient?.type === "multiple") {
           if (!newPath) {
             real_path = "";
           } else {
@@ -1365,10 +1330,7 @@ function FileUploader() {
         let real_path = "";
 
         if (linkClient?._id) {
-          if (
-            linkClient?.type === "multiple" ||
-            linkClient?.tGpe === "multiple"
-          ) {
+          if (linkClient?.type === "multiple") {
             if (multipleType === "folder") {
               setIsMultipleHide((prev) => ({
                 ...prev,
@@ -1416,10 +1378,7 @@ function FileUploader() {
               real_path = truncateName(getDataRes[0].newPath);
             }
 
-            if (
-              linkClient?.type === "folder" ||
-              linkClient?.tGpe === "folder"
-            ) {
+            if (linkClient?.type === "folder") {
               const path = folderDownload[0]?.newPath ?? "";
               headers = {
                 _id: folderDownload[0]?._id,
@@ -1508,7 +1467,7 @@ function FileUploader() {
   };
 
   const hasFileWithoutPassword = linkClient?._id
-    ? linkClient?.type === "file" || linkClient?.tGpe === "file"
+    ? linkClient?.type === "file"
       ? dataFileLink?.queryFileGetLinks?.data?.some(
           (item) => !item.filePassword,
         )
@@ -1664,8 +1623,7 @@ function FileUploader() {
                   <Fragment>
                     {linkClient?._id ? (
                       <Fragment>
-                        {(linkClient?.type === "file" ||
-                          linkClient?.tGpe === "file") && (
+                        {linkClient?.type === "file" && (
                           <>
                             {dataFileLink?.queryFileGetLinks?.total > 0 && (
                               <Typography variant="h3">
@@ -1703,8 +1661,7 @@ function FileUploader() {
                 <Fragment>
                   {linkClient?._id ? (
                     <Fragment>
-                      {(linkClient?.type === "file" ||
-                        linkClient?.tGpe === "file") && (
+                      {linkClient?.type === "file" && (
                         <Fragment>
                           {dataFileLink?.queryFileGetLinks?.total > 0 ? (
                             <CardFileDownloader
@@ -1744,8 +1701,7 @@ function FileUploader() {
                       )}
 
                       {/* File and Folder for multiple */}
-                      {(linkClient?.type === "multiple" ||
-                        linkClient?.tGpe === "multiple") && (
+                      {linkClient?.type === "multiple" && (
                         <Fragment>
                           {dataMultipleFile.length > 0 ||
                           dataMultipleFolder.length > 0 ? (
