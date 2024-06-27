@@ -5,13 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-<<<<<<< HEAD
-=======
     "start:test": "Set VITE_APP_ENV=test&& vite",
     "start:dev": "Set VITE_APP_ENV=development&& vite",
     "start:staging": "Set VITE_APP_ENV=staging&& vite",
     "start:prod": "Set VITE_APP_ENV=production&& vite",
->>>>>>> vshareweb/dev_apao
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
@@ -69,12 +66,9 @@
     "@types/node": "^20.14.0",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
-<<<<<<< HEAD
-=======
     "@types/react-file-icon": "^1.0.4",
     "@types/react-google-recaptcha": "^2.1.9",
     "@types/ua-parser-js": "^0.7.39",
->>>>>>> vshareweb/dev_apao
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
@@ -83,10 +77,7 @@
     "eslint-plugin-react-refresh": "^0.4.6",
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
-<<<<<<< HEAD
-=======
     "vite-plugin-svgr": "^4.2.0",
->>>>>>> vshareweb/dev_apao
     "vite-tsconfig-paths": "^4.3.2"
   }
 }
