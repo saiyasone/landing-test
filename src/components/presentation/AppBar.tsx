@@ -291,7 +291,7 @@ function AppBar() {
                   <Button
                     className="menuList"
                     component={NavLink}
-                    to="/auth/sign-up"
+                    to={`/${ENV_KEYS.VITE_APP_URL_REDIRECT_CLIENT_PAGE}/auth/sign-up`}
                     sx={{
                       ...navActive("/auth/sign-up"),
                       borderRadius: "4px",

@@ -339,7 +339,7 @@ function FileUploader() {
     return () => {
       document.title = "Download folder and file"; // Reset the title when the component unmounts
     };
-  }, [linkValue, urlClient, dataFileLink, resPonData]);
+  }, [linkValue, urlClient, dataFileLink, dataFolderLink, resPonData]);
 
   useEffect(() => {
     const getMultipleFileAndFolder = async () => {
