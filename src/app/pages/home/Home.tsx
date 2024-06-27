@@ -330,7 +330,6 @@ function Home() {
           breakpoints: MUI.customizeTheme.breakpoints,
         }}
       >
-        <h1>Hello world</h1>
         <MUI.ContainerHome maxWidth="lg">
           <MUI.BoxUpload>
             <img src={vectorImage} alt="" />
