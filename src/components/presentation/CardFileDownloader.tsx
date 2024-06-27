@@ -167,6 +167,7 @@ function CardFileDownloader(props) {
                   ) : (
                     <IconButton
                       onClick={() => {
+                        setIndex(index);
                         downloadFiles(
                           index,
                           dataFile?._id,
@@ -176,7 +177,6 @@ function CardFileDownloader(props) {
                           dataFile?.newPath ?? "",
                           dataFile?.createdBy,
                         );
-                        setIndex(index);
                         setPassword("");
                         setGetFilenames(dataFile?.filename);
                         setGetNewFileName(dataFile?.newFilename);

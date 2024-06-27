@@ -512,13 +512,18 @@ function FileUploader() {
       const folder_name = `${folderDownload[0]?.folder_name}.zip`;
 
       setGetFolderName(folder_name);
-
       try {
         if (folderDownload[0]?.access_password) {
           handleClickOpen();
         } else {
-          setIsHide(true);
-          setIsSuccess(false);
+          setIsHide((prev) => ({
+            ...prev,
+            [index]: true,
+          }));
+          setIsSuccess((prev) => ({
+            ...prev,
+            [index]: false,
+          }));
 
           const headers = {
             _id: folderDownload[0]?._id,
@@ -545,16 +550,30 @@ function FileUploader() {
 
                   if (done) {
                     successMessage("Download successful", 2000);
-                    setIsHide(false);
-                    setIsSuccess(true);
+                    setIsHide((prev) => ({
+                      ...prev,
+                      [index]: false,
+                    }));
+                    setIsSuccess((prev) => ({
+                      ...prev,
+                      [index]: true,
+                    }));
+
                     controller.close();
                     break;
                   }
 
                   controller.enqueue(value);
                 } catch (error: any) {
-                  setIsHide(false);
-                  setIsSuccess(false);
+                  setIsHide((prev) => ({
+                    ...prev,
+                    [index]: false,
+                  }));
+                  setIsSuccess((prev) => ({
+                    ...prev,
+                    [index]: true,
+                  }));
+
                   errorMessage(error, 2000);
                   controller.error(error);
                   break;
@@ -627,8 +646,14 @@ function FileUploader() {
           if (folderDownload[0]?.access_password) {
             handleClickOpen();
           } else {
-            setIsHide(true);
-            setIsSuccess(false);
+            setIsHide((prev) => ({
+              ...prev,
+              [index]: true,
+            }));
+            setIsSuccess((prev) => ({
+              ...prev,
+              [index]: false,
+            }));
 
             const headers = {
               accept: "/",
@@ -655,16 +680,28 @@ function FileUploader() {
 
                     if (done) {
                       successMessage("Download successful", 2000);
-                      setIsHide(false);
-                      setIsSuccess(true);
+                      setIsHide((prev) => ({
+                        ...prev,
+                        [index]: false,
+                      }));
+                      setIsSuccess((prev) => ({
+                        ...prev,
+                        [index]: true,
+                      }));
                       controller.close();
                       break;
                     }
 
                     controller.enqueue(value);
                   } catch (error: any) {
-                    setIsHide(false);
-                    setIsSuccess(false);
+                    setIsHide((prev) => ({
+                      ...prev,
+                      [index]: false,
+                    }));
+                    setIsSuccess((prev) => ({
+                      ...prev,
+                      [index]: false,
+                    }));
                     errorMessage(error, 2000);
                     controller.error(error);
                     break;

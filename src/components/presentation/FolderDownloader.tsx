@@ -51,10 +51,10 @@ function FolderDownloader(props) {
           <IconButton
             onClick={() => {
               const folder_name = `${folderDownload[0]?.folder_name}`;
+              setIndex(1);
               setPassword("");
               setGetFolderName(folder_name);
               setFilePasswords(folderDownload[0]?.access_password);
-              setIndex(1);
               handleDownloadFolder({
                 createdBy: folderDownload[0]?.createdBy,
               });
