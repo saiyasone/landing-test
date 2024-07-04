@@ -130,13 +130,17 @@ export default function CustomizedDialogs(props) {
 
   React.useEffect(() => {
     const fetchIPAddress = async () => {
-      const responseIp = await axios.get(LOAD_GET_IP_URL);
-      const ip = responseIp?.data;
-      if (ip) {
-        const res = await axios.get(
-          `https://pro.ip-api.com/json/${ip}?key=x0TWf62F7ukWWpQ`,
-        );
-        setCountry(res?.data?.countryCode);
+      try {
+        const responseIp = await axios.get(LOAD_GET_IP_URL);
+        const ip = responseIp?.data;
+        if (ip) {
+          const res = await axios.get(
+            `https://pro.ip-api.com/json/${ip}?key=x0TWf62F7ukWWpQ`,
+          );
+          setCountry(res?.data?.countryCode);
+        }
+      } catch (error) {
+        setCountry("other");
       }
     };
     fetchIPAddress();
@@ -239,7 +243,7 @@ export default function CustomizedDialogs(props) {
         if (_createFilePublic) {
           let initialUploadSpeedCalculated = false;
           const startTime = new Date().getTime();
-          const secretKey = ENV_KEYS.REACT_APP_UPLOAD_SECRET_KEY;
+          const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
           const headers = {
             REGION: "sg",
             BASE_HOSTNAME: "storage.bunnycdn.com",
@@ -317,7 +321,9 @@ export default function CustomizedDialogs(props) {
       setIsDone(1);
       setValue(`${value}${getUrlAllWhenReturn?.urlAll}`);
       successMessage("Upload Successful!!", 3000);
-      onRemoveAll();
+      setTimeout(() => {
+        onRemoveAll();
+      }, 1000);
     } catch (error: any) {
       const cutError = error.message.replace(/(ApolloError: )?Error: /, "");
       const str = getFileType(cutError);

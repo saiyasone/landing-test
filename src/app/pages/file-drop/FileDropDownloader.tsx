@@ -673,7 +673,7 @@ function FileDropDownloader() {
                           </Box>
                           <Box sx={{ textAlign: "start" }}>
                             <span>
-                              {cutFileName(val.filename, val.newFilename)}
+                              {cutFileName(val.filename, 8)}
                             </span>
                             <br />
                             <span>{convertBytetoMBandGB(val.size)}</span>

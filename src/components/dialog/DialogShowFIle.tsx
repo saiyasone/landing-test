@@ -159,7 +159,7 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
   const [hidePasswordLink, setHidePasswordLink] = useState(true);
   const [hideSubPasswordLink, setHideSubPasswordLink] = useState(true);
   const [information, setInformation] = useState<any[]>();
-  const [country, setCountry] = useState(null);
+  const [country, setCountry] = useState("");
   const ref = React.useRef<HTMLElement | null>();
   let link = null;
   window.location.protocol === "http:"
@@ -229,15 +229,19 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
 
   useEffect(() => {
     const fetchIPAddress = async () => {
-      const responseIp = await axios.get(LOAD_GET_IP_URL);
-      const ip = responseIp?.data;
-      if (ip) {
-        const res = await axios.get(
-          `https://pro.ip-api.com/json/${ip}?key=x0TWf62F7ukWWpQ`,
-        );
-        if (res) {
-          setCountry(res?.data?.countryCode);
+      try {
+        const responseIp = await axios.get(LOAD_GET_IP_URL);
+        const ip = responseIp?.data;
+        if (ip) {
+          const res = await axios.get(
+            `https://pro.ip-api.com/json/${ip}?key=x0TWf62F7ukWWpQ`,
+          );
+          if (res) {
+            setCountry(res?.data?.countryCode);
+          }
         }
+      } catch (error) {
+        setCountry("other");
       }
     };
     fetchIPAddress();
