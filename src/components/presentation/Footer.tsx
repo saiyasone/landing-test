@@ -139,11 +139,11 @@ function Footer() {
             </Typography>
           </MUI.ContainerFooterCopyRight>
         </MUI.BoxFooterCopyRight>
-        <MUI.BoxLiveChat>
+        {/* <MUI.BoxLiveChat>
           <ChatIcon
             sx={{ fontSize: isMobile ? "25px" : "35px", color: "#16776C" }}
           />
-        </MUI.BoxLiveChat>
+        </MUI.BoxLiveChat> */}
       </MUI.BoxFooter>
     </React.Fragment>
   );
