@@ -1384,15 +1384,19 @@ function FileUploader() {
                 isFolder: true,
                 path:
                   userData.newName +
-                    "-" +
-                    userData.userId +
-                    "/" +
-                    folderDataSelect?.newPath ?? "",
+                  "-" +
+                  userData.userId +
+                  "/" +
+                  folderDataSelect?.newPath
+                    ? folderDataSelect?.newPath
+                    : "",
                 fileName: CryptoJS.enc.Utf8.parse(getFolderName),
                 AccessKey: ACCESS_KEY,
               };
             } else {
-              real_path = truncateName(fileDataSelect?.newPath ?? "");
+              real_path = truncateName(
+                fileDataSelect?.newPath ? fileDataSelect?.newPath : "",
+              );
 
               headers = {
                 accept: "*/*",
