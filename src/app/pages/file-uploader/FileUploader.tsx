@@ -823,7 +823,7 @@ function FileUploader() {
       }));
       setIsMultipleSuccess((prev) => ({ ...prev, [index]: false }));
 
-      const path = folder?.newPath ?? "";
+      const path = folder?.newPath ? folder?.newPath : "";
       const folder_name = `${folder?.folder_name}.zip`;
 
       const headers = {
