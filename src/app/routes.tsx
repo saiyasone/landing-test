@@ -10,6 +10,7 @@ import Home from "./pages/home/Home";
 import PricingPlan from "./pages/pricing-plan/PricingPlan";
 import PrivacyPolicy from "./pages/privacy-and-policy/PrivacyPolicy";
 import TermCondition from "./pages/term-and-condition/TermCondition";
+import PricingCheckout from "./pages/pricing-checkout/PricingCheckout";
 
 const routes: RouteObject[] = [
   {
@@ -62,6 +63,10 @@ const routes: RouteObject[] = [
             <PricingPlan />
           </Landing>
         ),
+      },
+      {
+        path: "pricing/checkout/:id",
+        element: <PricingCheckout />,
       },
       {
         path: "feedback",

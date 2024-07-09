@@ -109,7 +109,7 @@ const PricingPlan = () => {
         }}
       >
         <Typography variant="h6">
-          All plans inclue 40+ advanced tools and features to boost your
+          All plans include 40+ advanced tools and features to boost your
           product.
         </Typography>
         <Typography variant="h6">
