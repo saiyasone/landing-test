@@ -508,7 +508,7 @@ function FileUploader() {
     if (totalClickCount >= getActionButton) {
       setTotalClickCount(0);
 
-      const path = folderDownload[0]?.newPath ?? "";
+      const path = folderDownload[0]?.newPath ? folderDownload[0]?.newPath : "";
       const folder_name = `${folderDownload[0]?.folder_name}.zip`;
 
       setGetFolderName(folder_name);
@@ -823,7 +823,7 @@ function FileUploader() {
       }));
       setIsMultipleSuccess((prev) => ({ ...prev, [index]: false }));
 
-      const path = folder?.newPath ?? "";
+      const path = folder?.newPath ? folder?.newPath : "";
       const folder_name = `${folder?.folder_name}.zip`;
 
       const headers = {
@@ -1419,7 +1419,9 @@ function FileUploader() {
             }
 
             if (linkClient?.type === "folder") {
-              const path = folderDownload[0]?.newPath ?? "";
+              const path = folderDownload[0]?.newPath
+                ? folderDownload[0]?.newPath
+                : "";
               headers = {
                 _id: folderDownload[0]?._id,
                 accept: "/",
