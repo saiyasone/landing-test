@@ -251,9 +251,15 @@ export default function CustomizedDialogs(props) {
             STORAGE_ZONE_NAME: STORAGE_ZONE,
             ACCESS_KEY: ACCESS_KEY,
             PATH:
-              userId > 0 && folderId > 0 ? `${privateUser}` : `/${publicUser}`,
+              userId > 0 && folderId > 0
+                ? `${privateUser}${randomName}${getFileNameExtension(
+                    file?.name,
+                  )}`
+                : `/${publicUser}`,
             FILENAME: randomName + `${getFileNameExtension(file?.name)}`,
           };
+
+          console.log({ headers });
 
           const key = CryptoJS.enc.Utf8.parse(secretKey);
           const iv = CryptoJS.lib.WordArray.random(16);
