@@ -70,19 +70,22 @@ const PriceConfirmation: React.FC<any> = (_props) => {
             placed!
           </Typography>
           <Typography
-            variant="body1"
+            variant="h6"
             sx={{
               textAlign: "center",
+              fontSize: "13px",
+              fontWeight: "500",
+              lineHeight: "20px",
             }}
           >
-            <div>
+            <span>
               Thank you for your purchase! Your package includes access to
               Vshare
-            </div>
-            <div>
+            </span>
+            <span>
               detail: I have sent the payment slip and package details to your
               email. Please let me know if you have any questions or concerns.
-            </div>
+            </span>
           </Typography>
           <Typography
             variant="body1"

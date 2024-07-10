@@ -1,15 +1,39 @@
-import React, { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import * as MUI from "styles/priceCheckoutStyle";
 import Typography from "@mui/material/Typography";
 import { Button, TextField } from "@mui/material";
 import { Formik } from "formik";
 import ContinuteIcon from "@mui/icons-material/ArrowForward";
 import GoogleIcon from "assets/images/googleIcon.png";
+import * as yup from "yup";
+import { useDispatch } from "react-redux";
+import { setPaymentSteps } from "stores/features/paymentSlice";
 
-function PriceSignUp() {
+type Prop = {
+  onNext?: () => void;
+};
+
+function PriceSignUp({ onNext }: Prop) {
+  const validateForm = yup.object().shape({
+    email: yup.string().required("Email is required").email("Email is invalid"),
+  });
+
+  // redux
+  const dispatch = useDispatch();
+
   const handleSubmitForm = async (values: any) => {
     console.log(values);
+    onNext?.();
   };
+
+  useEffect(() => {
+    dispatch(
+      setPaymentSteps({
+        number: 0,
+        value: true,
+      }),
+    );
+  }, [dispatch]);
 
   return (
     <Fragment>
@@ -24,7 +48,11 @@ function PriceSignUp() {
               </Typography>
             </Typography>
           </MUI.PriceCheckoutSignUpHeader>
-          <Formik initialValues={{ email: "" }} onSubmit={handleSubmitForm}>
+          <Formik
+            initialValues={{ email: "zard@gmail.com" }}
+            validationSchema={validateForm}
+            onSubmit={handleSubmitForm}
+          >
             {({ values, touched, errors, handleChange, handleSubmit }) => (
               <MUI.PriceCheckoutSignUpForm onSubmit={handleSubmit}>
                 <MUI.PriceCheckoutLabel>Email</MUI.PriceCheckoutLabel>
@@ -73,11 +101,19 @@ function PriceSignUp() {
             <MUI.PriceCheckoutPrivacy>
               <Typography variant="h5">
                 By creating an account, you agree to our{" "}
-                <Typography href="/" component={`a`}>
+                <Typography
+                  href="/terms-conditions"
+                  target="_blank"
+                  component={`a`}
+                >
                   Terms of Service
                 </Typography>{" "}
                 and{" "}
-                <Typography href="/" component={`a`}>
+                <Typography
+                  href="/privacy-policy"
+                  target="_blank"
+                  component={`a`}
+                >
                   Privacy && Cookie Statement.
                 </Typography>
               </Typography>

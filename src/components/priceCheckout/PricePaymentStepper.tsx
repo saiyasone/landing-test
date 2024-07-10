@@ -10,6 +10,7 @@ import * as MUI from "styles/stepper.style";
 import AccountIcon from "@mui/icons-material/Receipt";
 import PaymentIcon from "@mui/icons-material/Payment";
 import ConfirmIcon from "@mui/icons-material/ConfirmationNumber";
+import { StepperIconContainer } from "styles/priceCheckoutStyle";
 
 function PricePaymentStepper() {
   const isMobile = useMediaQuery("(max-width:768px)");
@@ -54,21 +55,37 @@ function PricePaymentStepper() {
                     )}
                   </>
                 ),
-                steps: ["Account", "Payment", "Confirmation"],
+                steps: [
+                  { title: "Account", subtitle: "Account Detail" },
+                  { title: "Payment", subtitle: "Enter Information" },
+                  { title: "Confirmation", subtitle: "Payment Detail" },
+                ],
                 isCompletedSteps: [
                   paymentSteps[0],
                   paymentSteps[1],
                   paymentSteps[2],
                 ],
                 icons: {
-                  1: <AccountIcon />,
-                  2: <PaymentIcon />,
-                  3: <ConfirmIcon />,
+                  1: (
+                    <StepperIconContainer>
+                      <AccountIcon />
+                    </StepperIconContainer>
+                  ),
+                  2: (
+                    <StepperIconContainer>
+                      <PaymentIcon />
+                    </StepperIconContainer>
+                  ),
+                  3: (
+                    <StepperIconContainer>
+                      <ConfirmIcon />,
+                    </StepperIconContainer>
+                  ),
                 },
               }}
               stepProps={{
                 sx: {
-                  width: "180px",
+                  width: "280px",
                 },
               }}
             />

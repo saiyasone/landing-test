@@ -5,7 +5,11 @@ import NextIcon from "@mui/icons-material/EastSharp";
 import SelectStyled from "components/SelectStyled";
 import { useState } from "react";
 
-function PricePaymentSummary() {
+type Props = {
+  onNext?: () => void;
+};
+
+function PricePaymentSummary({ onNext }: Props) {
   const isMobile = useMediaQuery("(max-width:768px)");
   const [selectPayment, setSelectPayment] = useState("monthly");
   return (
@@ -89,7 +93,13 @@ function PricePaymentSummary() {
             <Typography component={`span`}>$53.99</Typography>
           </MUI.SummaryListFlex>
 
-          <Button variant="contained" fullWidth={true}>
+          <Button
+            variant="contained"
+            fullWidth={true}
+            onClick={() => {
+              onNext?.();
+            }}
+          >
             Proceed with payment <NextIcon sx={{ ml: 3, fontSize: "1rem" }} />
           </Button>
         </MUI.SummaryListContainer>

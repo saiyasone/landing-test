@@ -7,7 +7,7 @@ import Stepper from "@mui/material/Stepper";
 import Typography from "@mui/material/Typography";
 import { styled as muiStyled } from "@mui/system";
 import * as React from "react";
-import NormalButton from "./NormalButton";
+import { StepperHeaderContainer } from "styles/priceCheckoutStyle";
 
 // const CustomStepIconRoot = muiStyled("div")(({ theme, ownerState }) => ({
 const CustomStepIconRoot = muiStyled("div")({
@@ -17,7 +17,7 @@ const CustomStepIconRoot = muiStyled("div")({
   display: "flex",
   borderRadius: "50%",
   justifyContent: "center",
-  alignItems: "center",
+  // alignItems: "center",
 });
 
 function CustomStepIcon(props) {
@@ -32,17 +32,26 @@ function CustomStepIcon(props) {
         ...(isMobile && {
           justifyContent: "flex-start",
         }),
+        width: "100%",
       }}
       ownerState={{ completed, active }}
       className={className}
     >
-      {React.cloneElement(props.icons[String(props.icon)], {
-        style: {
-          ...((completed || active) && {
-            color: theme.palette.primaryTheme!.main,
-          }),
-        },
-      })}
+      <Box>
+        {React.cloneElement(props.icons[String(props.icon)], {
+          style: {
+            ...((completed || active) && {
+              color: "#fff !important",
+              backgroundColor: theme.palette.primaryTheme!.main,
+              position: "relative",
+            }),
+          },
+        })}
+      </Box>
+      <StepperHeaderContainer>
+        <Typography component={`p`}>{props?.label?.title} </Typography>
+        <Typography component={`span`}>{props?.label?.subtitle} </Typography>
+      </StepperHeaderContainer>
     </CustomStepIconRoot>
   );
 }
@@ -93,12 +102,11 @@ const StepperCompnent = (props) => {
       >
         {stepperProps.steps?.map((label, index) => (
           <Step
-            key={label}
+            key={index}
             completed={completed[index]}
             sx={{
               display: "flex",
               alignItems: "center",
-              // flexDirection: "row",
               ...props.stepProps.sx,
             }}
           >
@@ -114,6 +122,7 @@ const StepperCompnent = (props) => {
               }}
               StepIconComponent={(stepLabelProps) => (
                 <CustomStepIcon
+                  label={label}
                   {...props.stepIconProps}
                   {...{
                     ...stepLabelProps,
@@ -143,44 +152,7 @@ const StepperCompnent = (props) => {
                   flexDirection: "row !important",
                 }),
               }}
-            >
-              {!(
-                completed[index] ||
-                activeStep === index ||
-                !isCompletedSteps[index]
-              ) ? (
-                <NormalButton
-                  className="step-button"
-                  sx={{
-                    justifyContent: "center",
-                    paddingTop: "16px",
-                    ...(isMobile && {
-                      alignItems: "center",
-                      paddingTop: 0,
-                    }),
-                  }}
-                  onClick={() => props.handleStep(index)}
-                >
-                  {label}
-                </NormalButton>
-              ) : (
-                <Typography
-                  component="div"
-                  sx={{
-                    paddingTop: "16px",
-                    ...(isMobile && {
-                      display: "flex",
-                      height: "100%",
-                      alignItems: "center",
-                      paddingTop: 0,
-                    }),
-                    fontWeight: 600,
-                  }}
-                >
-                  {label}
-                </Typography>
-              )}
-            </StepLabel>
+            />
           </Step>
         ))}
       </Stepper>

@@ -15,6 +15,7 @@ export const PricingCheckoutContainer = styled("div")({
 export const PriceCheckoutSignUpFormContainer = styled("div")({
   maxWidth: "600px",
   margin: "0 auto",
+  paddingTop: "2.5rem",
 
   display: "flex",
   alignItems: "center",
@@ -360,4 +361,32 @@ export const SummaryNoteContainer = styled("div")({
 export const PricePackageConfirmation = styled("div")({
   maxWidth: "992px",
   margin: "0 auto",
+});
+
+export const StepperIconContainer = styled("div")({
+  width: "40px",
+  height: "40px",
+  borderRadius: "5px",
+  backgroundColor: "#f3f5f6",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+
+  "*": {
+    color: "#ccc",
+  },
+});
+
+export const StepperHeaderContainer = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+  marginLeft: "0.5rem",
+
+  "p, span": {
+    color: "#5D596C",
+  },
+
+  p: {
+    fontWeight: "600",
+  },
 });
