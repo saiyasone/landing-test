@@ -475,6 +475,7 @@ function AuthProvider() {
         return { authen, user, checkRole, refreshId: tokenData.refreshID };
       }
     } catch (error: any) {
+      console.log(error?.message);
       const cutErr = error.message.replace(/(ApolloError: )?Error: /, "");
       if (cutErr === "USERNAME_OR_PASSWORD_INCORRECT") {
         errorMessage("Username or password incorrect!!", 3000);

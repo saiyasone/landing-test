@@ -1,21 +1,22 @@
-import { Fragment } from "react";
 import PricePayment from "components/priceCheckout/PricePayment";
-// import PriceSignUp from "components/priceCheckout/PriceSignUp";
-// import PriceConfirmation from "components/priceCheckout/PriceConfirm";
-import { PricingCheckoutContainer } from "styles/priceCheckoutStyle";
+import PriceConfirmation from "components/priceCheckout/PriceConfirm";
+import {
+  PricingCheckoutBoxContainer,
+  PricingCheckoutContainer,
+} from "styles/priceCheckoutStyle";
 import PricePaymentStepper from "components/priceCheckout/PricePaymentStepper";
-// import PriceSignUp from "components/priceCheckout/PriceSignUp";
+import PriceSignUp from "components/priceCheckout/PriceSignUp";
 
 function PricingCheckout() {
   return (
-    <Fragment>
+    <PricingCheckoutBoxContainer>
       <PricingCheckoutContainer>
         <PricePaymentStepper />
         <PricePayment />
         {/* <PriceSignUp /> */}
         {/* <PriceConfirmation /> */}
       </PricingCheckoutContainer>
-    </Fragment>
+    </PricingCheckoutBoxContainer>
   );
 }
 

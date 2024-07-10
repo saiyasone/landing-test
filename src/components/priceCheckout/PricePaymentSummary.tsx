@@ -1,9 +1,13 @@
 import * as MUI from "styles/priceCheckoutStyle";
 import Typography from "@mui/material/Typography";
-import { Button } from "@mui/material";
+import { Button, MenuItem, useMediaQuery } from "@mui/material";
 import NextIcon from "@mui/icons-material/EastSharp";
+import SelectStyled from "components/SelectStyled";
+import { useState } from "react";
 
 function PricePaymentSummary() {
+  const isMobile = useMediaQuery("(max-width:768px)");
+  const [selectPayment, setSelectPayment] = useState("monthly");
   return (
     <MUI.PricePaymentSummaryContainer>
       <MUI.PricePaymentContainerBox>
@@ -15,7 +19,44 @@ function PricePaymentSummary() {
         <MUI.PricePaymentSummaryBoxPrice>
           <MUI.SummaryTitle>
             <Typography component={`p`}>Your plan</Typography>
-            <Typography component={`p`}>Your plan</Typography>
+            <SelectStyled
+              SelectDisplayProps={{
+                sx: {
+                  overflow: "unset !important",
+                },
+              }}
+              value={selectPayment}
+              variant="outlined"
+              onChange={(e) => {
+                setSelectPayment(e.target.value);
+              }}
+              sx={{
+                overflow: "unset",
+              }}
+            >
+              <MenuItem
+                value={"weekly"}
+                sx={{
+                  ...(isMobile && {
+                    minHeight: "20px",
+                    fontSize: "0.7rem",
+                  }),
+                }}
+              >
+                Weekly
+              </MenuItem>
+              <MenuItem
+                value={"monthly"}
+                sx={{
+                  ...(isMobile && {
+                    minHeight: "20px",
+                    fontSize: "0.7rem",
+                  }),
+                }}
+              >
+                Monthly
+              </MenuItem>
+            </SelectStyled>
           </MUI.SummaryTitle>
 
           <MUI.SummaryBoxPriceBody>

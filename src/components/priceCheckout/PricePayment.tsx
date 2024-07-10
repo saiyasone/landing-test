@@ -16,12 +16,12 @@ function PricePayment() {
           }}
         >
           <Grid item container>
-            <Grid item lg={7} md={12} sm={12}>
+            <Grid item lg={7} md={7} sm={12}>
               <PricePaymentContainerBox>
                 <PricePaymentForm />
               </PricePaymentContainerBox>
             </Grid>
-            <Grid item lg={5} md={12} sm={12}>
+            <Grid item lg={5} md={5} sm={12}>
               <PricePaymentSummary />
             </Grid>
           </Grid>

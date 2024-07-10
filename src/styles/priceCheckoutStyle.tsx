@@ -2,9 +2,14 @@ import { styled, createTheme } from "@mui/material";
 
 const theme = createTheme();
 
+export const PricingCheckoutBoxContainer = styled("div")({
+  height: "100vh",
+  backgroundColor: "#fff",
+});
+
 export const PricingCheckoutContainer = styled("div")({
+  marginBottom: "1rem",
   position: "relative",
-  marginBottom: "2rem",
 });
 
 export const PriceCheckoutSignUpFormContainer = styled("div")({
@@ -148,6 +153,7 @@ export const PricePaymentContainer = styled("div")({
 
 export const PricePaymentContainerBox = styled("div")({
   padding: "1rem",
+  height: "100%",
 });
 
 export const PricePaymentFormContainer = styled("div")({
@@ -178,6 +184,10 @@ export const PricePaymentSelector = styled("div")({
         },
       },
     },
+  },
+
+  [theme.breakpoints.down(500)]: {
+    flexDirection: "column",
   },
 });
 
@@ -343,5 +353,11 @@ export const SummaryNoteContainer = styled("div")({
     color: "#4B465C",
     fontWeight: "400",
     lineHeight: "1.2rem",
+    marginBottom: "1rem",
   },
+});
+
+export const PricePackageConfirmation = styled("div")({
+  maxWidth: "992px",
+  margin: "0 auto",
 });
