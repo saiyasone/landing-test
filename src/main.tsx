@@ -43,6 +43,20 @@ const client = new ApolloClient({
   connectToDevTools: false,
 });
 
+export const clientMockup = new ApolloClient({
+  link: from([
+    authLink.concat(
+      createHttpLink({
+        uri: "https://coding.vshare.net/api",
+      }),
+    ),
+  ]),
+  cache: new InMemoryCache({
+    addTypename: false,
+  }),
+  connectToDevTools: false,
+});
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Provider store={store}>

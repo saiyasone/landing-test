@@ -132,7 +132,7 @@ export const GoogleSignUpButton = styled("button")({
 
 export const PriceCheckoutPrivacy = styled("div")({
   textAlign: "center",
-  marginTop: "10px",
+  marginTop: "1rem",
 
   h5: {
     fontSize: "0.8rem",
@@ -246,16 +246,7 @@ export const PricePaymentForm = styled("div")({
 });
 
 export const PricePaymentQRCodeContainer = styled("div")({
-  padding: "5px 10px",
-  backgroundColor: "#eee",
-  borderRadius: "5px",
-  marginBottom: "12px",
-
-  img: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-  },
+  // marginBottom: "0.8rem",
 });
 
 export const PricePaymentSummaryContainer = styled("div")({
@@ -372,9 +363,9 @@ export const StepperIconContainer = styled("div")({
   alignItems: "center",
   justifyContent: "center",
 
-  "*": {
-    color: "#ccc",
-  },
+  // "*": {
+  //   color: "#ccc",
+  // },
 });
 
 export const StepperHeaderContainer = styled("div")({

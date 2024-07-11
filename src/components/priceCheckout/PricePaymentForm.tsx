@@ -1,4 +1,4 @@
-import React, { ChangeEvent, Fragment, useState } from "react";
+import React, { ChangeEvent, Fragment, useRef } from "react";
 import * as MUI from "styles/priceCheckoutStyle";
 import Typography from "@mui/material/Typography";
 import { Formik } from "formik";
@@ -6,10 +6,19 @@ import { Button, Grid, TextField } from "@mui/material";
 import * as yup from "yup";
 import bcelIcon from "assets/images/bcel.jpg";
 import visaIcon from "assets/images/Visa.png";
-import bcelQRIcon from "assets/images/bcel-qrcode.jpeg";
+import QrCode from "react-qr-code";
+import useBcelSubscirption from "hooks/useBcelSubscription";
+import { useDispatch, useSelector } from "react-redux";
+import { paymentState, setPaymentSelect } from "stores/features/paymentSlice";
 
 function PricePaymentForm() {
-  const [paymentTab, setPaymentTab] = useState("bcel");
+  // const [paymentTab, setPaymentTab] = useState("bcel");
+  const qrCodeRef = useRef<any>(null);
+
+  // redux
+  const paymentSelector = useSelector(paymentState);
+  const dispatch = useDispatch();
+
   const validateSchema = yup.object().shape({
     firstName: yup.string().required("First name is required"),
     lastName: yup.string().required("Last name is required"),
@@ -17,27 +26,41 @@ function PricePaymentForm() {
     zipCode: yup.string().required("Zip code is required"),
   });
 
+  const bcelOnePay = useBcelSubscirption();
+
   const handlePaymentTab = (event: ChangeEvent<HTMLInputElement>) => {
-    setPaymentTab(event.target.value);
+    dispatch(setPaymentSelect(event.target.value));
   };
 
   const handleSubmitForm = (values: any) => {
     console.log(values);
   };
 
+  const handleDownloadQRCode = () => {
+    const svgDocument = qrCodeRef.current;
+    if (!svgDocument) return;
+    const svgContent = new XMLSerializer().serializeToString(svgDocument);
+    const svgBlob = new Blob([`${svgContent}`], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(svgBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "bcel-one.svg";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <React.Fragment>
       <MUI.PricePaymentFormContainer>
-        <MUI.PricePaymentHeader>
-          Choose how to pay {paymentTab}{" "}
-        </MUI.PricePaymentHeader>
+        <MUI.PricePaymentHeader>Choose how to pay</MUI.PricePaymentHeader>
         <MUI.PricePaymentSelector>
           <input
             id="bcel-ref"
             type="radio"
             name="payment-selected"
             hidden={true}
-            checked={paymentTab === "bcel"}
+            checked={paymentSelector.paymentSelect === "bcel"}
             onChange={handlePaymentTab}
             value="bcel"
           />
@@ -56,7 +79,7 @@ function PricePaymentForm() {
             type="radio"
             name="payment-selected"
             hidden={true}
-            checked={paymentTab === "visa"}
+            checked={paymentSelector.paymentSelect === "visa"}
             onChange={handlePaymentTab}
             value="visa"
           />
@@ -93,11 +116,21 @@ function PricePaymentForm() {
             <Fragment>
               <Grid item container spacing={5}>
                 <Grid item lg={5} md={5} sm={5} xs={12}>
-                  <MUI.PricePaymentQRCodeContainer sx={{ mr: 1 }}>
-                    <img src={bcelQRIcon} alt="qrcode-bcel" />
+                  <MUI.PricePaymentQRCodeContainer>
+                    <QrCode
+                      style={{ width: "100%" }}
+                      ref={qrCodeRef}
+                      value={bcelOnePay.qrCode || ""}
+                      viewBox={`0 0 256 256`}
+                    />
                   </MUI.PricePaymentQRCodeContainer>
 
-                  <Button variant="contained" type="button" fullWidth>
+                  <Button
+                    variant="contained"
+                    type="button"
+                    fullWidth
+                    onClick={handleDownloadQRCode}
+                  >
                     Download QR Code
                   </Button>
                 </Grid>

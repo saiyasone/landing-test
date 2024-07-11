@@ -8,6 +8,7 @@ import GoogleIcon from "assets/images/googleIcon.png";
 import * as yup from "yup";
 import { useDispatch } from "react-redux";
 import { setPaymentSteps } from "stores/features/paymentSlice";
+import { ENV_KEYS } from "constants/env.constant";
 
 type Prop = {
   onNext?: () => void;
@@ -43,7 +44,10 @@ function PriceSignUp({ onNext }: Prop) {
             <Typography variant="h2">Create your account</Typography>
             <Typography variant="h4">
               Already have one?{" "}
-              <Typography href="/" component={"a"}>
+              <Typography
+                href={`${ENV_KEYS.VITE_APP_URL_REDIRECT_CLIENT_PAGE}auth/sign-in`}
+                component={"a"}
+              >
                 Log in
               </Typography>
             </Typography>

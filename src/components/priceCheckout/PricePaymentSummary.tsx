@@ -4,6 +4,17 @@ import { Button, MenuItem, useMediaQuery } from "@mui/material";
 import NextIcon from "@mui/icons-material/EastSharp";
 import SelectStyled from "components/SelectStyled";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { paymentState } from "stores/features/paymentSlice";
+
+export interface PaymentProp {
+  _id: string;
+  status: string;
+  name: string;
+  annualPrice: number;
+  monthlyPrice: number;
+  packageId: string;
+}
 
 type Props = {
   onNext?: () => void;
@@ -11,7 +22,10 @@ type Props = {
 
 function PricePaymentSummary({ onNext }: Props) {
   const isMobile = useMediaQuery("(max-width:768px)");
-  const [selectPayment, setSelectPayment] = useState("monthly");
+  const [selectPayment, setSelectPayment] = useState("month");
+  const paymentSelector = useSelector(paymentState);
+  const dataPackage = paymentSelector.packageIdData;
+
   return (
     <MUI.PricePaymentSummaryContainer>
       <MUI.PricePaymentContainerBox>
@@ -39,18 +53,7 @@ function PricePaymentSummary({ onNext }: Props) {
               }}
             >
               <MenuItem
-                value={"weekly"}
-                sx={{
-                  ...(isMobile && {
-                    minHeight: "20px",
-                    fontSize: "0.7rem",
-                  }),
-                }}
-              >
-                Weekly
-              </MenuItem>
-              <MenuItem
-                value={"monthly"}
+                value={"month"}
                 sx={{
                   ...(isMobile && {
                     minHeight: "20px",
@@ -60,12 +63,27 @@ function PricePaymentSummary({ onNext }: Props) {
               >
                 Monthly
               </MenuItem>
+              <MenuItem
+                value={"year"}
+                sx={{
+                  ...(isMobile && {
+                    minHeight: "20px",
+                    fontSize: "0.7rem",
+                  }),
+                }}
+              >
+                Year
+              </MenuItem>
             </SelectStyled>
           </MUI.SummaryTitle>
 
           <MUI.SummaryBoxPriceBody>
             <Typography variant="h2">
-              $49.99<Typography component={"span"}>/month</Typography>{" "}
+              $
+              {selectPayment === "month"
+                ? dataPackage?.monthlyPrice
+                : dataPackage?.annualPrice}
+              <Typography component={"span"}>/{selectPayment}</Typography>{" "}
             </Typography>
           </MUI.SummaryBoxPriceBody>
 
@@ -75,7 +93,12 @@ function PricePaymentSummary({ onNext }: Props) {
         <MUI.SummaryListContainer>
           <MUI.SummaryListFlex>
             <Typography component={`p`}>Subscription</Typography>
-            <Typography component={`span`}>$49.99</Typography>
+            <Typography component={`span`}>
+              $
+              {selectPayment === "month"
+                ? dataPackage?.monthlyPrice
+                : dataPackage?.annualPrice}
+            </Typography>
           </MUI.SummaryListFlex>
           <MUI.SummaryListFlex>
             <Typography component={`p`}>Coupon Discount</Typography>
@@ -83,25 +106,33 @@ function PricePaymentSummary({ onNext }: Props) {
           </MUI.SummaryListFlex>
           <MUI.SummaryListFlex>
             <Typography component={`p`}>Tax</Typography>
-            <Typography component={`span`}>$4.99</Typography>
+            <Typography component={`span`}>$0</Typography>
           </MUI.SummaryListFlex>
 
           <hr />
 
           <MUI.SummaryListFlex sx={{ mb: 4 }}>
             <Typography component={`p`}>Total</Typography>
-            <Typography component={`span`}>$53.99</Typography>
+            <Typography component={`span`}>
+              $
+              {selectPayment === "month"
+                ? dataPackage?.monthlyPrice
+                : dataPackage?.annualPrice}
+            </Typography>
           </MUI.SummaryListFlex>
 
-          <Button
-            variant="contained"
-            fullWidth={true}
-            onClick={() => {
-              onNext?.();
-            }}
-          >
-            Proceed with payment <NextIcon sx={{ ml: 3, fontSize: "1rem" }} />
-          </Button>
+          {paymentSelector.paymentSelect === "visa" && (
+            <Button
+              variant="contained"
+              fullWidth={true}
+              onClick={() => {
+                onNext?.();
+              }}
+            >
+              Proceed with 2 checkout{" "}
+              <NextIcon sx={{ ml: 3, fontSize: "1rem" }} />
+            </Button>
+          )}
         </MUI.SummaryListContainer>
 
         <MUI.SummaryNoteContainer>

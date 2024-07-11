@@ -15,7 +15,7 @@ import {
   setCalculatePrice,
 } from "stores/features/paymentSlice";
 import { prettyNumberFormat } from "utils/number.util";
-import { encryptId } from "utils/secure.util";
+import { encryptDataLink, encryptId } from "utils/secure.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
 import NormalButton from "./NormalButton";
 
@@ -165,10 +165,11 @@ function PriceCard(props) {
       <NormalButton
         {...(isCost && {
           onClick: () => {
-            const encrpytedId = encryptId(
-              props.details._id,
-              ENV_KEYS.VITE_APP_ENCRYPTION_KEY,
-            );
+            // const encrpytedId = encryptId(
+            //   props.details._id,
+            //   ENV_KEYS.VITE_APP_ENCRYPTION_KEY,
+            // );
+            const encrpytedId = encryptDataLink(props.details._id);
             dispatch(setActivePaymentType(props.details._type));
             dispatch(setActivePaymentId(props.details._id));
             dispatch(setCalculatePrice());

@@ -41,10 +41,10 @@ function CustomStepIcon(props) {
         {React.cloneElement(props.icons[String(props.icon)], {
           style: {
             ...((completed || active) && {
-              color: "#fff !important",
               backgroundColor: theme.palette.primaryTheme!.main,
-              position: "relative",
+              color: theme.palette.primaryTheme!.main,
             }),
+            color: "#ccc",
           },
         })}
       </Box>

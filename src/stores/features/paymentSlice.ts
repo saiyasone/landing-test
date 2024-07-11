@@ -41,12 +41,19 @@ const initialState = {
   showStripe: false,
   activePaymentMethod: PAYMENT_METHOD.bcelOne,
   recentPayment: {},
+  packageIdData: {
+    _id: "",
+    monthlyPrice: 0,
+    annualPrice: 0,
+    packageId: "",
+  },
   paymentSteps: {
     0: false,
     1: false,
     2: false,
     3: false,
   },
+  paymentSelect: "bcel",
 };
 
 const setDynamicData = (state) => {
@@ -87,6 +94,14 @@ export const paymentSlice = createSlice({
       } else {
         state.couponType = coupon.type;
       }
+    },
+
+    setPaymentSelect: (state, action) => {
+      state.paymentSelect = action.payload;
+    },
+
+    setPackageIdData: (state, action) => {
+      state.packageIdData = action.payload;
     },
 
     setCalculatePrice: (state) => {
@@ -176,6 +191,8 @@ export const {
   setDiscountToPackage,
   setShowBcel,
   setShowStrip,
+  setPackageIdData,
+  setPaymentSelect,
 } = paymentSlice.actions;
 
 export const paymentState = (state: RootState) => state.payment;
