@@ -54,6 +54,12 @@ const initialState = {
     3: false,
   },
   paymentSelect: "bcel",
+  paymentProfile: {
+    firstName: "",
+    lastName: "",
+    country: "",
+    zipCode: "",
+  },
 };
 
 const setDynamicData = (state) => {
@@ -94,6 +100,10 @@ export const paymentSlice = createSlice({
       } else {
         state.couponType = coupon.type;
       }
+    },
+
+    setPaymentProfile: (state, action) => {
+      state.paymentProfile = action.payload;
     },
 
     setPaymentSelect: (state, action) => {
@@ -193,6 +203,7 @@ export const {
   setShowStrip,
   setPackageIdData,
   setPaymentSelect,
+  setPaymentProfile,
 } = paymentSlice.actions;
 
 export const paymentState = (state: RootState) => state.payment;

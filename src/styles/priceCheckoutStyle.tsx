@@ -95,6 +95,28 @@ export const PriceCheckoutSignUpLineFlex = styled("div")({
   },
 });
 
+export const PriceCheckoutSignUpErrorContainer = styled("div")({
+  // marginTop: "1rem",
+  borderRadius: "8px",
+  backgroundColor: "#FFEDE9",
+  padding: "7px 17px",
+  textAlign: "center",
+  width: "100%",
+  height: "100%",
+
+  h6: {
+    fontSize: "0.9rem",
+    color: "#d33",
+    margin: "12px 0",
+    fontWeight: "400",
+
+    a: {
+      textDecoration: "underline !important",
+      color: "inherit",
+    },
+  },
+});
+
 export const PriceCheckoutSignUpLine = styled("div")({
   width: "100%",
   height: "1px",
@@ -246,7 +268,11 @@ export const PricePaymentForm = styled("div")({
 });
 
 export const PricePaymentQRCodeContainer = styled("div")({
-  // marginBottom: "0.8rem",
+  marginBottom: "0.5rem",
+
+  [theme.breakpoints.down("md")]: {
+    marginBottom: "1.2rem",
+  },
 });
 
 export const PricePaymentSummaryContainer = styled("div")({

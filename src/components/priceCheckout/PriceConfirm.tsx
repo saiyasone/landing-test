@@ -26,20 +26,20 @@ const ContentWrapper = styled("div")(({ theme }) => ({
 
 const PriceConfirmation: React.FC<any> = (_props) => {
   const dispatch = useDispatch();
-  const { currencySymbol, addressData, ...paymentSelector }: any =
+  const { currencySymbol, paymentProfile, ...paymentSelector }: any =
     useSelector(paymentState);
   const totalPrice = `${currencySymbol}${(
     paymentSelector.total - paymentSelector.couponAmount
   ).toLocaleString()}`;
 
   useEffect(() => {
-    dispatch(
-      setPaymentSteps({
-        number: 3,
-        value: true,
-      }),
-    );
-  }, []);
+    // dispatch(
+    //   setPaymentSteps({
+    //     number: 2,
+    //     value: true,
+    //   }),
+    // );
+  }, [dispatch]);
 
   return (
     <PricePackageConfirmation>
@@ -153,10 +153,12 @@ const PriceConfirmation: React.FC<any> = (_props) => {
             sx={{ display: "flex", flexDirection: "column", maxWidth: 250 }}
           >
             <span>
-              {addressData.first_name} {addressData.last_name}
-              {addressData.tel && `, ${addressData.tel}`}
+              {paymentProfile.firstName} {paymentProfile.lastName}{" "}
             </span>
-            <span>{addressData.email}</span>
+            <span>
+              {`${paymentProfile.country} && ${paymentProfile.zipCode}`}
+            </span>
+            <span>{paymentProfile.email}</span>
           </Typography>
         </ContentWrapper>
       </ConfirmationContainer>

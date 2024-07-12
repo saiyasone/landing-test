@@ -17,13 +17,15 @@ function PricePayment({ onNext }: Prop) {
   // redux
   const dispatch = useDispatch();
 
+  const handlePaymentTwoCheckout = () => {};
+
   useEffect(() => {
-    dispatch(
-      setPaymentSteps({
-        number: 1,
-        value: true,
-      }),
-    );
+    // dispatch(
+    //   setPaymentSteps({
+    //     number: 1,
+    //     value: true,
+    //   }),
+    // );
   }, [dispatch]);
 
   return (
@@ -46,6 +48,7 @@ function PricePayment({ onNext }: Prop) {
               <PricePaymentSummary
                 onNext={() => {
                   onNext?.();
+                  // handlePaymentTwoCheckout();
                 }}
               />
             </Grid>
