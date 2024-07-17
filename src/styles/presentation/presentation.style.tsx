@@ -386,7 +386,7 @@ export const SignUpCardContainer = styled(Container)({
 export const SignUpCardLeftBox = styled(Box)({
   padding: "2rem 1rem",
   width: "50%",
-  b: {
+  h2: {
     fontSize: "1.5rem",
     lineHeight: 1.25,
     fontWeight: 600,
@@ -406,7 +406,7 @@ export const SignUpCardLeftBox = styled(Box)({
   [theme.breakpoints.down("sm")]: {
     width: "100%",
     padding: "0 1rem",
-    b: {
+    h2: {
       fontSize: "1rem",
       fontWeight: 500,
     },
@@ -480,7 +480,7 @@ export const FreeTrialContainer = styled(Container)({
   flexDirection: "column",
   marginBottom: "2rem",
   padding: "2rem 0",
-  b: {
+  h2: {
     fontSize: "1.5rem",
     lineHeight: 1.25,
     fontWeight: 600,
@@ -497,7 +497,7 @@ export const FreeTrialContainer = styled(Container)({
   [theme.breakpoints.down("sm")]: {
     padding: "0 1rem",
     marginTop: "1rem",
-    b: {
+    h2: {
       fontSize: "1rem",
       fontWeight: 500,
     },
@@ -657,7 +657,7 @@ export const BoxContactUsHeader = styled(Box)({
   alignItems: "center",
   justifyContent: "center",
   flexDirection: "column",
-  b: {
+  h1: {
     fontSize: "1.5rem",
     lineHeight: 1.25,
     fontWeight: 600,

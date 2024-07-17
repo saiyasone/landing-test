@@ -11,6 +11,8 @@ import PricingPlan from "./pages/pricing-plan/PricingPlan";
 import PrivacyPolicy from "./pages/privacy-and-policy/PrivacyPolicy";
 import TermCondition from "./pages/term-and-condition/TermCondition";
 import PricingCheckout from "./pages/pricing-checkout/PricingCheckout";
+import PriceSignUp from "components/priceCheckout/PriceSignUp";
+import PricePayment from "components/priceCheckout/PricePayment";
 
 const routes: RouteObject[] = [
   {
@@ -67,6 +69,18 @@ const routes: RouteObject[] = [
       {
         path: "pricing/checkout/:id",
         element: <PricingCheckout />,
+      },
+      {
+        path: "pricing/accounts/:id",
+        element: <PriceSignUp />,
+      },
+      {
+        path: "pricing/payment/:id",
+        element: <PricePayment />,
+      },
+      {
+        path: "pricing/confirm/:id",
+        element: <PriceSignUp />,
       },
       {
         path: "feedback",

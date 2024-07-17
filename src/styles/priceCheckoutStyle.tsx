@@ -60,7 +60,7 @@ export const PriceCheckoutSignUpHeader = styled("div")({
 });
 
 export const PriceCheckoutSignUpForm = styled("form")({
-  marginBottom: "1rem",
+  marginBottom: "1.2rem",
 });
 
 export const PriceCheckoutLabel = styled("label")({

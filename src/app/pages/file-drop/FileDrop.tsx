@@ -180,12 +180,14 @@ function FileDrop() {
     <FiledropContainer>
       <FiledropArea>
         <Typography
+          variant="h1"
           sx={{
             fontSize: "1.5rem",
             fontWeight: 600,
             color: "#4B465C",
             width: "100%",
             height: "50px",
+            marginBottom: 0,
 
             [theme.breakpoints.down("md")]: {
               height: "40px",
@@ -201,6 +203,7 @@ function FileDrop() {
           The easiest way to share and receive files
         </Typography>
         <Typography
+          variant="h2"
           sx={{
             fontSize: "1.125rem",
             fontWeight: 500,

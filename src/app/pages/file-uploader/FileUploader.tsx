@@ -44,6 +44,7 @@ import { ENV_KEYS } from "constants/env.constant";
 import CryptoJS from "crypto-js";
 import useManageSetting from "hooks/useManageSetting";
 import { errorMessage, successMessage } from "utils/alert.util";
+import Helmet from "react-helmet";
 import {
   combineOldAndNewFileNames,
   cutFileName,
@@ -324,7 +325,16 @@ function FileUploader() {
             setIsLoading(false);
           }, 500);
           if (resPonData) {
-            document.title = resPonData?.filesPublic?.data?.[0]?.filename;
+            const fileData = resPonData?.filesPublic?.data?.[0];
+            const title = cutFileName(
+              combineOldAndNewFileNames(
+                fileData?.filename,
+                fileData?.newFilename,
+              ) as string,
+              10,
+            );
+            setDescription(`${title} Vshare.net`);
+            document.title = title;
             setGetDataRes(resPonData?.filesPublic?.data);
           }
         }
@@ -1074,6 +1084,7 @@ function FileUploader() {
       const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
         headers: { encryptedHeaders: encryptedData },
       });
+
       const reader = response.body!.getReader();
       const stream = new ReadableStream({
         async start(controller) {
@@ -1553,9 +1564,9 @@ function FileUploader() {
 
   return (
     <React.Fragment>
-      {/* <Helmet>
-        <meta name="description" content={description}/>
-      </Helmet> */}
+      <Helmet>
+        <meta name="description" content={_description} />
+      </Helmet>
       <MUI.ContainerHome maxWidth="xl">
         <Dialog open={open}>
           <DialogTitle

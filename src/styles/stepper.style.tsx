@@ -1,9 +1,8 @@
-import { styled } from "@mui/material/styles";
+import { styled, createTheme } from "@mui/material";
+const theme = createTheme();
 
 export const PricingCheckoutContainer = styled("div")(({ theme }) => ({
   borderRadius: "8px",
-  // boxShadow: "rgba(0, 0, 0, 0.09) 0px 3px 12px",
-  // backgroundColor: "white",
   height: "auto",
   display: "flex",
   flexDirection: "column",
@@ -29,6 +28,25 @@ export const PricingCheckoutBody = styled("div")(({ theme }) => ({
   overflow: "hidden",
 }));
 
+export const StepCheckoutBox = styled("div")<{ isMobile: boolean }>(
+  ({ isMobile }) => ({
+    width: "100%",
+    minHeight: "120px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    ...(isMobile &&
+      {
+        // padding: 5,
+      }),
+
+    [theme.breakpoints.down(630)]: {
+      justifyContent: "flex-start",
+      padding: "20px 0px",
+    },
+  }),
+);
+
 export const TitleAndSwitch = styled("div")({
   display: "flex",
   height: "50px",
@@ -36,3 +54,67 @@ export const TitleAndSwitch = styled("div")({
   alignItems: "center",
   justifyContent: "space-between",
 });
+
+export const StepperStyledContainer = styled("div")({
+  display: "flex",
+  alignItems: "center",
+  gap: "2rem",
+
+  [theme.breakpoints.down(630)]: {
+    flexDirection: "column",
+  },
+});
+
+export const StepperStyledBoxContainer = styled("div")({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  width: "250px",
+  position: "relative",
+
+  [theme.breakpoints.down("md")]: {
+    width: "160px",
+  },
+});
+
+export const StepperStyledBoxLeft = styled("div")({
+  width: "100%",
+  display: "flex",
+  alignItems: "center",
+});
+
+export const StepperStyledBoxIcon = styled("div")<{ isActive: boolean }>(
+  ({ isActive }) => ({
+    width: "50px",
+    height: "40px",
+    borderRadius: "5px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: isActive ? "#17766B" : "#eee",
+    color: isActive ? "#fff" : "#4B465C",
+    svg: {
+      fontSize: "1.3rem",
+    },
+  }),
+);
+
+export const StepperStyledBoxTitle = styled("div")({
+  marginLeft: "10px",
+  display: "flex",
+  flexDirection: "column",
+  color: "#4B465C",
+  width: "100%",
+
+  p: {
+    fontSize: "0.9rem",
+    fontWeight: "bold",
+  },
+
+  span: {
+    fontSize: "12px",
+    fontWeight: "300",
+  },
+});
+
+export const StepperStyledBoxRight = styled("div")({});

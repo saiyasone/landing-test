@@ -173,7 +173,7 @@ function PriceCard(props) {
             dispatch(setActivePaymentType(props.details._type));
             dispatch(setActivePaymentId(props.details._id));
             dispatch(setCalculatePrice());
-            navigate(`/pricing/checkout/${encrpytedId}`);
+            navigate(`/pricing/accounts/${encrpytedId}`);
           },
         })}
         sx={{

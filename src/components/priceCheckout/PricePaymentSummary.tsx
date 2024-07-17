@@ -3,10 +3,18 @@ import Typography from "@mui/material/Typography";
 import { Button, MenuItem, useMediaQuery } from "@mui/material";
 import NextIcon from "@mui/icons-material/EastSharp";
 import SelectStyled from "components/SelectStyled";
-import { useState } from "react";
-import { useSelector } from "react-redux";
-import { paymentState } from "stores/features/paymentSlice";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  paymentState,
+  setActivePaymentId,
+  setPackageIdData,
+  setPaymentType,
+} from "stores/features/paymentSlice";
+import ButtonSelectStyled from "components/ButtonSelectStyled";
+import { useNavigate } from "react-router-dom";
 
+import { decryptDataLink, encryptDataLink } from "utils/secure.util";
 export interface PaymentProp {
   _id: string;
   status: string;
@@ -16,15 +24,60 @@ export interface PaymentProp {
   packageId: string;
 }
 
-type Props = {
-  onNext?: () => void;
-};
-
-function PricePaymentSummary({ onNext }: Props) {
+function PricePaymentSummary() {
   const isMobile = useMediaQuery("(max-width:768px)");
-  const [selectPayment, setSelectPayment] = useState("month");
+  const [pricePayment, setPricePayment] = useState("");
+  const [menuPackage, setMenuPackage] = useState("");
+  const [selectPayment, setSelectPayment] = useState("monthly");
+  const [dataPackages, setDataPackages] = useState<any[]>([]);
   const paymentSelector = useSelector(paymentState);
   const dataPackage = paymentSelector.packageIdData;
+
+  // params
+  const navigate = useNavigate();
+
+  // redux
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (paymentSelector.packageIdData) {
+      setMenuPackage(paymentSelector.packageIdData._id);
+      setPricePayment(
+        selectPayment === "monthly"
+          ? String(paymentSelector.packageIdData?.monthlyPrice)
+          : String(paymentSelector.packageIdData?.annualPrice || "0"),
+      );
+    }
+  }, [paymentSelector.packageIdData, selectPayment]);
+
+  useEffect(() => {
+    if (paymentSelector.packageData) {
+      const results = Array.from(paymentSelector.packageData);
+      const data = results.filter((el: any) => el.category !== "free");
+      setDataPackages(data);
+    }
+  }, [paymentSelector.packageData]);
+
+  useEffect(() => {
+    if (menuPackage) {
+      const encode = encryptDataLink(menuPackage);
+      const decode = decryptDataLink(encode);
+      dispatch(setActivePaymentId(decode));
+
+      if (dataPackages) {
+        const result = dataPackages.find((el: any) => el._id === decode);
+        dispatch(setPackageIdData(result));
+      }
+
+      navigate("/pricing/payment/" + encode);
+    }
+  }, [menuPackage, dispatch, dataPackages]);
+
+  useEffect(() => {
+    if (selectPayment) {
+      dispatch(setPaymentType(selectPayment));
+    }
+  }, [selectPayment, dispatch]);
 
   return (
     <MUI.PricePaymentSummaryContainer>
@@ -53,11 +106,12 @@ function PricePaymentSummary({ onNext }: Props) {
               }}
             >
               <MenuItem
-                value={"month"}
+                value={"monthly"}
                 sx={{
                   ...(isMobile && {
                     minHeight: "20px",
                     fontSize: "0.7rem",
+                    textAlign: "center",
                   }),
                 }}
               >
@@ -79,26 +133,48 @@ function PricePaymentSummary({ onNext }: Props) {
 
           <MUI.SummaryBoxPriceBody>
             <Typography variant="h2">
-              $
-              {selectPayment === "month"
-                ? dataPackage?.monthlyPrice
-                : dataPackage?.annualPrice}
+              ${pricePayment}
               <Typography component={"span"}>/{selectPayment}</Typography>{" "}
             </Typography>
           </MUI.SummaryBoxPriceBody>
 
-          <MUI.SummaryButton>vShare Pro</MUI.SummaryButton>
+          <ButtonSelectStyled
+            SelectDisplayProps={{
+              sx: {
+                overflow: "unset !important",
+              },
+            }}
+            value={menuPackage}
+            variant="outlined"
+            onChange={(e) => {
+              setMenuPackage(e.target.value);
+            }}
+            sx={{
+              overflow: "unset",
+            }}
+          >
+            {dataPackages.map((item, index) => (
+              <MenuItem
+                key={index}
+                value={item._id}
+                sx={{
+                  // color: "#17766B",
+                  ...(isMobile && {
+                    minHeight: "20px",
+                    fontSize: "1rem",
+                  }),
+                }}
+              >
+                Vshare {item.name}
+              </MenuItem>
+            ))}
+          </ButtonSelectStyled>
         </MUI.PricePaymentSummaryBoxPrice>
 
         <MUI.SummaryListContainer>
           <MUI.SummaryListFlex>
             <Typography component={`p`}>Subscription</Typography>
-            <Typography component={`span`}>
-              $
-              {selectPayment === "month"
-                ? dataPackage?.monthlyPrice
-                : dataPackage?.annualPrice}
-            </Typography>
+            <Typography component={`span`}>${pricePayment}</Typography>
           </MUI.SummaryListFlex>
           <MUI.SummaryListFlex>
             <Typography component={`p`}>Coupon Discount</Typography>
@@ -115,20 +191,14 @@ function PricePaymentSummary({ onNext }: Props) {
             <Typography component={`p`}>Total</Typography>
             <Typography component={`span`}>
               $
-              {selectPayment === "month"
+              {selectPayment === "monthly"
                 ? dataPackage?.monthlyPrice
                 : dataPackage?.annualPrice}
             </Typography>
           </MUI.SummaryListFlex>
 
           {paymentSelector.paymentSelect === "visa" && (
-            <Button
-              variant="contained"
-              fullWidth={true}
-              onClick={() => {
-                onNext?.();
-              }}
-            >
+            <Button variant="contained" fullWidth={true} onClick={() => {}}>
               Proceed with 2 checkout{" "}
               <NextIcon sx={{ ml: 3, fontSize: "1rem" }} />
             </Button>

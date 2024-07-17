@@ -5,13 +5,11 @@ import {
   PricingCheckoutBoxContainer,
   PricingCheckoutContainer,
 } from "styles/priceCheckoutStyle";
-import PricePaymentStepper from "components/priceCheckout/PricePaymentStepper";
 import PriceSignUp from "components/priceCheckout/PriceSignUp";
 import { useDispatch, useSelector } from "react-redux";
 import {
   paymentState,
   setActivePaymentId,
-  setActiveStep,
   setPackageData,
   setPackageIdData,
 } from "stores/features/paymentSlice";
@@ -21,6 +19,7 @@ import "styles/step-animation.css";
 import { decryptDataLink } from "utils/secure.util";
 import useManagePublicPackages from "hooks/useManagePublicPackage";
 import usePackageFilter from "hooks/usePackageFilter";
+import StepV1 from "components/StepV1";
 
 function PricingCheckout() {
   const duration = 500;
@@ -42,22 +41,10 @@ function PricingCheckout() {
 
     switch (activeStep) {
       case 0:
-        step = (
-          <PriceSignUp
-            onNext={() => {
-              dispatch(setActiveStep(1));
-            }}
-          />
-        );
+        step = <PriceSignUp />;
         break;
       case 1:
-        step = (
-          <PricePayment
-            onNext={() => {
-              dispatch(setActiveStep(2));
-            }}
-          />
-        );
+        step = <PricePayment />;
         break;
 
       case 2:
@@ -119,14 +106,15 @@ function PricingCheckout() {
         );
 
         dispatch(setPackageIdData(result));
-    }
+      }
     }
   }, [params, dispatch, packagesData.data]);
 
   return (
     <PricingCheckoutBoxContainer>
       <PricingCheckoutContainer>
-        <PricePaymentStepper />
+        <StepV1 active="account" />
+        {/* <PricePaymentStepper /> */}
 
         {PricingCheckoutProcess()}
       </PricingCheckoutContainer>

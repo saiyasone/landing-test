@@ -3,17 +3,79 @@ import { CacheProvider } from "@emotion/react";
 import { ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
 import routes from "app/routes";
 import useTheme from "hooks/useTheme";
-import { useRoutes } from "react-router-dom";
+import { useLocation, useRoutes } from "react-router-dom";
 import createTheme from "theme";
+import { HelmetProvider, Helmet } from "react-helmet-async";
+import { useEffect, useState } from "react";
+import { getRouteName } from "utils/url.util";
+import { useLazyQuery } from "@apollo/client";
+import { QUERY_SEO } from "api/graphql/ad.graphql";
 
 const emotionCache = createCache({ key: "css" });
 
 function App() {
   const content = useRoutes(routes);
   const { theme } = useTheme();
+
+  // routes
+  const location = useLocation();
+  const currentURL = location.pathname;
+  const routeName = getRouteName(currentURL);
+
+  const [title, setTitle] = useState("");
+  const [SEOData, setSEOData] = useState<any[]>([]);
+  const [getSEO] = useLazyQuery(QUERY_SEO, { fetchPolicy: "no-cache" });
+
+  const formattedData: any = SEOData?.map((item) => {
+    return Object.entries(item).map(([key, value]) => {
+      return {
+        name: key,
+        content: value,
+      };
+    });
+  }).flat();
+
+  useEffect(() => {
+    if (SEOData) {
+      // console.log(SEOData);
+    }
+  }, [SEOData]);
+
+  useEffect(() => {
+    const handleQuerySEO = async () => {
+      try {
+        const res = await getSEO({
+          variables: {
+            where: {
+              title: routeName,
+            },
+          },
+        });
+
+        if (res?.data?.getPublicSEO?.data) {
+          setSEOData(res?.data?.getPublicSEO?.data);
+          setTitle(res?.data?.getPublicSEO?.data?.[0]?.title);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    handleQuerySEO();
+  }, [routeName, getSEO]);
+
   return (
     <CacheProvider value={emotionCache}>
-      <MuiThemeProvider theme={createTheme(theme)}>{content}</MuiThemeProvider>
+      <HelmetProvider>
+        <Helmet defaultTitle={title} meta={formattedData}>
+          <meta name="robots" content="noindex" />
+          <meta name="description" content={SEOData?.[0]?.description} />
+          <meta name="keywords" content={SEOData?.[0]?.keywords} />
+        </Helmet>
+        <MuiThemeProvider theme={createTheme(theme)}>
+          {content}
+        </MuiThemeProvider>
+      </HelmetProvider>
     </CacheProvider>
   );
 }

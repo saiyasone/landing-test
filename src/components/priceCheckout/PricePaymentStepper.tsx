@@ -16,8 +16,7 @@ function PricePaymentStepper() {
   const isMobile = useMediaQuery("(max-width:768px)");
 
   const dispatch = useDispatch();
-  const { activeStep, paymentSteps, packageType, ...paymentSelector } =
-    useSelector(paymentState);
+  const { activeStep, paymentSteps } = useSelector(paymentState);
 
   return (
     <Fragment>
@@ -58,7 +57,7 @@ function PricePaymentStepper() {
                 steps: [
                   { title: "Account", subtitle: "Account Detail" },
                   { title: "Payment", subtitle: "Enter Information" },
-                  { title: "Confirmation", subtitle: "Payment Detail" },
+                  { title: "Success", subtitle: "Payment Detail" },
                 ],
                 isCompletedSteps: [
                   paymentSteps[0],

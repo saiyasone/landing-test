@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { MUTATION_CREATE_QR_AND_SUBSCRIPTION } from "api/graphql/payment.graphql";
 import { clientMockup } from "main";
+import { useSelector } from "react-redux";
+import { paymentState } from "stores/features/paymentSlice";
 
 const useBcelSubscirption = () => {
+  const paymentSelector = useSelector(paymentState);
   const [createQrAndSubscription] = useMutation(
     MUTATION_CREATE_QR_AND_SUBSCRIPTION,
     {
@@ -37,6 +40,7 @@ const useBcelSubscirption = () => {
       setQrCode(`${qrCode}`);
       setLink(`onepay://qr/${qrCode}`);
     });
+    // paymentSelector.paymentType
   }, []);
 
   return {

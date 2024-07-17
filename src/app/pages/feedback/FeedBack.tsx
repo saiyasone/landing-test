@@ -19,6 +19,7 @@ import {
   styled,
   // InputBase,
   useMediaQuery,
+  createTheme,
 } from "@mui/material";
 import Card from "@mui/material/Card";
 import Checkbox from "@mui/material/Checkbox";
@@ -121,6 +122,8 @@ function Feedback() {
   const [designRating, setDesignRating] = React.useState(0);
   const [serviceRating, setServiceRating] = React.useState(0);
   const [performanceRating, setPerformanceRating] = React.useState(0);
+
+  const theme = createTheme();
 
   const editorRef = useRef<any>(null);
   const isMobile = useMediaQuery("(max-width:600px)");
@@ -234,6 +237,7 @@ function Feedback() {
                 <>
                   <MUI.NotificationDiv>
                     <Typography
+                      variant="h2"
                       sx={{
                         fontWeight: 500,
                         color: "#167268",
@@ -243,6 +247,7 @@ function Feedback() {
                       Submit your fullname and email to get up 100 points
                     </Typography>
                     <Typography
+                      variant="h5"
                       sx={{
                         fontWeight: 500,
                         color: "#167268",
@@ -380,10 +385,17 @@ function Feedback() {
             >
               <Box sx={{ textAlign: "center", margin: "1.5rem 0" }}>
                 <Typography
+                  variant="h1"
                   sx={{
                     fontSize: "1.1rem",
                     fontWeight: 500,
                     padding: "0.5rem 0",
+                    textAlign: "left",
+
+                    [theme.breakpoints.down("sm")]: {
+                      fontSize: "0.9rem",
+                      textAlign: "center",
+                    },
                   }}
                 >
                   How do you rate your experience with Vshare?

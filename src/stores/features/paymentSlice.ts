@@ -46,6 +46,7 @@ const initialState = {
     monthlyPrice: 0,
     annualPrice: 0,
     packageId: "",
+    category: "",
   },
   paymentSteps: {
     0: false,
@@ -53,6 +54,7 @@ const initialState = {
     2: false,
     3: false,
   },
+  paymentType: "",
   paymentSelect: "bcel",
   paymentProfile: {
     firstName: "",
@@ -100,6 +102,10 @@ export const paymentSlice = createSlice({
       } else {
         state.couponType = coupon.type;
       }
+    },
+
+    setPaymentType: (state, action) => {
+      state.paymentType = action.payload;
     },
 
     setPaymentProfile: (state, action) => {
@@ -204,6 +210,7 @@ export const {
   setPackageIdData,
   setPaymentSelect,
   setPaymentProfile,
+  setPaymentType,
 } = paymentSlice.actions;
 
 export const paymentState = (state: RootState) => state.payment;

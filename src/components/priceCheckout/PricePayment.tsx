@@ -6,30 +6,37 @@ import {
   PricePaymentContainer,
   PricePaymentContainerBox,
 } from "styles/priceCheckoutStyle";
+import StepV1 from "components/StepV1";
+import useManagePublicPackages from "hooks/useManagePublicPackage";
+import usePackageFilter from "hooks/usePackageFilter";
 import { useDispatch } from "react-redux";
-import { setPaymentSteps } from "stores/features/paymentSlice";
+import { setPackageData, setPackageIdData } from "stores/features/paymentSlice";
+import { useParams } from "react-router-dom";
+import { decryptDataLink } from "utils/secure.util";
 
-type Prop = {
-  onNext?: () => void;
-};
+function PricePayment() {
+  const filter = usePackageFilter();
+  const managePackages = useManagePublicPackages({ filter: filter.data });
 
-function PricePayment({ onNext }: Prop) {
+  const { id } = useParams();
+
   // redux
   const dispatch = useDispatch();
 
   const handlePaymentTwoCheckout = () => {};
 
   useEffect(() => {
-    // dispatch(
-    //   setPaymentSteps({
-    //     number: 1,
-    //     value: true,
-    //   }),
-    // );
-  }, [dispatch]);
+    if (managePackages.data && managePackages.data?.length > 0) {
+      const decodeParam = decryptDataLink(id);
+      const result = managePackages.data?.find((el) => el._id === decodeParam);
+      dispatch(setPackageIdData(result));
+      dispatch(setPackageData(managePackages.data));
+    }
+  }, [managePackages.data, dispatch, id]);
 
   return (
     <Fragment>
+      <StepV1 active="payment" />
       <PricePaymentContainer sx={{ boxShadow: 3 }}>
         <Paper
           sx={{
@@ -45,12 +52,7 @@ function PricePayment({ onNext }: Prop) {
               </PricePaymentContainerBox>
             </Grid>
             <Grid item lg={5} md={5} sm={12}>
-              <PricePaymentSummary
-                onNext={() => {
-                  onNext?.();
-                  // handlePaymentTwoCheckout();
-                }}
-              />
+              <PricePaymentSummary />
             </Grid>
           </Grid>
         </Paper>

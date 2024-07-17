@@ -75,7 +75,7 @@ const BoxContactUsHeader = styled(Box)(({ theme }) => ({
   justifyContent: "start",
   flexDirection: "column",
   color: "#17766B",
-  b: {
+  h1: {
     fontSize: "1.5rem",
     lineHeight: 1.25,
     fontWeight: 600,
@@ -89,7 +89,7 @@ const BoxContactUsHeader = styled(Box)(({ theme }) => ({
     height: "auto",
   },
   [theme.breakpoints.down("sm")]: {
-    b: {
+    h1: {
       fontSize: "1rem",
       marginBottom: "0",
       padding: "0",
@@ -241,13 +241,13 @@ function ContactUs() {
       <BoxContactUs ref={ref7}>
         <ContainerContactUs maxWidth="lg">
           <BoxContactUsHeader>
-            <motion.b
+            <motion.h1
               variants={mapAnimation}
               initial="hidden"
               animate={inView7 ? "show" : "hidden"}
             >
               Send us a Message
-            </motion.b>
+            </motion.h1>
             <motion.p
               variants={mapAnimation}
               initial="hidden"

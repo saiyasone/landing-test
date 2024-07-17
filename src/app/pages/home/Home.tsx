@@ -336,6 +336,7 @@ function Home() {
             <img src={vectorImage} alt="" />
             <MUI.BoxUploadHeader sx={{ marginBottom: "1.5rem" }}>
               <Typography
+                variant="h1"
                 sx={{
                   fontSize: "1.5rem",
                   fontWeight: 600,
@@ -541,13 +542,13 @@ function Home() {
         <MUI.BoxSignUpCard>
           <MUI.SignUpCardContainer maxWidth="lg" ref={ref2}>
             <MUI.SignUpCardLeftBox>
-              <motion.b
+              <motion.h2
                 variants={mapAnimation}
                 initial="hidden"
                 animate={inView2 ? "show" : "hidden"}
               >
                 Sign up now for free
-              </motion.b>
+              </motion.h2>
               <motion.p
                 variants={mapAnimation}
                 initial="hidden"
@@ -795,13 +796,13 @@ function Home() {
         </MUI.BoxFeatureContainer>
 
         <MUI.FreeTrialContainer ref={ref5}>
-          <motion.b
+          <motion.h2
             variants={mapAnimation}
             initial="hidden"
             animate={inView5 ? "show" : "hidden"}
           >
             Try us 14 days free trial
-          </motion.b>
+          </motion.h2>
           <motion.p
             variants={mapAnimation}
             initial="hidden"
@@ -883,13 +884,13 @@ function Home() {
         <MUI.BoxContactUs ref={ref7}>
           <MUI.ContainerContactUs maxWidth="lg">
             <MUI.BoxContactUsHeader>
-              <motion.b
+              <motion.h1
                 variants={mapAnimation}
                 initial="hidden"
                 animate={inView7 ? "show" : "hidden"}
               >
                 Contact Us
-              </motion.b>
+              </motion.h1>
               <motion.p
                 variants={mapAnimation}
                 initial="hidden"

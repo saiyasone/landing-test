@@ -1,32 +1,31 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import * as MUI from "styles/priceCheckoutStyle";
 import Typography from "@mui/material/Typography";
-import { Box, Button, TextField } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import { Formik } from "formik";
 import ContinuteIcon from "@mui/icons-material/ArrowForward";
 import GoogleIcon from "assets/images/googleIcon.png";
 import * as yup from "yup";
-import { useDispatch } from "react-redux";
-import { setPaymentSteps } from "stores/features/paymentSlice";
 import { ENV_KEYS } from "constants/env.constant";
 import axios from "axios";
 import { useMutation } from "@apollo/client";
 import { USER_SIGNUP } from "api/graphql/secure.graphql";
 import useManageGraphqlError from "hooks/useManageGraphqlError";
 import { errorMessage } from "utils/alert.util";
+import StepV1 from "components/StepV1";
+import { useNavigate, useParams } from "react-router-dom";
 
-type Prop = {
-  onNext?: () => void;
-};
-
-function PriceSignUp({ onNext }: Prop) {
+function PriceSignUp() {
   const [errorEmail, setErrorEmail] = useState("");
   const [isError, setIsError] = useState(false);
 
   const validateForm = yup.object().shape({
     email: yup.string().required("Email is required").email("Email is invalid"),
-    password: yup.string().required("Password is required"),
   });
+
+  // router
+  const navigate = useNavigate();
+  const { id: paramId } = useParams<{ id: string }>();
 
   // hooks
   const manageGraphQLError = useManageGraphqlError();
@@ -34,10 +33,9 @@ function PriceSignUp({ onNext }: Prop) {
   // graphql
   const [register] = useMutation(USER_SIGNUP);
 
-  // redux
-  const dispatch = useDispatch();
-
   const handleSubmitForm = async (values: any) => {
+    console.log(values);
+    navigate("/pricing/payment/" + paramId);
     // try {
     //   const responseIp = await axios.get(ENV_KEYS.VITE_APP_LOAD_GETIP_URL);
     //   const signUpUser = await register({
@@ -69,20 +67,11 @@ function PriceSignUp({ onNext }: Prop) {
     //     );
     //   }
     // }
-    onNext?.();
   };
-
-  useEffect(() => {
-    // dispatch(
-    //   setPaymentSteps({
-    //     number: 0,
-    //     value: true,
-    //   }),
-    // );
-  }, [dispatch]);
 
   return (
     <Fragment>
+      <StepV1 active="account" />
       <MUI.PriceCheckoutSignUpFormContainer>
         <MUI.PriceCheckoutSignUpContainer>
           <MUI.PriceCheckoutSignUpHeader>
@@ -98,7 +87,7 @@ function PriceSignUp({ onNext }: Prop) {
             </Typography>
           </MUI.PriceCheckoutSignUpHeader>
           <Formik
-            initialValues={{ email: "zard@gmail.com", password: "" }}
+            initialValues={{ email: "zard@gmail.com" }}
             validationSchema={validateForm}
             onSubmit={handleSubmitForm}
           >
@@ -116,21 +105,6 @@ function PriceSignUp({ onNext }: Prop) {
                   helperText={touched.email && errors.email}
                   onChange={handleChange}
                   value={values.email}
-                />
-                <MUI.PriceCheckoutLabel sx={{ mt: 3 }}>
-                  Password
-                </MUI.PriceCheckoutLabel>
-                <TextField
-                  type="password"
-                  name="password"
-                  size="small"
-                  placeholder="Password"
-                  variant="outlined"
-                  fullWidth={true}
-                  error={Boolean(touched.password && errors.password)}
-                  helperText={touched.password && errors.password}
-                  onChange={handleChange}
-                  value={values.password}
                 />
 
                 <MUI.PriceCheckoutAction>
@@ -168,17 +142,17 @@ function PriceSignUp({ onNext }: Prop) {
             </MUI.PriceCheckoutSignUpErrorContainer>
           )}
 
-          <MUI.PriceCheckoutSignUpLineFlex sx={{ mt: 4 }}>
+          {/* <MUI.PriceCheckoutSignUpLineFlex sx={{ mt: 4 }}>
             <MUI.PriceCheckoutSignUpLine />
             <Typography component={`p`}>or</Typography>
             <MUI.PriceCheckoutSignUpLine />
-          </MUI.PriceCheckoutSignUpLineFlex>
+          </MUI.PriceCheckoutSignUpLineFlex> */}
 
           <MUI.PriceCheckoutSignUpFooter>
-            <MUI.GoogleSignUpButton>
+            {/* <MUI.GoogleSignUpButton>
               <img src={GoogleIcon} alt="google-icon" />
               Continute with Google
-            </MUI.GoogleSignUpButton>
+            </MUI.GoogleSignUpButton> */}
 
             <MUI.PriceCheckoutPrivacy>
               <Typography variant="h5">
