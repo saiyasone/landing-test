@@ -1,15 +1,15 @@
+import { useLazyQuery } from "@apollo/client";
 import createCache from "@emotion/cache";
 import { CacheProvider } from "@emotion/react";
 import { ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
+import { QUERY_SEO } from "api/graphql/ad.graphql";
 import routes from "app/routes";
 import useTheme from "hooks/useTheme";
+import { useEffect, useState } from "react";
+import { Helmet, HelmetProvider } from "react-helmet-async";
 import { useLocation, useRoutes } from "react-router-dom";
 import createTheme from "theme";
-import { HelmetProvider, Helmet } from "react-helmet-async";
-import { useEffect, useState } from "react";
 import { getRouteName } from "utils/url.util";
-import { useLazyQuery } from "@apollo/client";
-import { QUERY_SEO } from "api/graphql/ad.graphql";
 
 const emotionCache = createCache({ key: "css" });
 
