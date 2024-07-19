@@ -5,21 +5,12 @@
     xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
     xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
     <url>
-        <loc>https://www.vshare.net/</loc>
-    </url>
-    <url>
-        <loc>https://www.vshare.net/contact-us</loc>
+        <loc>https://www.vshare.net</loc>
     </url>
     <url>
         <loc>https://www.vshare.net/pricing-plans</loc>
     </url>
     <url>
         <loc>https://www.vshare.net/filedrops</loc>
-    </url>
-    <url>
-        <loc>https://www.vshare.net/filedrop</loc>
-    </url>
-    <url>
-        <loc>https://www.vshare.net/feedback</loc>
     </url>
 </urlset>
