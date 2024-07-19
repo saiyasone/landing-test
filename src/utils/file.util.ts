@@ -47,3 +47,15 @@ export function combineOldAndNewFileNames(
 export function removeFileNameOutOfPath(path: string) {
   return path.substring(0, path.lastIndexOf("/") + 1);
 }
+
+export function startDownloadExtension(baseUrl: string) {
+  const iframe = document.createElement("iframe");
+  iframe.style.display = "none";
+
+  iframe.onload = () => {
+    document.body.removeChild(iframe);
+  };
+
+  iframe.src = baseUrl;
+  document.body.appendChild(iframe);
+}

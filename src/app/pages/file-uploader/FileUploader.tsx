@@ -49,6 +49,7 @@ import {
   combineOldAndNewFileNames,
   cutFileName,
   removeFileNameOutOfPath,
+  startDownloadExtension,
   truncateName,
 } from "utils/file.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
@@ -905,6 +906,7 @@ function FileUploader() {
     filePassword,
     newPath,
     createdBy,
+    dataFile,
   ) => {
     setTotalClickCount((prevCount) => prevCount + 1);
     setFileDataSelect({ newPath, createdBy });
@@ -944,6 +946,7 @@ function FileUploader() {
               newFilename,
               real_path,
               createdBy,
+              dataFile,
             });
           }
         } else {
@@ -1037,6 +1040,7 @@ function FileUploader() {
                 newFilename,
                 real_path,
                 createdBy,
+                dataFile,
               });
             } else {
               handleDoneDownloadFilesOnPublic({
@@ -1059,6 +1063,7 @@ function FileUploader() {
     newFilename,
     changeFilename,
     createdBy,
+    dataFile,
   }) => {
     try {
       setIsHide((prev) => ({
@@ -1081,12 +1086,15 @@ function FileUploader() {
       };
 
       const encryptedData = encryptDownloadData(headers);
+      const baseUrl = `${ENV_KEYS.VITE_APP_LOAD_URL}downloader/file/download-multifolders-and-files?download=${encryptedData} ?`;
+
+      startDownloadExtension(baseUrl);
       const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
         headers: { encryptedHeaders: encryptedData },
       });
 
       const reader = response.body!.getReader();
-      const stream = new ReadableStream({
+      new ReadableStream({
         async start(controller) {
           // eslint-disable-next-line no-constant-condition
           while (true) {
@@ -1115,15 +1123,15 @@ function FileUploader() {
           }
         },
       });
-      const blob = await new Response(stream).blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = changeFilename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(blobUrl);
+      // const blob = await new Response(stream).blob();
+      // const blobUrl = URL.createObjectURL(blob);
+      // const a = document.createElement("a");
+      // a.href = blobUrl;
+      // a.download = changeFilename;
+      // document.body.appendChild(a);
+      // a.click();
+      // a.remove();
+      // URL.revokeObjectURL(blobUrl);
     } catch (error) {
       console.error(error);
     }

@@ -110,6 +110,7 @@ function CardFileDownloader(props) {
                         dataFile?.filePassword,
                         dataFile?.newPath ?? "",
                         dataFile?.createdBy,
+                        dataFile,
                       );
                       setIndex(index);
                       setPassword("");
@@ -134,8 +135,9 @@ function CardFileDownloader(props) {
                         dataFile?.newFilename,
                         dataFile?.filename,
                         dataFile?.filePassword,
-                        dataFile?.newPath ?? "",
+                        dataFile?.newPath || "",
                         dataFile?.createdBy,
+                        dataFile,
                       );
                       setIndex(index);
                       setPassword("");
@@ -176,6 +178,7 @@ function CardFileDownloader(props) {
                           dataFile?.filePassword,
                           dataFile?.newPath ?? "",
                           dataFile?.createdBy,
+                          dataFile,
                         );
                         setPassword("");
                         setGetFilenames(dataFile?.filename);
