@@ -1,5 +1,4 @@
 import axios from "axios";
-import CryptoJS from "crypto-js";
 import { customAlphabet } from "nanoid";
 import PropTypes from "prop-types";
 import * as React from "react";
@@ -36,6 +35,7 @@ import {
   getFileType,
 } from "utils/file.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
+import { encryptDownloadData } from "utils/secure.util";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -131,15 +131,14 @@ export default function CustomizedDialogs(props) {
   React.useEffect(() => {
     const fetchIPAddress = async () => {
       try {
-        setCountry("other");
-        // const responseIp = await axios.get(LOAD_GET_IP_URL);
-        // const ip = responseIp?.data;
-        // if (ip) {
-        //   const res = await axios.get(
-        //     `https://pro.ip-api.com/json/${ip}?key=x0TWf62F7ukWWpQ`,
-        //   );
-        //   setCountry(res?.data?.countryCode);
-        // }
+        const responseIp = await axios.get(LOAD_GET_IP_URL);
+        const ip = responseIp?.data;
+        if (ip) {
+          const res = await axios.get(
+            `https://pro.ip-api.com/json/${ip}?key=x0TWf62F7ukWWpQ`,
+          );
+          setCountry(res?.data?.countryCode);
+        }
       } catch (error) {
         setCountry("other");
       }
@@ -250,8 +249,8 @@ export default function CustomizedDialogs(props) {
         getUrlAllWhenReturn = _createFilePublic.createFilesPublic;
         if (_createFilePublic) {
           let initialUploadSpeedCalculated = false;
+
           const startTime = new Date().getTime();
-          const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
           const headers = {
             REGION: "sg",
             BASE_HOSTNAME: "storage.bunnycdn.com",
@@ -260,18 +259,9 @@ export default function CustomizedDialogs(props) {
             PATH:
               userId > 0 && folderId > 0 ? `${privateUser}` : `/${publicUser}`,
             FILENAME: randomName + `${getFileNameExtension(file?.name)}`,
+            createdBy: "0",
           };
-
-          const key = CryptoJS.enc.Utf8.parse(secretKey);
-          const iv = CryptoJS.lib.WordArray.random(16);
-          const encrypted = CryptoJS.AES.encrypt(JSON.stringify(headers), key, {
-            iv: iv,
-            mode: CryptoJS.mode.CBC,
-            padding: CryptoJS.pad.Pkcs7,
-          });
-          const cipherText = encrypted.ciphertext.toString(CryptoJS.enc.Base64);
-          const ivText = iv.toString(CryptoJS.enc.Base64);
-          const encryptedData = cipherText + ":" + ivText;
+          const encryptedData = encryptDownloadData(headers);
 
           const blob = new Blob([dataFile[i]], {
             type: dataFile[i].type,

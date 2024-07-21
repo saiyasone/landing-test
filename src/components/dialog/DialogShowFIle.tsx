@@ -22,7 +22,6 @@ import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
 import imageIcon from "assets/images/logo.png";
 import axios from "axios";
-import CryptoJS from "crypto-js";
 import * as htmlToImage from "html-to-image";
 import { customAlphabet } from "nanoid";
 import PropTypes from "prop-types";
@@ -53,6 +52,7 @@ import { Id } from "types";
 import { errorMessage, successMessage } from "utils/alert.util";
 import { cutFileName, getFileType } from "utils/file.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
+import { encryptDownloadData } from "utils/secure.util";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -470,7 +470,7 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
           try {
             const formData = new FormData();
             formData.append("file", newFile);
-            const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
+
             let initialUploadSpeedCalculated = false;
             const startTime = new Date().getTime();
             const headers = {
@@ -481,25 +481,10 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
               PATH: "public",
               FILENAME: newNameFile,
               PATH_FOR_THUMBNAIL: "public",
+              createdBy: "0",
             };
 
-            const key = CryptoJS.enc.Utf8.parse(secretKey);
-            const iv = CryptoJS.lib.WordArray.random(16);
-            const encrypted = CryptoJS.AES.encrypt(
-              JSON.stringify(headers),
-              key,
-              {
-                iv: iv,
-                mode: CryptoJS.mode.CBC,
-                padding: CryptoJS.pad.Pkcs7,
-              },
-            );
-            const cipherText = encrypted.ciphertext.toString(
-              CryptoJS.enc.Base64,
-            );
-            const ivText = iv.toString(CryptoJS.enc.Base64);
-            const encryptedData = cipherText + ":" + ivText;
-
+            const encryptedData = encryptDownloadData(headers);
             const response = await axios.post(LOAD_UPLOAD_URL, formData, {
               headers: {
                 "Content-Type": "multipart/form-data",
@@ -543,10 +528,6 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
                 [i]: true,
               }));
             }
-            /* setIsDone(1);
-            setValue(`${value}${getUrlAllWhenReturn?.urlAll}`);
-            setCheckUpload(true);
-            successMessage("Upload successful!!", 3000); */
           } catch (error) {
             errorMessage("Error uploading file. Please try againn later", 3000);
           }

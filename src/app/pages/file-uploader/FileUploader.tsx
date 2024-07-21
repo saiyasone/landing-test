@@ -49,11 +49,11 @@ import {
   combineOldAndNewFileNames,
   cutFileName,
   removeFileNameOutOfPath,
-  startDownloadExtension,
   truncateName,
 } from "utils/file.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
 import { decryptDataLink, encryptDownloadData } from "utils/secure.util";
+import useManageFiles from "hooks/useManageFile";
 
 function FileUploader() {
   const location = useLocation();
@@ -118,6 +118,9 @@ function FileUploader() {
   const [getData, { data: resPonData }] = useLazyQuery(QUERY_FILE_PUBLIC, {
     fetchPolicy: "cache-and-network",
   });
+
+  // hooks
+  const manageFile = useManageFiles();
 
   const [getFileLink, { data: dataFileLink }] = useLazyQuery(
     QUERY_FILE_PUBLIC_LINK,
@@ -519,10 +522,9 @@ function FileUploader() {
     if (totalClickCount >= getActionButton) {
       setTotalClickCount(0);
 
-      const path = folderDownload[0]?.newPath ? folderDownload[0]?.newPath : "";
       const folder_name = `${folderDownload[0]?.folder_name}.zip`;
-
       setGetFolderName(folder_name);
+
       try {
         if (folderDownload[0]?.access_password) {
           handleClickOpen();
@@ -531,76 +533,45 @@ function FileUploader() {
             ...prev,
             [1]: true,
           }));
-          setIsSuccess((prev) => ({
-            ...prev,
-            [1]: false,
-          }));
 
-          const headers = {
-            _id: folderDownload[0]?._id,
-            accept: "/",
-            storageZoneName: BUNNY_STORAGE_ZONE,
-            isFolder: true,
-            path: createdBy.newName + "-" + createdBy._id + "/" + path,
-            fileName: CryptoJS.enc.Utf8.parse(folder_name),
-            AccessKey: ACCESS_KEY,
-          };
-
-          const encryptedData = encryptDownloadData(headers);
-          const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
-            headers: { encryptedHeaders: encryptedData },
-          });
-
-          const reader = response.body!.getReader();
-          const stream = new ReadableStream({
-            async start(controller) {
-              // eslint-disable-next-line no-constant-condition
-              while (true) {
-                try {
-                  const { done, value } = await reader.read();
-
-                  if (done) {
-                    successMessage("Download successful", 2000);
-                    setIsHide((prev) => ({
-                      ...prev,
-                      [1]: false,
-                    }));
-                    setIsSuccess((prev) => ({
-                      ...prev,
-                      [1]: true,
-                    }));
-
-                    controller.close();
-                    break;
-                  }
-
-                  controller.enqueue(value);
-                } catch (error: any) {
-                  setIsHide((prev) => ({
-                    ...prev,
-                    [1]: false,
-                  }));
-                  setIsSuccess((prev) => ({
-                    ...prev,
-                    [1]: true,
-                  }));
-
-                  errorMessage(error, 2000);
-                  controller.error(error);
-                  break;
-                }
-              }
+          const multipleData = [
+            {
+              id: folderDownload?.[0]?._id,
+              name: folder_name,
+              newFilename: folderDownload?.[0].newFolder_name,
+              checkType: "folder",
+              newPath: folderDownload?.[0].newPath || "",
+              createdBy,
             },
-          });
-          const blob = await new Response(stream).blob();
-          const blobUrl = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = blobUrl;
-          a.download = folder_name;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          URL.revokeObjectURL(blobUrl);
+          ];
+
+          await manageFile.handleDownloadFolder(
+            { multipleData },
+            {
+              onSuccess: () => {
+                successMessage("Successfully downloaded", 3000);
+                setIsHide((prev) => ({
+                  ...prev,
+                  [1]: false,
+                }));
+                setIsSuccess((prev) => ({
+                  ...prev,
+                  [1]: true,
+                }));
+              },
+              onFailed: (error) => {
+                errorMessage(error, 3000);
+                setIsHide((prev) => ({
+                  ...prev,
+                  [1]: false,
+                }));
+                setIsSuccess((prev) => ({
+                  ...prev,
+                  [1]: false,
+                }));
+              },
+            },
+          );
         }
       } catch (error) {
         errorMessage("Something wrong try again later!", 2000);
@@ -650,7 +621,6 @@ function FileUploader() {
           errorMessage("Something wrong try again later!", 2000);
         }
       } else {
-        const path = folderDownload[0]?.newPath;
         const folder_name = `${folderDownload[0]?.folder_name}.zip`;
         setGetFolderName(folder_name);
         try {
@@ -659,76 +629,47 @@ function FileUploader() {
           } else {
             setIsHide((prev) => ({
               ...prev,
-              [index]: true,
-            }));
-            setIsSuccess((prev) => ({
-              ...prev,
-              [index]: false,
+              [1]: true,
             }));
 
-            const headers = {
-              accept: "/",
-              storageZoneName: BUNNY_STORAGE_ZONE,
-              isFolder: true,
-              path: createdBy.newName + "-" + createdBy._id + "/" + path,
-              fileName: CryptoJS.enc.Utf8.parse(folder_name),
-              AccessKey: ACCESS_KEY,
-              _id: folderDownload[0]?._id,
-            };
-
-            const encryptedData = encryptDownloadData(headers);
-            const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
-              headers: { encryptedHeaders: encryptedData },
-            });
-
-            const reader = response.body!.getReader();
-            const stream = new ReadableStream({
-              async start(controller) {
-                // eslint-disable-next-line no-constant-condition
-                while (true) {
-                  try {
-                    const { done, value } = await reader.read();
-
-                    if (done) {
-                      successMessage("Download successful", 2000);
-                      setIsHide((prev) => ({
-                        ...prev,
-                        [index]: false,
-                      }));
-                      setIsSuccess((prev) => ({
-                        ...prev,
-                        [index]: true,
-                      }));
-                      controller.close();
-                      break;
-                    }
-
-                    controller.enqueue(value);
-                  } catch (error: any) {
-                    setIsHide((prev) => ({
-                      ...prev,
-                      [index]: false,
-                    }));
-                    setIsSuccess((prev) => ({
-                      ...prev,
-                      [index]: false,
-                    }));
-                    errorMessage(error, 2000);
-                    controller.error(error);
-                    break;
-                  }
-                }
+            const multipleData = [
+              {
+                id: folderDownload?.[0]?._id,
+                name: folder_name,
+                newFilename: folderDownload?.[0].newFolder_name,
+                checkType: "folder",
+                newPath: folderDownload?.[0].newPath || "",
+                createdBy,
               },
-            });
-            const blob = await new Response(stream).blob();
-            const blobUrl = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = blobUrl;
-            a.download = folder_name;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            URL.revokeObjectURL(blobUrl);
+            ];
+
+            await manageFile.handleDownloadFolder(
+              { multipleData },
+              {
+                onSuccess: () => {
+                  successMessage("Successfully downloaded", 3000);
+                  setIsHide((prev) => ({
+                    ...prev,
+                    [1]: false,
+                  }));
+                  setIsSuccess((prev) => ({
+                    ...prev,
+                    [1]: true,
+                  }));
+                },
+                onFailed: (error) => {
+                  errorMessage(error, 3000);
+                  setIsHide((prev) => ({
+                    ...prev,
+                    [1]: false,
+                  }));
+                  setIsSuccess((prev) => ({
+                    ...prev,
+                    [1]: false,
+                  }));
+                },
+              },
+            );
           }
         } catch (error: any) {
           errorMessage(error, 2000);
@@ -753,7 +694,7 @@ function FileUploader() {
         if (folder?.access_password) {
           handleClickOpen();
         } else {
-          handleDoneMultipleDownload({
+          handleDoneFolderDownload({
             folder,
             index,
           });
@@ -813,7 +754,7 @@ function FileUploader() {
           if (folder?.access_password) {
             handleClickOpen();
           } else {
-            handleDoneMultipleDownload({
+            handleDoneFolderDownload({
               folder,
               index,
             });
@@ -826,7 +767,7 @@ function FileUploader() {
   };
 
   // Done
-  const handleDoneMultipleDownload = async ({ folder, index }) => {
+  const handleDoneFolderDownload = async ({ folder, index }) => {
     try {
       setIsMultipleHide((prev) => ({
         ...prev,
@@ -834,73 +775,54 @@ function FileUploader() {
       }));
       setIsMultipleSuccess((prev) => ({ ...prev, [index]: false }));
 
-      const path = folder?.newPath ? folder?.newPath : "";
+      const path = folder?.newPath || "";
       const folder_name = `${folder?.folder_name}.zip`;
 
-      const headers = {
-        _id: folder?._id,
-        accept: "/",
-        storageZoneName: BUNNY_STORAGE_ZONE,
-        isFolder: true,
-        path: userData.newName + "-" + userData.userId + "/" + path,
-        fileName: CryptoJS.enc.Utf8.parse(folder_name),
-        AccessKey: ACCESS_KEY,
-      };
-
-      const encryptedData = encryptDownloadData(headers);
-      const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
-        headers: { encryptedHeaders: encryptedData },
-      });
-
-      const reader = response.body!.getReader();
-      const stream = new ReadableStream({
-        async start(controller) {
-          // eslint-disable-next-line no-constant-condition
-          while (true) {
-            try {
-              const { done, value } = await reader.read();
-              if (done) {
-                controller.close();
-                break;
-              }
-
-              controller.enqueue(value);
-            } catch (error) {
-              controller.error(error);
-              break;
-            }
-          }
+      const multipleData = [
+        {
+          id: folder._id,
+          name: folder_name,
+          newFilename: folder?.newFolder_name,
+          checkType: "folder",
+          newPath: path,
+          createdBy: folder?.createdBy,
         },
-      });
+      ];
 
-      const blob = await new Response(stream).blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = folder_name;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(blobUrl);
-      successMessage("Download successful", 2000);
-      setIsMultipleHide((prev) => ({
-        ...prev,
-        [index]: false,
-      }));
-      setIsMultipleSuccess((prev) => ({ ...prev, [index]: true }));
+      await manageFile.handleDownloadFolder(
+        { multipleData },
+        {
+          onFailed: (error) => {
+            setIsMultipleHide((prev) => ({
+              ...prev,
+              [index]: false,
+            }));
+            setIsMultipleSuccess((prev) => ({ ...prev, [index]: false }));
+            errorMessage(error, 3000);
+          },
+          onSuccess: () => {
+            successMessage("Successfully downloaded", 3000);
+            setIsMultipleHide((prev) => ({
+              ...prev,
+              [index]: false,
+            }));
+            setIsMultipleSuccess((prev) => ({ ...prev, [index]: true }));
+          },
+        },
+      );
     } catch (error: any) {
       setIsMultipleHide((prev) => ({
         ...prev,
         [index]: false,
       }));
       setIsMultipleSuccess((prev) => ({ ...prev, [index]: false }));
-      errorMessage(error, 2000);
+      errorMessage(error, 3000);
     }
   };
 
   const _downloadFiles = async (
     index,
-    buttonId,
+    fileId,
     newFilename,
     filename,
     filePassword,
@@ -913,24 +835,9 @@ function FileUploader() {
     setMultipleType("file");
 
     if (totalClickCount >= getActionButton) {
-      setLastClickedButton([...lastClickedButton, buttonId]);
+      setLastClickedButton([...lastClickedButton, fileId]);
       setTotalClickCount(0);
       const changeFilename = combineOldAndNewFileNames(filename, newFilename);
-      let real_path;
-
-      if (linkClient?.type === "multiple") {
-        if (!newPath) {
-          real_path = "";
-        } else {
-          real_path = truncateName(newPath);
-        }
-      } else {
-        if (!getDataRes[0]?.newPath) {
-          real_path = "";
-        } else {
-          real_path = truncateName(getDataRes[0].newPath ?? "");
-        }
-      }
 
       try {
         setFilePasswords(filePassword);
@@ -942,9 +849,8 @@ function FileUploader() {
           } else {
             handleDoneDownloadFiles({
               index,
-              changeFilename,
+              filename,
               newFilename,
-              real_path,
               createdBy,
               dataFile,
             });
@@ -957,6 +863,7 @@ function FileUploader() {
               index,
               changeFilename,
               newFilename,
+              dataFile,
             });
           }
         }
@@ -1010,20 +917,6 @@ function FileUploader() {
         }
       } else {
         const changeFilename = combineOldAndNewFileNames(filename, newFilename);
-        let real_path = "";
-        if (linkClient?.type === "multiple") {
-          if (!newPath) {
-            real_path = "";
-          } else {
-            real_path = removeFileNameOutOfPath(newPath);
-          }
-        } else {
-          if (!getDataRes[0].newPath) {
-            real_path = "";
-          } else {
-            real_path = removeFileNameOutOfPath(getDataRes[0].newPath);
-          }
-        }
 
         try {
           setFilePasswords(filePassword);
@@ -1036,9 +929,8 @@ function FileUploader() {
             if (linkClient?._id) {
               handleDoneDownloadFiles({
                 index,
-                changeFilename,
+                filename,
                 newFilename,
-                real_path,
                 createdBy,
                 dataFile,
               });
@@ -1047,6 +939,7 @@ function FileUploader() {
                 index,
                 changeFilename,
                 newFilename,
+                dataFile,
               });
             }
           }
@@ -1059,9 +952,8 @@ function FileUploader() {
 
   const handleDoneDownloadFiles = async ({
     index,
-    real_path,
+    filename,
     newFilename,
-    changeFilename,
     createdBy,
     dataFile,
   }) => {
@@ -1070,68 +962,48 @@ function FileUploader() {
         ...prev,
         [index]: true,
       }));
+      setIsSuccess((prev) => ({
+        ...prev,
+        [index]: false,
+      }));
 
-      const userPath =
-        createdBy._id === "0"
-          ? "public"
-          : createdBy?.newName + "-" + createdBy?._id;
-
-      const headers = {
-        accept: "*/*",
-        storageZoneName: BUNNY_STORAGE_ZONE,
-        isFolder: false,
-        path: userPath + "/" + real_path + newFilename,
-        fileName: CryptoJS.enc.Utf8.parse(newFilename),
-        AccessKey: ACCESS_KEY,
-      };
-
-      const encryptedData = encryptDownloadData(headers);
-      const baseUrl = `${ENV_KEYS.VITE_APP_LOAD_URL}downloader/file/download-multifolders-and-files?download=${encryptedData} ?`;
-
-      startDownloadExtension(baseUrl);
-      const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
-        headers: { encryptedHeaders: encryptedData },
-      });
-
-      const reader = response.body!.getReader();
-      new ReadableStream({
-        async start(controller) {
-          // eslint-disable-next-line no-constant-condition
-          while (true) {
-            try {
-              const { done, value } = await reader.read();
-              if (done) {
-                successMessage("Download successful", 3000);
-                setIsHide((prev) => ({
-                  ...prev,
-                  [index]: false,
-                }));
-                setIsSuccess((prev) => ({
-                  ...prev,
-                  [index]: true,
-                }));
-                controller.close();
-                break;
-              }
-
-              controller.enqueue(value);
-            } catch (error: any) {
-              errorMessage(error, 2000);
-              controller.error(error);
-              break;
-            }
-          }
+      const multipleData = [
+        {
+          id: dataFile._id,
+          name: filename,
+          newFilename: newFilename,
+          checkType: "file",
+          newPath: dataFile.newPath || "",
+          createdBy: createdBy,
         },
-      });
-      // const blob = await new Response(stream).blob();
-      // const blobUrl = URL.createObjectURL(blob);
-      // const a = document.createElement("a");
-      // a.href = blobUrl;
-      // a.download = changeFilename;
-      // document.body.appendChild(a);
-      // a.click();
-      // a.remove();
-      // URL.revokeObjectURL(blobUrl);
+      ];
+
+      await manageFile.handleDownloadFile(
+        { multipleData },
+        {
+          onSuccess: () => {
+            setIsHide((prev) => ({
+              ...prev,
+              [index]: false,
+            }));
+            setIsSuccess((prev) => ({
+              ...prev,
+              [index]: true,
+            }));
+          },
+          onFailed: (error) => {
+            errorMessage(error, 3000);
+            setIsHide((prev) => ({
+              ...prev,
+              [index]: false,
+            }));
+            setIsSuccess((prev) => ({
+              ...prev,
+              [index]: false,
+            }));
+          },
+        },
+      );
     } catch (error) {
       console.error(error);
     }
@@ -1141,6 +1013,7 @@ function FileUploader() {
     index,
     newFilename,
     changeFilename,
+    dataFile,
   }) => {
     try {
       setIsHide((prev) => ({
@@ -1148,58 +1021,42 @@ function FileUploader() {
         [index]: true,
       }));
 
-      const headers = {
-        accept: "*/*",
-        storageZoneName: BUNNY_STORAGE_ZONE,
-        isFolder: false,
-        path: `public/${newFilename}`,
-        fileName: CryptoJS.enc.Utf8.parse(newFilename),
-        AccessKey: ACCESS_KEY,
-      };
-
-      const encryptedData = encryptDownloadData(headers);
-      const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
-        headers: { encryptedHeaders: encryptedData },
-      });
-      const reader = response.body!.getReader();
-      const stream = new ReadableStream({
-        async start(controller) {
-          // eslint-disable-next-line no-constant-condition
-          while (true) {
-            try {
-              const { done, value } = await reader.read();
-              if (done) {
-                successMessage("Download successful", 3000);
-                setIsHide((prev) => ({
-                  ...prev,
-                  [index]: false,
-                }));
-                setIsSuccess((prev) => ({
-                  ...prev,
-                  [index]: true,
-                }));
-                controller.close();
-                break;
-              }
-
-              controller.enqueue(value);
-            } catch (error: any) {
-              errorMessage(error, 2000);
-              controller.error(error);
-              break;
-            }
-          }
+      const multipleData = [
+        {
+          id: dataFile._id,
+          name: changeFilename,
+          newFilename: newFilename,
+          checkType: "file",
+          newPath: "",
         },
-      });
-      const blob = await new Response(stream).blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = changeFilename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(blobUrl);
+      ];
+
+      await manageFile.handleDownloadPublicFile(
+        { multipleData },
+        {
+          onSuccess: () => {
+            setIsHide((prev) => ({
+              ...prev,
+              [index]: true,
+            }));
+            setIsSuccess((prev) => ({
+              ...prev,
+              [index]: false,
+            }));
+          },
+          onFailed: (error) => {
+            errorMessage(error, 3000);
+            setIsHide((prev) => ({
+              ...prev,
+              [index]: false,
+            }));
+            setIsSuccess((prev) => ({
+              ...prev,
+              [index]: false,
+            }));
+          },
+        },
+      );
     } catch (error) {
       console.error(error);
     }
