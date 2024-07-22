@@ -451,7 +451,7 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
               ],
               filePassword: file?.password,
               fileType: file?.type,
-              filename: String(`${file?.name}${newNameFile}`),
+              filename: String(`${file?.name}`),
               ip: String(responseIp?.data),
               newFilename: String(newNameFile),
               passwordUrlAll: file?.URLpassword,

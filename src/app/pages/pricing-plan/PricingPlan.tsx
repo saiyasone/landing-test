@@ -112,7 +112,7 @@ const PricingPlan = () => {
           All plans include 40+ advanced tools and features to boost your
           product.
         </Typography>
-        <Typography variant="h3">
+        <Typography variant="h1">
           Choose the best plan to fit your needs
         </Typography>
         <MUI.BoxShowSwitchPlan>

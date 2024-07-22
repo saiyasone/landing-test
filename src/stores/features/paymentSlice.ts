@@ -55,6 +55,7 @@ const initialState = {
     3: false,
   },
   paymentType: "",
+  paymentTypeSummary: "monthly",
   paymentSelect: "bcel",
   paymentProfile: {
     firstName: "",
@@ -175,6 +176,10 @@ export const paymentSlice = createSlice({
       state.activePaymentMethod = action.payload;
     },
 
+    setPaymentTypeSummary: (state, action) => {
+      state.paymentTypeSummary = action.payload;
+    },
+
     setRecentPayment: (state, action) => {
       state.recentPayment = action.payload;
     },
@@ -200,6 +205,7 @@ export const {
   setRecentPayment,
   setActiveStep,
   setPaymentSteps,
+  setPaymentTypeSummary,
   setPaymentStatus,
   setActivePaymentMethod,
   resetPayment,

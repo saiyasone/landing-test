@@ -22,7 +22,7 @@ export const BoxShowSection1 = styled(Box)({
   alignItems: "center",
   justifyContent: "center",
   flexDirection: "column",
-  h3: {
+  h1: {
     fontSize: "1.2rem",
     color: `${textMainColor}`,
     marginBottom: "1rem",

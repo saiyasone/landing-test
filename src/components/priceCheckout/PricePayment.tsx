@@ -23,8 +23,6 @@ function PricePayment() {
   // redux
   const dispatch = useDispatch();
 
-  const handlePaymentTwoCheckout = () => {};
-
   useEffect(() => {
     if (managePackages.data && managePackages.data?.length > 0) {
       const decodeParam = decryptDataLink(id);
@@ -32,7 +30,7 @@ function PricePayment() {
       dispatch(setPackageIdData(result));
       dispatch(setPackageData(managePackages.data));
     }
-  }, [managePackages.data, dispatch, id]);
+  }, [managePackages.data, dispatch]);
 
   return (
     <Fragment>

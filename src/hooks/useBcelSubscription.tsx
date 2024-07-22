@@ -23,14 +23,17 @@ const useBcelSubscirption = () => {
       variables: {
         data: {
           amount: 1,
-          card: "VISA",
+          card: "BCEL",
           category: "package",
           description: "test",
           packageId: "asdadasdaf",
           paymentMethod: "onepay",
           service: "BCELONE_PAY",
           status: "success",
-          type: "monthly",
+          type:
+            paymentSelector.paymentTypeSummary === "monthly"
+              ? "monthly"
+              : "annual",
         },
       },
     }).then((res) => {
@@ -38,10 +41,9 @@ const useBcelSubscirption = () => {
         res.data.createQrAndSubscribeForPayment || {};
       setTransactionId(`${transactionId}`);
       setQrCode(`${qrCode}`);
-      setLink(`onepay://qr/${qrCode}`);
+      setLink(`onepay://qr/${qrCode}`); 
     });
-    // paymentSelector.paymentType
-  }, []);
+  }, [paymentSelector.paymentTypeSummary]);
 
   return {
     qrCode,

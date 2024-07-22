@@ -82,20 +82,18 @@ const useManageFiles = () => {
   ) => {
     try {
       const newMoldelData = multipleData.map((file) => {
-        const path = "public";
-
         return {
           isFolder: false,
-          path: `${path}/${file.newFilename}`,
+          path: `public/${file.newFilename}`,
           _id: file.id,
-          createdBy: "0",
+          createdBy: 0,
         };
       });
 
       const headers = {
         accept: "*/*",
         lists: newMoldelData,
-        createdBy: "0",
+        createdBy: 0,
       };
 
       const encryptedData = encryptDownloadData(headers);
@@ -127,7 +125,6 @@ const useManageFiles = () => {
           }
         },
       });
-      onSuccess?.(response);
     } catch (error) {
       onFailed?.(error);
     }
@@ -138,18 +135,18 @@ const useManageFiles = () => {
     { onSuccess, onFailed },
   ) => {
     try {
-      const newMoldelData = multipleData.map((file) => {
+      const newMoldelData = multipleData.map((folder) => {
         let real_path = "";
-        if (file.newPath) {
-          real_path = removeFileNameOutOfPath(file.newPath);
+        if (folder.newPath) {
+          real_path = removeFileNameOutOfPath(folder.newPath);
         }
 
-        const path = `${file?.createdBy?.newName}-${file?.createdBy?._id}/${real_path}`;
+        const path = `${folder?.createdBy?.newName}-${folder?.createdBy?._id}/${real_path}`;
         return {
           isFolder: true,
-          path: `${path}/${file.newFilename}`,
-          _id: file.id,
-          createdBy: file.createdBy?._id || "0",
+          path: `${path}/${folder.newFilename}`,
+          _id: folder.id,
+          createdBy: folder.createdBy?._id || "0",
         };
       });
 

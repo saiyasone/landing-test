@@ -10,6 +10,7 @@ import {
   setActivePaymentId,
   setPackageIdData,
   setPaymentType,
+  setPaymentTypeSummary,
 } from "stores/features/paymentSlice";
 import ButtonSelectStyled from "components/ButtonSelectStyled";
 import { useNavigate } from "react-router-dom";
@@ -28,10 +29,11 @@ function PricePaymentSummary() {
   const isMobile = useMediaQuery("(max-width:768px)");
   const [pricePayment, setPricePayment] = useState("");
   const [menuPackage, setMenuPackage] = useState("");
-  const [selectPayment, setSelectPayment] = useState("monthly");
+  // const [selectPayment, setSelectPayment] = useState("monthly");
   const [dataPackages, setDataPackages] = useState<any[]>([]);
   const paymentSelector = useSelector(paymentState);
   const dataPackage = paymentSelector.packageIdData;
+  const selectPayment = paymentSelector.paymentTypeSummary;
 
   // params
   const navigate = useNavigate();
@@ -99,7 +101,7 @@ function PricePaymentSummary() {
               value={selectPayment}
               variant="outlined"
               onChange={(e) => {
-                setSelectPayment(e.target.value);
+                dispatch(setPaymentTypeSummary(e.target.value || ""));
               }}
               sx={{
                 overflow: "unset",
