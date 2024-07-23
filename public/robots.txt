@@ -7,5 +7,3 @@ Allow: /filedrops
 Allow: /feedback
 Allow: /Terms condition
 Allow: /privacy-policy
-
-Sitemap: http://localhost:5174/sitemap.xml
