@@ -226,7 +226,7 @@ export default function CustomizedDialogs(props) {
               ],
               fileType: file?.type,
               filename: String(`${file?.name}`),
-              ip: String(responseIp?.data),
+              ip: String(responseIp.data),
               newFilename: randomName + getFileNameExtension(file?.name),
               size: String(file?.size),
               urlAll: String(urlAllFile),
