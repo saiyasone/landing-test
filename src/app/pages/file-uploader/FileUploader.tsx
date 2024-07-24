@@ -101,9 +101,7 @@ function FileUploader() {
   const urlClient = params.get("lc");
   const userqrcode = params.get("qr");
   const currentURL = window.location.href;
-
-  const ACCESS_KEY = ENV_KEYS.VITE_APP_ACCESSKEY_BUNNY;
-  const BUNNY_STORAGE_ZONE = ENV_KEYS.VITE_APP_STORAGE_ZONE;
+  
   const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
 
   // Deep linking for mobile devices
