@@ -86,14 +86,14 @@ const useManageFiles = () => {
           isFolder: false,
           path: `public/${file.newFilename}`,
           _id: file.id,
-          createdBy: 0,
+          createdBy: "0",
         };
       });
 
       const headers = {
         accept: "*/*",
         lists: newMoldelData,
-        createdBy: 0,
+        createdBy: "0",
       };
 
       const encryptedData = encryptDownloadData(headers);
