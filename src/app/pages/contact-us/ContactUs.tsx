@@ -18,6 +18,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import * as yup from "yup";
 
 // components
 
@@ -26,6 +27,8 @@ import { useMutation } from "@apollo/client";
 import { MUTATION_CONTACT } from "api/graphql/support.graphql";
 import { mapAnimation } from "constants/animation.constant";
 import { errorMessage, successMessage } from "utils/alert.util";
+import { Formik } from "formik";
+import useManageGraphqlError from "hooks/useManageGraphqlError";
 
 // css
 const ContactContainer = styled(Container)(({ theme }) => ({
@@ -172,9 +175,16 @@ const GetinTouchDetail = styled(Box)({
 
 function ContactUs() {
   const theme = createTheme();
-  const [username, setUsername] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [message, setMessage] = React.useState("");
+  const manageGraphqlError = useManageGraphqlError();
+
+  const validateForm = yup.object().shape({
+    username: yup.string().required("Username is required"),
+    email: yup
+      .string()
+      .required("Email is required")
+      .email("Email is required"),
+    message: yup.string().required("Message is required"),
+  });
 
   const [createContact] = useMutation(MUTATION_CONTACT);
 
@@ -184,28 +194,32 @@ function ContactUs() {
     threshold: 0.2,
   });
 
-  const handleSubmitContact = async (e) => {
-    e.preventDefault();
+  const handleSubmitContactV1 = async (values, action) => {
     try {
       const contact = await createContact({
         variables: {
           body: {
-            name: username,
-            email: email,
-            message: message,
+            name: values.username,
+            email: values.email,
+            message: values.message,
           },
         },
       });
       if (contact?.data?.createContact?._id) {
         successMessage("Check your email for the respon!!", 3000);
-        setUsername("");
-        setEmail("");
-        setMessage("");
+        action?.resetForm();
       }
-    } catch (error) {
-      errorMessage("Somthing went wrong. Please try again later!", 3000);
+    } catch (error: any) {
+      const cutErr = error.message.replace(/(ApolloError: )?Error: /, "");
+      errorMessage(
+        manageGraphqlError.handleErrorMessage(
+          cutErr || "Something wrong please try again !",
+        ) as string,
+        3000,
+      );
     }
   };
+
   return (
     <ContactContainer>
       <BoxGetinTouch>
@@ -257,129 +271,140 @@ function ContactUs() {
               respond via the email address you provided.
             </motion.p>
           </BoxContactUsHeader>
-          <BoxShowContactForm onSubmit={handleSubmitContact}>
-            <motion.div
-              variants={mapAnimation}
-              initial="hidden"
-              animate={inView7 ? "show" : "hidden"}
-            >
-              <Grid container spacing={isMobile ? 2 : 6}>
-                <Grid
-                  item
-                  lg={6}
-                  md={6}
-                  sm={12}
-                  xs={12}
-                  sx={{
-                    width: "100%",
-                    paddingTop: "1rem !important",
-                    [theme.breakpoints.down("sm")]: {
-                      paddingTop: "0.68rem !important",
-                    },
-                  }}
+          <Formik
+            initialValues={{ username: "", email: "", message: "" }}
+            validationSchema={validateForm}
+            onSubmit={handleSubmitContactV1}
+          >
+            {({ values, errors, touched, handleChange, handleSubmit }) => (
+              <BoxShowContactForm onSubmit={handleSubmit}>
+                <motion.div
+                  variants={mapAnimation}
+                  initial="hidden"
+                  animate={inView7 ? "show" : "hidden"}
                 >
-                  <TextField
-                    id="outlined-basic"
-                    label="Name"
-                    variant="outlined"
-                    required
-                    fullWidth
-                    name="name"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    InputLabelProps={{
-                      style: {
-                        fontSize: "0.8rem",
-                        color: "#17766B",
-                      },
-                    }}
-                  />
-                </Grid>
-                <Grid
-                  item
-                  lg={6}
-                  md={6}
-                  sm={12}
-                  xs={12}
-                  sx={{
-                    width: "100%",
-                    paddingTop: "1rem !important",
+                  <Grid container spacing={isMobile ? 2 : 6}>
+                    <Grid
+                      item
+                      lg={6}
+                      md={6}
+                      sm={12}
+                      xs={12}
+                      sx={{
+                        width: "100%",
+                        paddingTop: "1rem !important",
+                        [theme.breakpoints.down("sm")]: {
+                          paddingTop: "0.68rem !important",
+                        },
+                      }}
+                    >
+                      <TextField
+                        id="outlined-basic"
+                        label="Name"
+                        variant="outlined"
+                        fullWidth
+                        name="username"
+                        error={Boolean(touched.username && errors.username)}
+                        helperText={touched.username && errors.username}
+                        value={values.username}
+                        onChange={handleChange}
+                        InputLabelProps={{
+                          style: {
+                            fontSize: "0.8rem",
+                            color: "#17766B",
+                          },
+                        }}
+                      />
+                    </Grid>
+                    <Grid
+                      item
+                      lg={6}
+                      md={6}
+                      sm={12}
+                      xs={12}
+                      sx={{
+                        width: "100%",
+                        paddingTop: "1rem !important",
 
-                    [theme.breakpoints.down("sm")]: {
-                      paddingTop: "0.68rem !important",
-                    },
-                  }}
-                >
-                  <TextField
-                    id="outlined-basic"
-                    label="Email"
-                    variant="outlined"
-                    required
-                    fullWidth
-                    name="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    InputLabelProps={{
-                      style: {
-                        fontSize: "0.8rem",
-                        color: "#17766B",
-                      },
-                    }}
-                  />
-                </Grid>
-                <Grid
-                  item
-                  lg={12}
-                  md={12}
-                  sm={12}
-                  xs={12}
-                  sx={{
-                    width: "100%",
-                    paddingTop: "1rem !important",
+                        [theme.breakpoints.down("sm")]: {
+                          paddingTop: "0.68rem !important",
+                        },
+                      }}
+                    >
+                      <TextField
+                        id="outlined-basic"
+                        label="Email"
+                        variant="outlined"
+                        fullWidth
+                        name="email"
+                        error={Boolean(touched.email && errors.email)}
+                        helperText={touched.email && errors.email}
+                        value={values.email}
+                        onChange={handleChange}
+                        InputLabelProps={{
+                          style: {
+                            fontSize: "0.8rem",
+                            color: "#17766B",
+                          },
+                        }}
+                      />
+                    </Grid>
+                    <Grid
+                      item
+                      lg={12}
+                      md={12}
+                      sm={12}
+                      xs={12}
+                      sx={{
+                        width: "100%",
+                        paddingTop: "1rem !important",
 
-                    [theme.breakpoints.down("sm")]: {
-                      paddingTop: "0.68rem !important",
-                    },
-                  }}
-                >
-                  <TextField
-                    id="outlined-basic"
-                    label="Message"
-                    variant="outlined"
-                    required
-                    fullWidth
-                    multiline
-                    rows={4}
-                    name="message"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    InputLabelProps={{
-                      style: {
-                        fontSize: "0.8rem",
-                        color: "#17766B",
-                      },
-                    }}
-                  />
-                </Grid>
-              </Grid>
-              <BoxShowSendMessageBTN>
-                <ButtonSendMessage
-                  startIcon={<TelegramIcon />}
-                  variant="contained"
-                  size="large"
-                  type="submit"
-                  sx={{
-                    fontSize: "1rem",
-                    [theme.breakpoints.down("sm")]: {
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                >
-                  Send Message
-                </ButtonSendMessage>
-              </BoxShowSendMessageBTN>
-            </motion.div>
-          </BoxShowContactForm>
+                        [theme.breakpoints.down("sm")]: {
+                          paddingTop: "0.68rem !important",
+                        },
+                      }}
+                    >
+                      <TextField
+                        id="outlined-basic"
+                        label="Message"
+                        variant="outlined"
+                        fullWidth
+                        multiline
+                        rows={4}
+                        name="message"
+                        error={Boolean(touched.message && errors.message)}
+                        helperText={touched.message && errors.message}
+                        value={values.message}
+                        onChange={handleChange}
+                        InputLabelProps={{
+                          style: {
+                            fontSize: "0.8rem",
+                            color: "#17766B",
+                          },
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                  <BoxShowSendMessageBTN>
+                    <ButtonSendMessage
+                      startIcon={<TelegramIcon />}
+                      variant="contained"
+                      size="large"
+                      type="submit"
+                      sx={{
+                        fontSize: "1rem",
+                        [theme.breakpoints.down("sm")]: {
+                          fontSize: "0.8rem",
+                        },
+                      }}
+                    >
+                      Send Message
+                    </ButtonSendMessage>
+                  </BoxShowSendMessageBTN>
+                </motion.div>
+              </BoxShowContactForm>
+            )}
+          </Formik>
         </ContainerContactUs>
       </BoxContactUs>
     </ContactContainer>

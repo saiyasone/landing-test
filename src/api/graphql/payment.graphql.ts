@@ -149,3 +149,11 @@ export const SUBSCRIPTION_BCEL_ONE_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const SUBSCRIPTION_TWO_CHECKOUT = gql`
+  subscription TwoCheckoutSubscription($code: String!) {
+    twoCheckoutSubscription(code: $code) {
+      message
+    }
+  }
+`;

@@ -259,8 +259,9 @@ export default function CustomizedDialogs(props) {
             PATH:
               userId > 0 && folderId > 0 ? `${privateUser}` : `/${publicUser}`,
             FILENAME: randomName + `${getFileNameExtension(file?.name)}`,
-            createdBy: "0",
+            createdBy: userId > 0 && folderId > 0 ? String(userId) : "0",
           };
+          console.log({ headers });
           const encryptedData = encryptDownloadData(headers);
 
           const blob = new Blob([dataFile[i]], {

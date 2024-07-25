@@ -259,7 +259,7 @@ function CardFileDownloader(props) {
                         }}
                       />
                     )}
-                    &nbsp;Download all
+                    &nbsp;Download all{" "}
                   </Button>
                 </Tooltip>
               ) : null}

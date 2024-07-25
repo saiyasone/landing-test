@@ -480,7 +480,6 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
               ACCESS_KEY: ACCESS_KEY,
               PATH: "public",
               FILENAME: newNameFile,
-              PATH_FOR_THUMBNAIL: "public",
               createdBy: "0",
             };
 

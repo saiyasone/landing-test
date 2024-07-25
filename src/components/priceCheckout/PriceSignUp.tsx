@@ -1,7 +1,8 @@
 import { Fragment, useState } from "react";
 import * as MUI from "styles/priceCheckoutStyle";
 import Typography from "@mui/material/Typography";
-import { Button, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
 import { Formik } from "formik";
 import ContinuteIcon from "@mui/icons-material/ArrowForward";
 import * as yup from "yup";
@@ -50,23 +51,27 @@ function PriceSignUp() {
           email: values.email,
         };
         localStorage.setItem("sessions", JSON.stringify(user));
-        setIsLoading(false);
         setIsError(false);
-        navigate(`/pricing/payment/${paramId}`);
+        setTimeout(() => {
+          setIsLoading(false);
+          navigate(`/pricing/payment/${paramId}`);
+        }, 1000);
       }
     } catch (error: any) {
-      localStorage.removeItem("sessions");
-      setIsLoading(false);
-      const cutErr = error.message.replace(/(ApolloError: )?Error: /, "");
-      if (cutErr === "User or email already registered") {
-        setErrorEmail(values.email);
-        setIsError(true);
-      } else {
-        errorMessage(
-          manageGraphQLError.handleErrorMessage(cutErr as string) || "",
-          3000,
-        );
-      }
+      setTimeout(() => {
+        setIsLoading(false);
+        localStorage.removeItem("sessions");
+        const cutErr = error.message.replace(/(ApolloError: )?Error: /, "");
+        if (cutErr === "User or email already registered") {
+          setErrorEmail(values.email);
+          setIsError(true);
+        } else {
+          errorMessage(
+            manageGraphQLError.handleErrorMessage(cutErr as string) || "",
+            3000,
+          );
+        }
+      }, 1000);
     }
   };
 
@@ -109,18 +114,19 @@ function PriceSignUp() {
                 />
 
                 <MUI.PriceCheckoutAction>
-                  <Button
+                  <LoadingButton
                     variant="contained"
                     type="submit"
                     size="small"
                     sx={{ py: 1.5 }}
                     fullWidth={true}
+                    loading={isLoading}
                   >
                     Continue{" "}
                     <ContinuteIcon
                       sx={{ ml: 2, verticalAlign: "middle", fontSize: "1rem" }}
                     />
-                  </Button>
+                  </LoadingButton>
                 </MUI.PriceCheckoutAction>
               </MUI.PriceCheckoutSignUpForm>
             )}
