@@ -8,6 +8,8 @@ export const QUERY_SEO = gql`
         title
         description
         keywords
+        indexing
+        url
         pageId {
           _id
         }
