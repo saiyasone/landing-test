@@ -847,7 +847,7 @@ function FileUploader() {
             handleDoneDownloadFilesOnPublic({
               index,
               changeFilename,
-              newFilename,
+              newFilename: dataFile?.newFilename,
               dataFile,
             });
           }
@@ -1008,6 +1008,7 @@ function FileUploader() {
         ...prev,
         [index]: false,
       }));
+      console.log(dataFile);
 
       const multipleData = [
         {

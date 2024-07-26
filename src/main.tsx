@@ -39,7 +39,7 @@ export const clientMockup = new ApolloClient({
   link: from([
     authLink.concat(
       createHttpLink({
-        uri: "https://coding.vshare.net/api",
+        uri: ENV_KEYS.VITE_APP_SUBSCRIPTION_URL,
       }),
     ),
   ]),
@@ -51,7 +51,7 @@ export const clientMockup = new ApolloClient({
 
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: "wss://coding.vshare.net/api",
+    url: `wss://${ENV_KEYS.VITE_APP_SUBSCRIPTION_URL}`,
   }),
 );
 

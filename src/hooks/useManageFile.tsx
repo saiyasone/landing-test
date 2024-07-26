@@ -84,7 +84,7 @@ const useManageFiles = () => {
       const newMoldelData = multipleData.map((file) => {
         return {
           isFolder: false,
-          path: `public/${file.newFilename}`,
+          path: `public/${file?.newFilename}`,
           _id: file.id,
           createdBy: "0",
         };
