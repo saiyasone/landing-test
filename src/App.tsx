@@ -23,7 +23,9 @@ function App() {
   const routeName = getRouteName(currentURL);
 
   const [title, setTitle] = useState("");
-  const [canonicalUrl, setCanonicalUrl] = useState<string>(window.location.href);
+  const [canonicalUrl, setCanonicalUrl] = useState<string>(
+    window.location.href,
+  );
   const [SEOData, setSEOData] = useState<any[]>([]);
   const [getSEO] = useLazyQuery(QUERY_SEO, { fetchPolicy: "no-cache" });
 
@@ -36,10 +38,12 @@ function App() {
     });
   }).flat();
 
+  // hello
+
   useEffect(() => {
     if (SEOData) {
       // console.log(SEOData);
-      if(setSEOData?.[0]?.url){
+      if (setSEOData?.[0]?.url) {
         setCanonicalUrl(SEOData?.[0]?.url);
       }
     }
@@ -73,12 +77,12 @@ function App() {
     <CacheProvider value={emotionCache}>
       <HelmetProvider>
         <Helmet defaultTitle={title} meta={formattedData}>
-          <meta name="robots" content={SEOData?.[0]?.indexing || 'noindex'} />
+          <meta name="robots" content={SEOData?.[0]?.indexing || "noindex"} />
           <meta name="title" content={SEOData?.[0]?.title} />
           <meta name="description" content={SEOData?.[0]?.description} />
           <meta name="keywords" content={SEOData?.[0]?.keywords} />
-          <meta name="author" content={'vSHARE TECHNOLOGY'} />
-          <meta name="publisher" content={'vSHARE TECHNOLOGY'} />
+          <meta name="author" content={"vSHARE TECHNOLOGY"} />
+          <meta name="publisher" content={"vSHARE TECHNOLOGY"} />
           <link rel="canonical" href={canonicalUrl} />
           {/* sharable info to media platform */}
           <meta property="og:title" content={SEOData?.[0]?.title} />
@@ -88,7 +92,10 @@ function App() {
           {/* <meta property="og:image" content={SEOData?.[0]?.image} /> */}
           {/* <meta name="twitter:card" content="summary_large_image" /> */}
           <meta name="twitter:title" content={SEOData?.[0]?.title} />
-          <meta name="twitter:description" content={SEOData?.[0]?.description} />
+          <meta
+            name="twitter:description"
+            content={SEOData?.[0]?.description}
+          />
           <meta name="twitter:url" content={canonicalUrl} />
         </Helmet>
         <MuiThemeProvider theme={createTheme(theme)}>
