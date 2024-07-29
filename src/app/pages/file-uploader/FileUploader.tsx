@@ -1008,7 +1008,6 @@ function FileUploader() {
         ...prev,
         [index]: false,
       }));
-      console.log(dataFile);
 
       const multipleData = [
         {

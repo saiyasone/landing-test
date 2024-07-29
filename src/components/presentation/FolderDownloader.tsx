@@ -13,7 +13,6 @@ function FolderDownloader(props) {
     isHide,
     isMobile,
     setPassword,
-    setGetFolderName,
     setFilePasswords,
     handleDownloadFolder,
     folderSize,
@@ -50,10 +49,8 @@ function FolderDownloader(props) {
         ) : (
           <IconButton
             onClick={() => {
-              const folder_name = `${folderDownload[0]?.folder_name}`;
               setIndex(1);
               setPassword("");
-              setGetFolderName(folder_name);
               setFilePasswords(folderDownload[0]?.access_password);
               handleDownloadFolder({
                 createdBy: folderDownload[0]?.createdBy,
