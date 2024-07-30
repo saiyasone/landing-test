@@ -62,10 +62,8 @@ function FileUploader() {
   const [filePasswords, setFilePasswords] = useState<any>("");
   const [getNewFileName, setGetNewFileName] = useState("");
   const [fileQRCodePassword, setFileQRCodePassword] = useState("");
-  const [getFileName, setGetFileName] = useState<any>("");
   const [checkModal, setCheckModal] = useState(false);
   const [getFilenames, setGetFilenames] = useState("");
-  const [getFolderName, setGetFolderName] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [isVerifyQrCode, setIsVerifyQRCode] = useState(false);
   const [fileUrl, setFileUrl] = useState("");
@@ -102,8 +100,6 @@ function FileUploader() {
   const userqrcode = params.get("qr");
   const currentURL = window.location.href;
 
-  const ACCESS_KEY = ENV_KEYS.VITE_APP_ACCESSKEY_BUNNY;
-  const BUNNY_STORAGE_ZONE = ENV_KEYS.VITE_APP_STORAGE_ZONE;
   const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
 
   // Deep linking for mobile devices
@@ -521,7 +517,6 @@ function FileUploader() {
       setTotalClickCount(0);
 
       const folder_name = `${folderDownload[0]?.folder_name}.zip`;
-      setGetFolderName(folder_name);
 
       try {
         if (folderDownload[0]?.access_password) {
@@ -547,7 +542,6 @@ function FileUploader() {
             { multipleData },
             {
               onSuccess: () => {
-                successMessage("Successfully downloaded", 3000);
                 setIsHide((prev) => ({
                   ...prev,
                   [1]: false,
@@ -620,7 +614,7 @@ function FileUploader() {
         }
       } else {
         const folder_name = `${folderDownload[0]?.folder_name}.zip`;
-        setGetFolderName(folder_name);
+
         try {
           if (folderDownload[0]?.access_password) {
             handleClickOpen();
@@ -684,9 +678,6 @@ function FileUploader() {
     setTotalClickCount((prevCount) => prevCount + 1);
     if (totalClickCount >= getActionButton) {
       setTotalClickCount(0);
-      const folder_name = `${folder?.folder_name}.zip`;
-
-      setGetFolderName(folder_name);
 
       try {
         if (folder?.access_password) {
@@ -745,9 +736,6 @@ function FileUploader() {
           errorMessage("Something wrong try again later!", 2000);
         }
       } else {
-        const folder_name = `${folder?.folder_name}.zip`;
-        setGetFolderName(folder_name);
-
         try {
           if (folder?.access_password) {
             handleClickOpen();
@@ -840,7 +828,6 @@ function FileUploader() {
       try {
         setFilePasswords(filePassword);
         setGetNewFileName(newFilename);
-        setGetFileName(changeFilename);
         if (linkClient?._id) {
           if (filePassword) {
             handleClickOpen();
@@ -860,7 +847,7 @@ function FileUploader() {
             handleDoneDownloadFilesOnPublic({
               index,
               changeFilename,
-              newFilename,
+              newFilename: dataFile?.newFilename,
               dataFile,
             });
           }
@@ -911,7 +898,7 @@ function FileUploader() {
             }
           }
         } catch (error: any) {
-          errorMessage(error, 2000);
+          errorMessage(error, 3000);
         }
       } else {
         const changeFilename = combineOldAndNewFileNames(filename, newFilename);
@@ -919,7 +906,6 @@ function FileUploader() {
         try {
           setFilePasswords(filePassword);
           setGetNewFileName(newFilename);
-          setGetFileName(changeFilename);
 
           if (filePassword) {
             handleClickOpen();
@@ -1022,6 +1008,7 @@ function FileUploader() {
         ...prev,
         [index]: false,
       }));
+      console.log(dataFile);
 
       const multipleData = [
         {
@@ -1112,7 +1099,6 @@ function FileUploader() {
           { multipleData },
           {
             onSuccess: () => {
-              successMessage("Download files successful", 3000);
               setIsProcessAll(false);
               setIsDownloadAll(true);
             },
@@ -1559,7 +1545,6 @@ function FileUploader() {
                       isHide={isHide}
                       isMobile={isMobile}
                       setPassword={setPassword}
-                      setGetFolderName={setGetFolderName}
                       setFilePasswords={setFilePasswords}
                       handleDownloadFolder={handleDownloadFolder}
                       folderSize={folderSize}
@@ -1647,7 +1632,6 @@ function FileUploader() {
                                             isHide={isMultipleHide}
                                             isMobile={isMobile}
                                             setPassword={setPassword}
-                                            setGetFolderName={setGetFolderName}
                                             setFilePasswords={setFilePasswords}
                                             handleDownloadFolder={() =>
                                               handleMultipleDownloadFolder({

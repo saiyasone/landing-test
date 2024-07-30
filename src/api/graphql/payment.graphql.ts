@@ -129,10 +129,31 @@ export const MUTATION_CREATE_TEST_SUBSCRIPTION = gql`
 `;
 
 export const SUBSCRIPTION_BCEL_ONE_SUBSCRIPTION = gql`
-  subscription Subscription($transactionId: String) {
-    subscribeBcelOneSubscriptionQr(transactionId: $transactionId) {
+  subscription TwoCheckoutSubscription($code: String!) {
+    twoCheckoutSubscription(code: $code) {
+      data {
+        licenseCode
+        startDate
+        dateUpdated
+        expirationDate
+        firstName
+        lastName
+        phone
+        email
+        country
+        state
+        city
+        zip
+        address
+      }
+    }
+  }
+`;
+
+export const SUBSCRIPTION_TWO_CHECKOUT = gql`
+  subscription TwoCheckoutSubscription($code: String!) {
+    twoCheckoutSubscription(code: $code) {
       message
-      transactionId
     }
   }
 `;

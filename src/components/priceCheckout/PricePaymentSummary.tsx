@@ -16,6 +16,8 @@ import ButtonSelectStyled from "components/ButtonSelectStyled";
 import { useNavigate } from "react-router-dom";
 
 import { decryptDataLink, encryptDataLink } from "utils/secure.util";
+import { useSubscription } from "@apollo/client";
+import { SUBSCRIPTION_TWO_CHECKOUT } from "api/graphql/payment.graphql";
 export interface PaymentProp {
   _id: string;
   status: string;
@@ -29,6 +31,7 @@ function PricePaymentSummary() {
   const isMobile = useMediaQuery("(max-width:768px)");
   const [pricePayment, setPricePayment] = useState("");
   const [menuPackage, setMenuPackage] = useState("");
+  const [emailLogin, setEmailLogin] = useState("");
   // const [selectPayment, setSelectPayment] = useState("monthly");
   const [dataPackages, setDataPackages] = useState<any[]>([]);
   const paymentSelector = useSelector(paymentState);
@@ -37,9 +40,29 @@ function PricePaymentSummary() {
 
   // params
   const navigate = useNavigate();
+  const { data: dataSubscription } = useSubscription(
+    SUBSCRIPTION_TWO_CHECKOUT,
+    {
+      variables: {
+        code: emailLogin,
+      },
+    },
+  );
 
   // redux
   const dispatch = useDispatch();
+
+  const handleSubmitSubscription = async () => {};
+
+  useEffect(() => {
+    const emailJson = localStorage.getItem("sessions");
+    if (emailJson) {
+      const emailParse = JSON.parse(emailJson);
+      if (emailParse?.email) {
+        setEmailLogin(emailParse.email);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (paymentSelector.packageIdData) {
@@ -76,17 +99,32 @@ function PricePaymentSummary() {
   }, [menuPackage, dispatch, dataPackages]);
 
   useEffect(() => {
+    if (dataSubscription) {
+      console.log("Ok");
+      const result = dataSubscription.twoCheckoutSubscription?.message;
+      console.log(result);
+      if (result === "SUCCESS") {
+        navigate("/pricing/confirm-payment");
+      }
+    }
+  }, [dataSubscription]);
+
+  useEffect(() => {
     if (selectPayment) {
       dispatch(setPaymentType(selectPayment));
     }
   }, [selectPayment, dispatch]);
+
+  useEffect(() => {
+    return () => {};
+  }, []);
 
   return (
     <MUI.PricePaymentSummaryContainer>
       <MUI.PricePaymentContainerBox>
         <MUI.PricePaymentSummaryHeader>
           <Typography variant="h2">Order Summary</Typography>
-          <Typography component={`p`}>Email: hehe@gmail.com</Typography>
+          <Typography component={`p`}>Email: {emailLogin} </Typography>
         </MUI.PricePaymentSummaryHeader>
 
         <MUI.PricePaymentSummaryBoxPrice>

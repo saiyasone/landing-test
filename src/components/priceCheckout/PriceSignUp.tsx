@@ -1,10 +1,10 @@
 import { Fragment, useState } from "react";
 import * as MUI from "styles/priceCheckoutStyle";
 import Typography from "@mui/material/Typography";
-import { Button, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
 import { Formik } from "formik";
 import ContinuteIcon from "@mui/icons-material/ArrowForward";
-import GoogleIcon from "assets/images/googleIcon.png";
 import * as yup from "yup";
 import { ENV_KEYS } from "constants/env.constant";
 import axios from "axios";
@@ -18,6 +18,7 @@ import { useNavigate, useParams } from "react-router-dom";
 function PriceSignUp() {
   const [errorEmail, setErrorEmail] = useState("");
   const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const validateForm = yup.object().shape({
     email: yup.string().required("Email is required").email("Email is invalid"),
@@ -34,39 +35,44 @@ function PriceSignUp() {
   const [register] = useMutation(USER_SIGNUP);
 
   const handleSubmitForm = async (values: any) => {
-    console.log(values);
-    navigate("/pricing/payment/" + paramId);
-    // try {
-    //   const responseIp = await axios.get(ENV_KEYS.VITE_APP_LOAD_GETIP_URL);
-    //   const signUpUser = await register({
-    //     variables: {
-    //       input: {
-    //         email: values.email,
-    //         password: values.password,
-    //         ip: responseIp.data,
-    //       },
-    //     },
-    //   });
-    //   if (signUpUser?.data?.signup?._id) {
-    //     const user = {
-    //       email: values.email,
-    //     };
-    //     localStorage.setItem("sessions", JSON.stringify(user));
-    //     setIsError(false);
-    //     onNext?.();
-    //   }
-    // } catch (error: any) {
-    //   const cutErr = error.message.replace(/(ApolloError: )?Error: /, "");
-    //   if (cutErr === "") {
-    //     setErrorEmail(values.email);
-    //     setIsError(true);
-    //   } else {
-    //     errorMessage(
-    //       manageGraphQLError.handleErrorMessage(cutErr as string) || "",
-    //       3000,
-    //     );
-    //   }
-    // }
+    setIsLoading(true);
+    try {
+      const responseIp = await axios.get(ENV_KEYS.VITE_APP_LOAD_GETIP_URL);
+      const signUpUser = await register({
+        variables: {
+          input: {
+            email: values.email,
+            ip: responseIp.data,
+          },
+        },
+      });
+      if (signUpUser?.data?.signup?._id) {
+        const user = {
+          email: values.email,
+        };
+        localStorage.setItem("sessions", JSON.stringify(user));
+        setIsError(false);
+        setTimeout(() => {
+          setIsLoading(false);
+          navigate(`/pricing/payment/${paramId}`);
+        }, 1000);
+      }
+    } catch (error: any) {
+      setTimeout(() => {
+        setIsLoading(false);
+        localStorage.removeItem("sessions");
+        const cutErr = error.message.replace(/(ApolloError: )?Error: /, "");
+        if (cutErr === "User or email already registered") {
+          setErrorEmail(values.email);
+          setIsError(true);
+        } else {
+          errorMessage(
+            manageGraphQLError.handleErrorMessage(cutErr as string) || "",
+            3000,
+          );
+        }
+      }, 1000);
+    }
   };
 
   return (
@@ -87,7 +93,7 @@ function PriceSignUp() {
             </Typography>
           </MUI.PriceCheckoutSignUpHeader>
           <Formik
-            initialValues={{ email: "zard@gmail.com" }}
+            initialValues={{ email: "" }}
             validationSchema={validateForm}
             onSubmit={handleSubmitForm}
           >
@@ -108,18 +114,19 @@ function PriceSignUp() {
                 />
 
                 <MUI.PriceCheckoutAction>
-                  <Button
+                  <LoadingButton
                     variant="contained"
                     type="submit"
                     size="small"
                     sx={{ py: 1.5 }}
                     fullWidth={true}
+                    loading={isLoading}
                   >
                     Continue{" "}
                     <ContinuteIcon
                       sx={{ ml: 2, verticalAlign: "middle", fontSize: "1rem" }}
                     />
-                  </Button>
+                  </LoadingButton>
                 </MUI.PriceCheckoutAction>
               </MUI.PriceCheckoutSignUpForm>
             )}

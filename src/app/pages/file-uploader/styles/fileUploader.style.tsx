@@ -30,7 +30,6 @@ export const BoxHomepage = styled(Box)({
 
 export const ContainerHome = styled(Container)(({ theme }) => ({
   padding: "1.5rem 0",
-  marginBottom: "4rem",
   height: "auto",
   [theme.breakpoints.down("md")]: {
     marginBottom: "2rem",

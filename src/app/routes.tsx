@@ -1,6 +1,6 @@
 import Landing from "components/presentation/Landing";
 import PresentationLayout from "components/presentation/PresentationLayout";
-import { RouteObject } from "react-router-dom";
+import { Navigate, RouteObject } from "react-router-dom";
 import ContactUs from "./pages/contact-us/ContactUs";
 import Feedback from "./pages/feedback/FeedBack";
 import FileDrop from "./pages/file-drop/FileDrop";
@@ -13,6 +13,7 @@ import TermCondition from "./pages/term-and-condition/TermCondition";
 import PricingCheckout from "./pages/pricing-checkout/PricingCheckout";
 import PriceSignUp from "components/priceCheckout/PriceSignUp";
 import PricePayment from "components/priceCheckout/PricePayment";
+import ConfirmPayment from "./pages/confirm-payment/ConfirmPayment";
 
 const routes: RouteObject[] = [
   {
@@ -26,6 +27,7 @@ const routes: RouteObject[] = [
           </Landing>
         ),
       },
+
       {
         path: "df",
         element: (
@@ -79,6 +81,10 @@ const routes: RouteObject[] = [
         element: <PricePayment />,
       },
       {
+        path: "pricing/confirm-payment",
+        element: <ConfirmPayment />,
+      },
+      {
         path: "pricing/confirm/:id",
         element: <PriceSignUp />,
       },
@@ -106,6 +112,10 @@ const routes: RouteObject[] = [
           </Landing>
         ),
       },
+      // {
+      //   path: "*",
+      //   element: <Navigate to="/" />,
+      // },
     ],
   },
 ];
