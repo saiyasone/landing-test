@@ -947,10 +947,9 @@ function FileUploader() {
         [index]: true,
       }));
       setIsSuccess((prev) => ({
-      ...prev,
+        ...prev,
         [index]: false,
       }));
-      console.log(dataFile);
 
       const multipleData = [
         {
