@@ -31,7 +31,6 @@ function FolderDownloader(props) {
         <Typography variant="h6" sx={{ display: "flex", alignItems: "center" }}>
           &nbsp;
           {folderDownload[0]?.folder_name}&nbsp;
-          {/* {JSON.stringify(folderDownload[0])}&nbsp; */}
           {convertBytetoMBandGB(folderSize)}
         </Typography>
       </Box>

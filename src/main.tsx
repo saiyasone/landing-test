@@ -39,7 +39,7 @@ export const clientMockup = new ApolloClient({
   link: from([
     authLink.concat(
       createHttpLink({
-        uri: ENV_KEYS.VITE_APP_SUBSCRIPTION_URL,
+        uri: ENV_KEYS.VITE_APP_API_URL,
       }),
     ),
   ]),

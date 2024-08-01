@@ -947,9 +947,10 @@ function FileUploader() {
         [index]: true,
       }));
       setIsSuccess((prev) => ({
-        ...prev,
+      ...prev,
         [index]: false,
       }));
+      console.log(dataFile);
 
       const multipleData = [
         {
@@ -1145,7 +1146,6 @@ function FileUploader() {
         }));
 
         handleClose();
-
         if (linkClient?._id) {
           if (linkClient?.type === "multiple") {
             if (multipleType === "folder") {
