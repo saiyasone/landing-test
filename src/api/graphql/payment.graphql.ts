@@ -128,6 +128,16 @@ export const MUTATION_CREATE_TEST_SUBSCRIPTION = gql`
   }
 `;
 
+export const SUBSCRIPTION_BCEL_ONE_SUBSCRIPTION_QR = gql`
+  subscription SubscriptionQr($transactionId: String) {
+    subscribeBcelOneSubscriptionQr(transactionId: $transactionId) {
+      message
+      error
+      transactionId
+    }
+  }
+`;
+
 export const SUBSCRIPTION_BCEL_ONE_SUBSCRIPTION = gql`
   subscription TwoCheckoutSubscription($code: String!) {
     twoCheckoutSubscription(code: $code) {

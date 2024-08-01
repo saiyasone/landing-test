@@ -1,6 +1,6 @@
 import Landing from "components/presentation/Landing";
 import PresentationLayout from "components/presentation/PresentationLayout";
-import { Navigate, RouteObject } from "react-router-dom";
+import { RouteObject } from "react-router-dom";
 import ContactUs from "./pages/contact-us/ContactUs";
 import Feedback from "./pages/feedback/FeedBack";
 import FileDrop from "./pages/file-drop/FileDrop";

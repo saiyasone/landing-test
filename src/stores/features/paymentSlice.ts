@@ -40,7 +40,7 @@ const initialState = {
   showBcelOne: false,
   showStripe: false,
   activePaymentMethod: PAYMENT_METHOD.bcelOne,
-  recentPayment: {},
+  recentPayment: {transactionId:""},
   packageIdData: {
     _id: "",
     monthlyPrice: 0,

@@ -51,7 +51,7 @@ function App() {
 
   useEffect(() => {
     const handleQuerySEO = async () => {
-      console.log(routeName);
+      // console.log(routeName);
       try {
         const res = await getSEO({
           variables: {

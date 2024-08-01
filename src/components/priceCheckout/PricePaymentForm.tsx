@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import * as MUI from "styles/priceCheckoutStyle";
 import Typography from "@mui/material/Typography";
-import { Button, Grid, TextField } from "@mui/material";
+import { Box, Button, Grid } from "@mui/material";
 
 import bcelIcon from "assets/images/bcel.jpg";
 import visaIcon from "assets/images/Visa.png";
@@ -19,11 +19,15 @@ import {
   setActiveStep,
   setPaymentProfile,
   setPaymentSelect,
+  setRecentPayment,
 } from "stores/features/paymentSlice";
-import { SUBSCRIPTION_BCEL_ONE_SUBSCRIPTION } from "api/graphql/payment.graphql";
+import { SUBSCRIPTION_BCEL_ONE_SUBSCRIPTION, SUBSCRIPTION_BCEL_ONE_SUBSCRIPTION_QR } from "api/graphql/payment.graphql";
 import { useSubscription } from "@apollo/client";
+import { useNavigate } from "react-router-dom";
+import { errorMessage } from "utils/alert.util";
 
 function PricePaymentForm() {
+  const navigate = useNavigate();
   const [formField, setFormField] = useState({
     firstName: "",
     lastName: "",
@@ -55,7 +59,7 @@ function PricePaymentForm() {
         dispatch(setActiveStep(2));
       },
       onData: () => {
-        console.log("on data");
+        console.log("on data output after==>>");
         dispatch(
           setPaymentProfile({
             firstName: formField.firstName,
@@ -64,7 +68,64 @@ function PricePaymentForm() {
             zipCode: formField.zipCode,
           }),
         );
+
         dispatch(setActiveStep(2));
+      },
+    },
+  );
+
+///QR payment
+  const _bcelOneSubscriptionQr = useSubscription(
+    SUBSCRIPTION_BCEL_ONE_SUBSCRIPTION_QR,
+    {
+      variables: { transactionId: bcelOnePay.transactionId },
+      onComplete: () => {
+        // console.log("on qr complete");
+        dispatch(
+          setPaymentProfile({
+            firstName: formField.firstName,
+            lastName: formField.lastName,
+            country: formField.country,
+            zipCode: formField.zipCode,
+          }),
+        );
+
+        if(localStorage['sessionKey']){
+          localStorage.removeItem('sessionkey');
+        }
+
+        dispatch(setActiveStep(2));
+      },
+      onData: ({data}) => {
+          // console.log("on data qr after==>>", data);
+          
+          console.log({formField});
+          dispatch(
+            setPaymentProfile({
+              firstName: formField.firstName,
+              lastName: formField.lastName,
+              country: formField.country,
+              zipCode: formField.zipCode,
+            }),
+          );
+
+          dispatch(setRecentPayment(
+            data?.data?.subscribeBcelOneSubscriptionQr
+          ));
+
+          if(localStorage['sessionKey']){
+            localStorage.removeItem('sessionKey');
+          }
+
+          if(data?.data?.subscribeBcelOneSubscriptionQr?.message.toUpperCase() === "SUCCESS"){
+            setTimeout(() => {
+              navigate(`/pricing/confirm-payment`);
+            }, 1000);
+          }
+          else
+          {
+            errorMessage(data?.subscribeBcelOneSubscriptionQr?.message || data?.data?.subscribeBcelOneSubscriptionQr?.error)
+          }
       },
     },
   );
@@ -108,14 +169,14 @@ function PricePaymentForm() {
 
   useEffect(() => {
     if (formField) {
-      // dispatch(
-      //   setPaymentProfile({
-      //     firstName: formField.firstName,
-      //     lastName: formField.lastName,
-      //     country: formField.country,
-      //     zipCode: formField.zipCode,
-      //   }),
-      // );
+      dispatch(
+        setPaymentProfile({
+          firstName: formField.firstName,
+          lastName: formField.lastName,
+          country: formField.country,
+          zipCode: formField.zipCode,
+        }),
+      );
     }
   }, [formField, dispatch]);
 
@@ -166,31 +227,36 @@ function PricePaymentForm() {
         </MUI.PricePaymentSelector>
 
         <MUI.PricePaymentQRCode>
-          <Typography variant="h4">QR Code</Typography>
+          <Typography variant="h4">Scan QR Code</Typography>
         </MUI.PricePaymentQRCode>
 
         <Fragment>
           <Grid item container spacing={5}>
-            <Grid item lg={5} md={5} sm={5} xs={12}>
+            <Grid item xs={12}>
               <MUI.PricePaymentQRCodeContainer>
-                <QrCode
-                  style={{ width: "100%" }}
-                  ref={qrCodeRef}
-                  value={bcelOnePay.qrCode || ""}
-                  viewBox={`0 0 256 256`}
-                />
+                {
+                  bcelOnePay.qrCode &&
+                  <QrCode
+                    style={{ width: "100%" }}
+                    ref={qrCodeRef}
+                    value={bcelOnePay.qrCode || ""}
+                    viewBox={`0 0 256 256`}
+                  />
+                }
+                
               </MUI.PricePaymentQRCodeContainer>
 
-              <Button
-                variant="contained"
-                type="button"
-                fullWidth
-                onClick={handleDownloadQRCode}
-              >
-                Download QR Code
-              </Button>
+              <Box display="flex" justifyContent="center" alignItems="center" mt={5}>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  onClick={handleDownloadQRCode}
+                >
+                  Download QR Code
+                </Button>
+              </Box>
             </Grid>
-            <Grid item lg={7} md={7} sm={7} xs={12}>
+            {/* <Grid item lg={7} md={7} sm={7} xs={12}>
               <MUI.PricePaymentForm>
                 <MUI.PriceCheckoutLabel>First name</MUI.PriceCheckoutLabel>
                 <TextField
@@ -246,7 +312,7 @@ function PricePaymentForm() {
                   value={formField.zipCode}
                 />
               </MUI.PricePaymentForm>
-            </Grid>
+            </Grid> */}
           </Grid>
         </Fragment>
       </MUI.PricePaymentFormContainer>

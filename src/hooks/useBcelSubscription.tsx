@@ -11,8 +11,9 @@ const useBcelSubscirption = () => {
     MUTATION_CREATE_QR_AND_SUBSCRIPTION,
     {
       client: clientMockup,
-    },
+    }
   );
+  const {packageIdData} = paymentSelector;
 
   const [qrCode, setQrCode] = useState<string>("");
   const [link, setLink] = useState<string>("");
@@ -26,35 +27,40 @@ const useBcelSubscirption = () => {
       setPlatform("IOS");
     }
   }, [userAgent]);
-
+  
   useEffect(() => {
-    createQrAndSubscription({
-      variables: {
-        data: {
-          amount: 1,
-          card: "BCEL",
-          category: "package",
-          description: "test",
-          packageId: paymentSelector.packageIdData.packageId,
-          paymentMethod: "bcelone",
-          service: "BCELONE_PAY",
-          status: "success",
-          type:
-            paymentSelector.paymentTypeSummary === "monthly"
-              ? "monthly"
-              : "annual",
-          platform,
+    if(packageIdData.packageId && localStorage['sessionKey']){
+      createQrAndSubscription({
+        variables: {
+          data: {
+            amount: 1,
+            card: "BCEL",
+            category: "package",
+            description: packageIdData.packageId,
+            packageId: packageIdData.packageId,
+            paymentMethod: "bcelone",
+            service: "BCELONE_PAY",
+            status: "success",
+            type:
+              paymentSelector.paymentTypeSummary === "monthly"
+                ? "monthly"
+                : "annual",
+            platform,
+          },
         },
-      },
-    }).then((res) => {
-      const { qrCode, transactionId } =
-        res.data.createQrAndSubscribeForPayment || {};
-      setTransactionId(`${transactionId}`);
-      setQrCode(`${qrCode}`);
-      setLink(`onepay://qr/${qrCode}`);
-    });
-  }, [paymentSelector.paymentTypeSummary]);
-
+      }).then((res) => {
+        const { qrCode, transactionId } =
+          res.data.createQrAndSubscribeForPayment || {};
+          // console.log('res data create sub =>>>>>> ', res.data?.createQrAndSubscribeForPayment);
+        setTransactionId(`${transactionId}`);
+        if(qrCode){
+          setQrCode(`${qrCode}`);
+          setLink(`onepay://qr/${qrCode}`);
+        }
+      });
+    }
+  }, [paymentSelector.paymentTypeSummary,packageIdData, localStorage['sessionKey']]);
+  
   return {
     qrCode,
     link,
