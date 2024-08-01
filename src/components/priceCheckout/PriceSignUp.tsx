@@ -7,13 +7,14 @@ import { Formik } from "formik";
 import ContinuteIcon from "@mui/icons-material/ArrowForward";
 import * as yup from "yup";
 import { ENV_KEYS } from "constants/env.constant";
-import axios from "axios";
+// import axios from "axios";
 import { useMutation } from "@apollo/client";
-import { USER_SIGNUP } from "api/graphql/secure.graphql";
+// import { USER_SIGNUP } from "api/graphql/secure.graphql";
 import useManageGraphqlError from "hooks/useManageGraphqlError";
 import { errorMessage } from "utils/alert.util";
 import StepV1 from "components/StepV1";
 import { useNavigate, useParams } from "react-router-dom";
+import { LANDING_PAGE_PAYMENT_SIGNUP } from "api/graphql/social.graphql";
 
 function PriceSignUp() {
   const [errorEmail, setErrorEmail] = useState("");
@@ -32,35 +33,77 @@ function PriceSignUp() {
   const manageGraphQLError = useManageGraphqlError();
 
   // graphql
-  const [register] = useMutation(USER_SIGNUP);
+  // const [register] = useMutation(USER_SIGNUP);
+  const [signupPayment] = useMutation(LANDING_PAGE_PAYMENT_SIGNUP);
 
   const handleSubmitForm = async (values: any) => {
     setIsLoading(true);
     try {
-      const responseIp = await axios.get(ENV_KEYS.VITE_APP_LOAD_GETIP_URL);
-      const signUpUser = await register({
+      // const responseIp = await axios.get(ENV_KEYS.VITE_APP_LOAD_GETIP_URL);
+      // const signUpUser = await register({
+      //   variables: {
+      //     input: {
+      //       email: values.email,
+      //       ip: responseIp.data,
+      //     },
+      //   },
+      // });
+      // if (signUpUser?.data?.signup?._id) {
+      //   const user = {
+      //     email: values.email,
+      //   };
+      //   localStorage.setItem("sessions", JSON.stringify(user));
+      //   setIsError(false);
+      //   setTimeout(() => {
+      //     setIsLoading(false);
+      //     navigate(`/pricing/payment/${paramId}`);
+      //   }, 1000);
+      // }
+
+      ////new signup for landingpage payment session by session
+      /// need token to attach in bcel payment ---> 20240731 ----> Phonesai
+      const signUpUser = await signupPayment({
         variables: {
           input: {
             email: values.email,
-            ip: responseIp.data,
-          },
-        },
+            provider: "normal"
+          }
+        }
       });
-      if (signUpUser?.data?.signup?._id) {
+
+      if(signUpUser?.data && signUpUser.data?.socialAuth?.token){
         const user = {
           email: values.email,
         };
+
+        const paymentToken = signUpUser?.data?.socialAuth?.token;
+        if(!paymentToken){
+          throw new Error("Payment Token is empty. Payment is stopped process");
+          return;
+        }
+
+        //this is temp token for apov api ---> will remove automatic afte this session ---> 20240731 --->> Phonesai
+        const expiration = new Date().getTime() + 5 * 60 * 1000;
+        const item = {
+          name: paymentToken,
+          expiration,
+        };
+        
+        localStorage.setItem('sessionKey', JSON.stringify(item));
         localStorage.setItem("sessions", JSON.stringify(user));
+
         setIsError(false);
         setTimeout(() => {
           setIsLoading(false);
           navigate(`/pricing/payment/${paramId}`);
         }, 1000);
       }
+
     } catch (error: any) {
       setTimeout(() => {
         setIsLoading(false);
         localStorage.removeItem("sessions");
+        localStorage.removeItem('sessionKey');
         const cutErr = error.message.replace(/(ApolloError: )?Error: /, "");
         if (cutErr === "User or email already registered") {
           setErrorEmail(values.email);

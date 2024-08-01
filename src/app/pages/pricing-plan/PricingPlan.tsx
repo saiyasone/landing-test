@@ -15,6 +15,8 @@ import {
   PACKAGE_TYPE,
   paymentState,
   setPackageType,
+  setPaymentType,
+  setPaymentTypeSummary,
 } from "stores/features/paymentSlice";
 import * as MUI from "styles/presentation/pricingPlan.style";
 
@@ -128,6 +130,20 @@ const PricingPlan = () => {
                       : PACKAGE_TYPE.monthly,
                   ),
                 );
+                dispatch(
+                  setPaymentTypeSummary(
+                    packageType !== PACKAGE_TYPE.annual
+                      ? PACKAGE_TYPE.annual
+                      : PACKAGE_TYPE.monthly
+                  )
+                );
+                dispatch(
+                  setPaymentType(
+                    packageType !== PACKAGE_TYPE.annual
+                    ? PACKAGE_TYPE.annual
+                    : PACKAGE_TYPE.monthly
+                  )
+                )
               }}
               inputProps={{ "aria-label": "ant design" }}
             />

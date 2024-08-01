@@ -180,3 +180,15 @@ export const MUTATION_SOCIAL_AUTH = gql`
     }
   }
 `;
+
+export const LANDING_PAGE_PAYMENT_SIGNUP = gql`
+  mutation SocialAuth($input: SocialAuthInput!) {
+    socialAuth(input: $input) {
+      token
+      refreshToken
+      data {
+        _id
+      }
+    }
+  }
+`;
