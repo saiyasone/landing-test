@@ -21,7 +21,10 @@ import {
   setPaymentSelect,
   setRecentPayment,
 } from "stores/features/paymentSlice";
-import { SUBSCRIPTION_BCEL_ONE_SUBSCRIPTION, SUBSCRIPTION_BCEL_ONE_SUBSCRIPTION_QR } from "api/graphql/payment.graphql";
+import {
+  SUBSCRIPTION_BCEL_ONE_SUBSCRIPTION,
+  SUBSCRIPTION_BCEL_ONE_SUBSCRIPTION_QR,
+} from "api/graphql/payment.graphql";
 import { useSubscription } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import { errorMessage } from "utils/alert.util";
@@ -47,15 +50,6 @@ function PricePaymentForm() {
     {
       variables: { transactionId: bcelOnePay.transactionId },
       onComplete: () => {
-        console.log("on complete");
-        dispatch(
-          setPaymentProfile({
-            firstName: formField.firstName,
-            lastName: formField.lastName,
-            country: formField.country,
-            zipCode: formField.zipCode,
-          }),
-        );
         dispatch(setActiveStep(2));
       },
       onData: () => {
@@ -74,13 +68,12 @@ function PricePaymentForm() {
     },
   );
 
-///QR payment
+  ///QR payment
   const _bcelOneSubscriptionQr = useSubscription(
     SUBSCRIPTION_BCEL_ONE_SUBSCRIPTION_QR,
     {
       variables: { transactionId: bcelOnePay.transactionId },
       onComplete: () => {
-        // console.log("on qr complete");
         dispatch(
           setPaymentProfile({
             firstName: formField.firstName,
@@ -90,57 +83,38 @@ function PricePaymentForm() {
           }),
         );
 
-        if(localStorage['sessionKey']){
-          localStorage.removeItem('sessionkey');
+        if (localStorage["sessionKey"]) {
+          localStorage.removeItem("sessionkey");
         }
 
         dispatch(setActiveStep(2));
       },
-      onData: ({data}) => {
-          // console.log("on data qr after==>>", data);
-          
-          console.log({formField});
-          dispatch(
-            setPaymentProfile({
-              firstName: formField.firstName,
-              lastName: formField.lastName,
-              country: formField.country,
-              zipCode: formField.zipCode,
-            }),
+      onData: ({ data }: { data: any }) => {
+        dispatch(setRecentPayment(data?.data?.subscribeBcelOneSubscriptionQr));
+
+        if (localStorage["sessionKey"]) {
+          localStorage.removeItem("sessionKey");
+        }
+
+        if (
+          data?.data?.subscribeBcelOneSubscriptionQr?.message.toUpperCase() ===
+          "SUCCESS"
+        ) {
+          setTimeout(() => {
+            navigate(`/pricing/confirm-payment`);
+          }, 1000);
+        } else {
+          errorMessage(
+            data?.subscribeBcelOneSubscriptionQr?.message ||
+              data?.data?.subscribeBcelOneSubscriptionQr?.error,
           );
-
-          dispatch(setRecentPayment(
-            data?.data?.subscribeBcelOneSubscriptionQr
-          ));
-
-          if(localStorage['sessionKey']){
-            localStorage.removeItem('sessionKey');
-          }
-
-          if(data?.data?.subscribeBcelOneSubscriptionQr?.message.toUpperCase() === "SUCCESS"){
-            setTimeout(() => {
-              navigate(`/pricing/confirm-payment`);
-            }, 1000);
-          }
-          else
-          {
-            errorMessage(data?.subscribeBcelOneSubscriptionQr?.message || data?.data?.subscribeBcelOneSubscriptionQr?.error)
-          }
+        }
       },
     },
   );
 
   const handlePaymentTab = (event: ChangeEvent<HTMLInputElement>) => {
     dispatch(setPaymentSelect(event.target.value));
-  };
-
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-
-    setFormField((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
   };
 
   const handleDownloadQRCode = () => {
@@ -234,19 +208,22 @@ function PricePaymentForm() {
           <Grid item container spacing={5}>
             <Grid item xs={12}>
               <MUI.PricePaymentQRCodeContainer>
-                {
-                  bcelOnePay.qrCode &&
+                {bcelOnePay.qrCode && (
                   <QrCode
                     style={{ width: "100%" }}
                     ref={qrCodeRef}
                     value={bcelOnePay.qrCode || ""}
                     viewBox={`0 0 256 256`}
                   />
-                }
-                
+                )}
               </MUI.PricePaymentQRCodeContainer>
 
-              <Box display="flex" justifyContent="center" alignItems="center" mt={5}>
+              <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                mt={5}
+              >
                 <Button
                   type="button"
                   variant="outlined"
