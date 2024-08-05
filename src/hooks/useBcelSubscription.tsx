@@ -33,7 +33,7 @@ const useBcelSubscirption = () => {
       createQrAndSubscription({
         variables: {
           data: {
-            amount: 1,//paymentSelector.total,
+            amount: paymentSelector.total,
             card: "BCEL",
             category: "package",
             description: packageIdData.packageId,
