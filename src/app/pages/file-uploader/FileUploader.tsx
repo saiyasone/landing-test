@@ -1008,7 +1008,6 @@ function FileUploader() {
         ...prev,
         [index]: false,
       }));
-      console.log(dataFile);
 
       const multipleData = [
         {
@@ -1019,6 +1018,8 @@ function FileUploader() {
           newPath: "",
         },
       ];
+
+      console.log({ multipleData });
 
       await manageFile.handleDownloadPublicFile(
         { multipleData },
@@ -1146,7 +1147,6 @@ function FileUploader() {
         }));
 
         handleClose();
-
         if (linkClient?._id) {
           if (linkClient?.type === "multiple") {
             if (multipleType === "folder") {

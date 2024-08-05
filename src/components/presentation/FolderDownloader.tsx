@@ -13,7 +13,6 @@ function FolderDownloader(props) {
     isHide,
     isMobile,
     setPassword,
-    setGetFolderName,
     setFilePasswords,
     handleDownloadFolder,
     folderSize,
@@ -32,7 +31,6 @@ function FolderDownloader(props) {
         <Typography variant="h6" sx={{ display: "flex", alignItems: "center" }}>
           &nbsp;
           {folderDownload[0]?.folder_name}&nbsp;
-          {/* {JSON.stringify(folderDownload[0])}&nbsp; */}
           {convertBytetoMBandGB(folderSize)}
         </Typography>
       </Box>
@@ -50,10 +48,8 @@ function FolderDownloader(props) {
         ) : (
           <IconButton
             onClick={() => {
-              const folder_name = `${folderDownload[0]?.folder_name}`;
               setIndex(1);
               setPassword("");
-              setGetFolderName(folder_name);
               setFilePasswords(folderDownload[0]?.access_password);
               handleDownloadFolder({
                 createdBy: folderDownload[0]?.createdBy,

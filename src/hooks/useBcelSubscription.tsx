@@ -11,9 +11,9 @@ const useBcelSubscirption = () => {
     MUTATION_CREATE_QR_AND_SUBSCRIPTION,
     {
       client: clientMockup,
-    }
+    },
   );
-  const {packageIdData} = paymentSelector;
+  const { packageIdData } = paymentSelector;
 
   const [qrCode, setQrCode] = useState<string>("");
   const [link, setLink] = useState<string>("");
@@ -27,7 +27,7 @@ const useBcelSubscirption = () => {
       setPlatform("IOS");
     }
   }, [userAgent]);
-  
+
   useEffect(() => {
     if(packageIdData.packageId && localStorage['sessionKey'] && paymentSelector.total > 0){
       createQrAndSubscription({
@@ -51,9 +51,9 @@ const useBcelSubscirption = () => {
       }).then((res) => {
         const { qrCode, transactionId } =
           res.data.createQrAndSubscribeForPayment || {};
-          // console.log('res data create sub =>>>>>> ', res.data?.createQrAndSubscribeForPayment);
+        // console.log('res data create sub =>>>>>> ', res.data?.createQrAndSubscribeForPayment);
         setTransactionId(`${transactionId}`);
-        if(qrCode){
+        if (qrCode) {
           setQrCode(`${qrCode}`);
           setLink(`onepay://qr/${qrCode}`);
         }

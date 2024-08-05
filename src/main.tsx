@@ -30,39 +30,30 @@ const authLink = setContext((_, { headers }) => {
 
   let pathname = window.location.pathname;
 
-  try 
-  {
-    if(pathname){
-      const segments = pathname.split('/');
+  try {
+    if (pathname) {
+      const segments = pathname.split("/");
       segments.pop();
-      pathname = segments.join('/');
+      pathname = segments.join("/");
     }
-    
-    if(localStorage['sessionKey'])
-    {
 
-      const itemStr:any = localStorage.getItem('sessionKey');
+    if (localStorage["sessionKey"]) {
+      const itemStr: any = localStorage.getItem("sessionKey");
       const item = JSON.parse(itemStr);
       const currentTime = new Date().getTime();
 
-      if (!itemStr || currentTime > item.expiration || !item.name) 
-      {
-        localStorage.removeItem('sessionKey');
-      }
-      else
-      {
-        if(pathname === '/pricing/payment'){
+      if (!itemStr || currentTime > item.expiration || !item.name) {
+        localStorage.removeItem("sessionKey");
+      } else {
+        if (pathname === "/pricing/payment") {
           token = item.name as string;
         }
       }
     }
-
-  } 
-  catch (error:any) 
-  {
+  } catch (error: any) {
     console.log(error?.message || "");
   }
-  
+
   return {
     headers: {
       ...headers,
@@ -87,7 +78,8 @@ export const clientMockup = new ApolloClient({
 
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: `wss://${ENV_KEYS.VITE_APP_SUBSCRIPTION_URL}`,
+    // url: `wss://${ENV_KEYS.VITE_APP_SUBSCRIPTION_URL}`,
+    url: "wss://coding.vshare.net/graphql",
   }),
 );
 
