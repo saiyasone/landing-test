@@ -3,7 +3,6 @@ import * as MUI from "styles/presentation/pricingPlan.style";
 // material ui components and icons
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import { Chip, Typography, useTheme } from "@mui/material";
-import { ENV_KEYS } from "constants/env.constant";
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +14,7 @@ import {
   setCalculatePrice,
 } from "stores/features/paymentSlice";
 import { prettyNumberFormat } from "utils/number.util";
-import { encryptDataLink, encryptId } from "utils/secure.util";
+import { encryptDataLink } from "utils/secure.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
 import NormalButton from "./NormalButton";
 

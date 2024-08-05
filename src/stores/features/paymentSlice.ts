@@ -55,7 +55,7 @@ const initialState = {
     3: false,
   },
   paymentType: "",
-  paymentTypeSummary: "monthly",
+  paymentTypeSummary: PACKAGE_TYPE.annual,
   paymentSelect: "bcel",
   paymentProfile: {
     firstName: "",

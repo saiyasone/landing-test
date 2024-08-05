@@ -1019,6 +1019,8 @@ function FileUploader() {
         },
       ];
 
+      console.log({ multipleData });
+
       await manageFile.handleDownloadPublicFile(
         { multipleData },
         {

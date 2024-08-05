@@ -1,24 +1,17 @@
 import React, {
-  ChangeEvent,
   Fragment,
   useEffect,
   useRef,
-  useState,
 } from "react";
 import * as MUI from "styles/priceCheckoutStyle";
-import Typography from "@mui/material/Typography";
 import { Box, Button, Grid } from "@mui/material";
 
-import bcelIcon from "assets/images/bcel.jpg";
-import visaIcon from "assets/images/Visa.png";
 import QrCode from "react-qr-code";
 import useBcelSubscirption from "hooks/useBcelSubscription";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
-  paymentState,
   setActiveStep,
   setPaymentProfile,
-  setPaymentSelect,
   setRecentPayment,
 } from "stores/features/paymentSlice";
 import {
@@ -31,16 +24,15 @@ import { errorMessage } from "utils/alert.util";
 
 function PricePaymentForm() {
   const navigate = useNavigate();
-  const [formField, setFormField] = useState({
-    firstName: "",
-    lastName: "",
-    country: "",
-    zipCode: "",
-  });
+  // const [formField, setFormField] = useState({
+  //   firstName: "",
+  //   lastName: "",
+  //   country: "",
+  //   zipCode: "",
+  // });
   const qrCodeRef = useRef<any>(null);
 
   // redux
-  const paymentSelector = useSelector(paymentState);
   const dispatch = useDispatch();
 
   const bcelOnePay = useBcelSubscirption();
@@ -56,10 +48,10 @@ function PricePaymentForm() {
         console.log("on data output after==>>");
         dispatch(
           setPaymentProfile({
-            firstName: formField.firstName,
-            lastName: formField.lastName,
-            country: formField.country,
-            zipCode: formField.zipCode,
+            // firstName: formField.firstName,
+            // lastName: formField.lastName,
+            // country: formField.country,
+            // zipCode: formField.zipCode,
           }),
         );
 
@@ -76,10 +68,10 @@ function PricePaymentForm() {
       onComplete: () => {
         dispatch(
           setPaymentProfile({
-            firstName: formField.firstName,
-            lastName: formField.lastName,
-            country: formField.country,
-            zipCode: formField.zipCode,
+            // firstName: formField.firstName,
+            // lastName: formField.lastName,
+            // country: formField.country,
+            // zipCode: formField.zipCode,
           }),
         );
 
@@ -113,10 +105,6 @@ function PricePaymentForm() {
     },
   );
 
-  const handlePaymentTab = (event: ChangeEvent<HTMLInputElement>) => {
-    dispatch(setPaymentSelect(event.target.value));
-  };
-
   const handleDownloadQRCode = () => {
     const svgDocument = qrCodeRef.current;
     if (!svgDocument) return;
@@ -141,69 +129,22 @@ function PricePaymentForm() {
     handleSubscription();
   }, [bcelOnePay]);
 
-  useEffect(() => {
-    if (formField) {
-      dispatch(
-        setPaymentProfile({
-          firstName: formField.firstName,
-          lastName: formField.lastName,
-          country: formField.country,
-          zipCode: formField.zipCode,
-        }),
-      );
-    }
-  }, [formField, dispatch]);
+  // useEffect(() => {
+  //   if (formField) {
+  //     dispatch(
+  //       setPaymentProfile({
+  //         firstName: formField.firstName,
+  //         lastName: formField.lastName,
+  //         country: formField.country,
+  //         zipCode: formField.zipCode,
+  //       }),
+  //     );
+  //   }
+  // }, [formField, dispatch]);
 
   return (
     <React.Fragment>
       <MUI.PricePaymentFormContainer>
-        <MUI.PricePaymentHeader>Choose how to pay</MUI.PricePaymentHeader>
-        <MUI.PricePaymentSelector>
-          <input
-            id="bcel-ref"
-            type="radio"
-            name="payment-selected"
-            hidden={true}
-            checked={paymentSelector.paymentSelect === "bcel"}
-            onChange={handlePaymentTab}
-            value="bcel"
-          />
-          <MUI.PricePaymentLabel
-            className="payment-selector"
-            htmlFor="bcel-ref"
-          >
-            <MUI.PricePaymentLabelCircle className="payment-circle" />
-            <MUI.PricePaymentBox>
-              <img src={bcelIcon} alt="bcel-icon" />
-              <Typography component={"p"}>BCEL One</Typography>
-            </MUI.PricePaymentBox>
-          </MUI.PricePaymentLabel>
-          <input
-            id="visa-ref"
-            type="radio"
-            name="payment-selected"
-            hidden={true}
-            checked={paymentSelector.paymentSelect === "visa"}
-            onChange={handlePaymentTab}
-            value="visa"
-          />
-          <MUI.PricePaymentLabel
-            className="payment-selector"
-            htmlFor="visa-ref"
-          >
-            <MUI.PricePaymentLabelCircle className="payment-circle" />
-
-            <MUI.PricePaymentBox>
-              <img src={visaIcon} alt="visa-icon" />
-              <Typography component={`p`}>Credit card</Typography>
-            </MUI.PricePaymentBox>
-          </MUI.PricePaymentLabel>
-        </MUI.PricePaymentSelector>
-
-        <MUI.PricePaymentQRCode>
-          <Typography variant="h4">Scan QR Code</Typography>
-        </MUI.PricePaymentQRCode>
-
         <Fragment>
           <Grid item container spacing={5}>
             <Grid item xs={12}>
