@@ -99,7 +99,6 @@ function PricePaymentForm() {
       onData: ({data}) => {
           // console.log("on data qr after==>>", data);
           
-          console.log({formField});
           dispatch(
             setPaymentProfile({
               firstName: formField.firstName,

@@ -9,12 +9,13 @@ import {
 import StepV1 from "components/StepV1";
 import useManagePublicPackages from "hooks/useManagePublicPackage";
 import usePackageFilter from "hooks/usePackageFilter";
-import { useDispatch } from "react-redux";
-import { setPackageData, setPackageIdData } from "stores/features/paymentSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { paymentState, setCalculatePrice, setPackageData, setPackageIdData } from "stores/features/paymentSlice";
 import { useParams } from "react-router-dom";
 import { decryptDataLink } from "utils/secure.util";
 
 function PricePayment() {
+  const paymentSelector = useSelector(paymentState);
   const filter = usePackageFilter();
   const managePackages = useManagePublicPackages({ filter: filter.data });
 
@@ -31,6 +32,18 @@ function PricePayment() {
       dispatch(setPackageData(managePackages.data));
     }
   }, [managePackages.data, dispatch]);
+
+  useEffect(() => {
+    if (paymentSelector.packageData && paymentSelector.activePackageId) {
+      dispatch(setCalculatePrice());
+    }
+  }, [paymentSelector.packageData, paymentSelector.activePackageId]);
+
+  // useEffect(() => {
+  //   if (packages.data) {
+  //     dispatch(setPackageData(packages.data));
+  //   }
+  // }, [packages.data, dispatch]);
 
   return (
     <Fragment>
