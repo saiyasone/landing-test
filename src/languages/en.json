@@ -91,6 +91,7 @@
     "_profit": "Profit",
 
     "//": "card transection",
+    "_select_payent_method": "Select a payment method",
     "_transection_topic": "Transection Methods",
     "_transection_title": "deliveries in progress",
     "_tab_lastest_payment": "Lastest payment",

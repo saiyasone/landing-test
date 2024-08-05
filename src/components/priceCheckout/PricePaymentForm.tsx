@@ -182,53 +182,6 @@ function PricePaymentForm() {
   return (
     <React.Fragment>
       <MUI.PricePaymentFormContainer>
-        <MUI.PricePaymentHeader>Choose how to pay</MUI.PricePaymentHeader>
-        <MUI.PricePaymentSelector>
-          <input
-            id="bcel-ref"
-            type="radio"
-            name="payment-selected"
-            hidden={true}
-            checked={paymentSelector.paymentSelect === "bcel"}
-            onChange={handlePaymentTab}
-            value="bcel"
-          />
-          <MUI.PricePaymentLabel
-            className="payment-selector"
-            htmlFor="bcel-ref"
-          >
-            <MUI.PricePaymentLabelCircle className="payment-circle" />
-            <MUI.PricePaymentBox>
-              <img src={bcelIcon} alt="bcel-icon" />
-              <Typography component={"p"}>BCEL One</Typography>
-            </MUI.PricePaymentBox>
-          </MUI.PricePaymentLabel>
-          <input
-            id="visa-ref"
-            type="radio"
-            name="payment-selected"
-            hidden={true}
-            checked={paymentSelector.paymentSelect === "visa"}
-            onChange={handlePaymentTab}
-            value="visa"
-          />
-          <MUI.PricePaymentLabel
-            className="payment-selector"
-            htmlFor="visa-ref"
-          >
-            <MUI.PricePaymentLabelCircle className="payment-circle" />
-
-            <MUI.PricePaymentBox>
-              <img src={visaIcon} alt="visa-icon" />
-              <Typography component={`p`}>Credit card</Typography>
-            </MUI.PricePaymentBox>
-          </MUI.PricePaymentLabel>
-        </MUI.PricePaymentSelector>
-
-        <MUI.PricePaymentQRCode>
-          <Typography variant="h4">Scan QR Code</Typography>
-        </MUI.PricePaymentQRCode>
-
         <Fragment>
           <Grid item container spacing={5}>
             <Grid item xs={12}>
