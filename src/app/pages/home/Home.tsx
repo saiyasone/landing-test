@@ -871,8 +871,8 @@ function Home() {
                   key={index}
                 >
                   <FAQAccordion
-                    question={he.decode(val.question)}
-                    answer={he.decode(val.answer)}
+                    question={he.decode(val?.question || "")}
+                    answer={he.decode(val?.answer || "")}
                   />
                 </motion.div>
               ))}

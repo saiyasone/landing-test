@@ -540,7 +540,7 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
       setCheckUpload(true);
       successMessage("Upload successful!!", 3000);
     } catch (error: any) {
-      const cutError = error.message.replace(/(ApolloError: )?Error: /, "");
+      const cutError = error.message?.replace(/(ApolloError: )?Error: /, "");
       const fileUploadSize = dataMaxSize?.action?.split(".")[0];
       if (
         cutError ===
@@ -564,7 +564,7 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
         errorMessage(`The file size is bigger than ${fileMaxSize}`, 10000);
         handleCloseModal();
       } else {
-        const cutDataError = error.message.replace(
+        const cutDataError = error.message?.replace(
           /(ApolloError: )?Error: /,
           "",
         );
@@ -589,7 +589,7 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
       ctx.drawImage(img, centerX, centerY, 50, 40);
       const pngUrl = tempCanvas
         .toDataURL("image/png")
-        .replace("image/png", "image/octet-stream");
+        ?.replace("image/png", "image/octet-stream");
       const downloadLink = document.createElement("a");
       downloadLink.href = pngUrl;
       downloadLink.download = "qr-code.png";

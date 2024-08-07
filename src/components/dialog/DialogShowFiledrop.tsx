@@ -214,7 +214,7 @@ export default function CustomizedDialogs(props) {
         if (!isRunningRef.current) {
           break;
         }
-        const randomName = Math.floor(1111111111 + Math.random() * 999999);
+        const randomName = Math.floor(1111111111 + Math.random() * 99999999);
         const { data: _createFilePublic } = await createFilePublic({
           variables: {
             data: {
@@ -252,17 +252,13 @@ export default function CustomizedDialogs(props) {
 
           const startTime = new Date().getTime();
           const headers = {
-            REGION: "sg",
-            BASE_HOSTNAME: "storage.bunnycdn.com",
-            STORAGE_ZONE_NAME: STORAGE_ZONE,
-            ACCESS_KEY: ACCESS_KEY,
             PATH:
-              userId > 0 && folderId > 0 ? `${privateUser}` : `/${publicUser}`,
+              userId > 0 && folderId > 0 ? `${privateUser}` : `${publicUser}`,
             FILENAME: randomName + `${getFileNameExtension(file?.name)}`,
             createdBy: userId > 0 && folderId > 0 ? String(userId) : "0",
           };
-          const encryptedData = encryptDownloadData(headers);
 
+          const encryptedData = encryptDownloadData(headers);
           const blob = new Blob([dataFile[i]], {
             type: dataFile[i].type,
           });
