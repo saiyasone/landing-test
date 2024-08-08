@@ -403,8 +403,8 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
     });
     setInformation(mergedArray);
     setIsUploading(true);
-    // handleUpload(mergedArray);
-    handleUploadV1(mergedArray);
+    handleUpload(mergedArray);
+    // handleUploadV1(mergedArray);
     setIsDialogQRCodeOpen(true);
   };
 
