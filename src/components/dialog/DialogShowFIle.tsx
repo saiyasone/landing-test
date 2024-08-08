@@ -53,12 +53,6 @@ import { errorMessage, successMessage } from "utils/alert.util";
 import { cutFileName, getFileType } from "utils/file.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
 import { encryptDownloadData } from "utils/secure.util";
-import {
-  endTransaction,
-  getTag,
-  getTarget,
-  startTransaction,
-} from "hooks/usePresignUpload";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -179,9 +173,6 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
   const [uploadStatus, setUploadStatus] = useState({});
   const UA = new UAParser();
   const result = UA.getResult();
-
-  // presign upload
-  const [uploads, setUploads] = useState<any[]>([]);
 
   const autoProductKey = "AEADEFO";
 
@@ -575,130 +566,6 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
         errorMessage(cutDataError ?? "", 10000);
         handleCloseModal();
       }
-    }
-  };
-
-  const handleUploadV1 = async (files: any[]) => {
-    const totalFile = files?.length;
-    const totalSize = dataFile.reduce((acc, file) => acc + file.size, 0);
-    let uploadedSize = 0;
-    let currentUploadPercentage: number | string = 0;
-    let getUrlAllWhenReturn: any = [];
-
-    try {
-      // const responseIp = await axios.get(LOAD_GET_IP_URL);
-      const alphabet =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-      const nanoid = customAlphabet(alphabet, 6);
-      const generateID = nanoid();
-      const urlAllFile = generateID;
-      const tagList: any[] = [];
-
-      for (let i = 0; i < files.length; i++) {
-        let file = files[i];
-        if (!isRunningRef.current) {
-          break;
-        }
-        let newNameFile: number | string = Math.floor(
-          1111111111 + Math.random() * 999999,
-        );
-
-        const cutFilename = file?.name?.split(".");
-        const extension = cutFilename.pop();
-        newNameFile = `${newNameFile}.${extension}`;
-        const pathStorage = "public";
-        const newData = {
-          name: file.name || "",
-          lastModified: file.lastModified || "",
-          lastModifiedDate: file?.lastModifiedDate || "",
-          size: file.size || "",
-          type: file.type || "",
-          webkitRelativePath: file.webkitRelativePath || "",
-        };
-        const blob = new Blob([dataFile[i]], {
-          type: newData.type,
-        });
-
-        const newFile = new File([blob], file.name, { type: newData.type });
-        const { data: _createFilePublic } = await createFilePublic({
-          variables: {
-            data: {
-              checkFile: "main",
-              fileExpired: [
-                {
-                  typeDate: expired.title,
-                  amount: parseInt(expired.action),
-                },
-              ],
-              filePassword: file?.password,
-              fileType: file?.type,
-              filename: String(`${file?.name}`),
-              // ip: String(responseIp?.data),
-              ip: "115.84.117.112",
-              newFilename: String(newNameFile),
-              passwordUrlAll: file?.URLpassword,
-              size: String(file?.size),
-              totalUploadFile: totalFile,
-              urlAll: String(urlAllFile),
-              createdBy: 0,
-              device: result.os.name ?? "" + result.os.version ?? "",
-              country: country,
-            },
-          },
-        });
-
-        file = newFile;
-        file.createdBy = "0";
-        file.newFilename = newNameFile;
-        file.path = pathStorage;
-        file.newPath = "";
-
-        getUrlAllWhenReturn = _createFilePublic.createFilesPublic;
-        if (_createFilePublic) {
-          const round = await getTag(file);
-          tagList.push({ file, uploadId: round });
-        } else {
-          throw new Error("");
-        }
-      }
-
-      setUploads(tagList);
-
-      const sendTag = await getTarget(tagList);
-      const targetList = sendTag;
-
-      const partsData: Array<any> = [];
-      const myparts: Array<any> = [];
-
-      for (let i = 0; i < targetList.length; i++) {
-        const startDate: any = new Date();
-        const item: Array<any> = [];
-
-        for (let j = 0; j < targetList[i].length; j++) {
-          const run = await startTransaction(
-            targetList[i][j],
-            startDate,
-            () => {},
-            () => {},
-          );
-          if (run.message == "success") {
-            item.push(run.data);
-          }
-        }
-
-        myparts.push(item);
-      }
-      partsData.push(...myparts);
-
-      // # complete all transaction
-      await endTransaction(partsData, tagList);
-
-      setValue(getUrlAllWhenReturn?.urlAll);
-      setCheckUpload(true);
-      setIsDone(1);
-      successMessage("Upload successful!!", 3000);
-    } catch (error) {
-      //
     }
   };
 
