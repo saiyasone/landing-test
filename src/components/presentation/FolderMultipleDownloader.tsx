@@ -16,7 +16,7 @@ function FolderMultipleDownload(props) {
     isHide,
     isMobile,
     setPassword,
-    setGetFolderName,
+    // setGetFolderName,
     setFilePasswords,
     handleDownloadFolder,
   } = props;
@@ -54,9 +54,9 @@ function FolderMultipleDownload(props) {
         ) : (
           <IconButton
             onClick={() => {
-              const folder_name = `${folderName}`;
+              // const folder_name = `${folderName}`;
               setPassword("");
-              setGetFolderName(folder_name);
+              // setGetFolderName(folder_name);
               setFilePasswords(folderPassword);
               handleDownloadFolder();
             }}
