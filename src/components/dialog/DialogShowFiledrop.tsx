@@ -34,8 +34,8 @@ import {
   getFileNameExtension,
   getFileType,
 } from "utils/file.util";
-import { convertBytetoMBandGB } from "utils/storage.util";
 import { encryptDownloadData } from "utils/secure.util";
+import { convertBytetoMBandGB } from "utils/storage.util";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -140,7 +140,7 @@ export default function CustomizedDialogs(props) {
         setCountry("other");
       }
     };
-    // fetchIPAddress();
+    fetchIPAddress();
   }, []);
 
   React.useEffect(() => {
