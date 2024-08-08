@@ -17,7 +17,6 @@ import * as MUI from "styles/priceCheckoutStyle";
 import bcelIcon from "assets/images/bcel.jpg";
 import visaIcon from "assets/images/Visa.png";
 
-
 function PricePayment() {
   const paymentSelector = useSelector(paymentState);
   const filter = usePackageFilter();
@@ -67,87 +66,80 @@ function PricePayment() {
             mt: (theme) => theme.spacing(3),
             boxShadow: (theme) => theme.baseShadow.primary,
             flex: "1 1 0%",
-            padding: '1rem'
+            padding: "1rem",
           }}
         >
           <Grid item container>
-          <Grid item xs={12} sx={{mb: 2}}>
-            <MUI.PricePaymentHeader sx={{textAlign: 'center'}}>Select a payment method</MUI.PricePaymentHeader>
-          </Grid>
-          <MUI.PricePaymentSelector sx={{width: '100%', marginX: 'auto !important', mb: 3}}>
-            <input
-              style={{maxWidth: 'auto'}}
-              id="bcel-ref"
-              type="radio"
-              name="payment-selected"
-              hidden={true}
-              checked={paymentSelector.paymentSelect === "bcel"}
-              onChange={handlePaymentTab}
-              value="bcel"
-            />
-            <MUI.PricePaymentLabel
-              className="payment-selector"
-              htmlFor="bcel-ref"
+            <Grid item xs={12} sx={{ mb: 2 }}>
+              <MUI.PricePaymentHeader sx={{ textAlign: "center" }}>
+                Select a payment method
+              </MUI.PricePaymentHeader>
+            </Grid>
+            <MUI.PricePaymentSelector
+              sx={{ width: "100%", marginX: "auto !important", mb: 3 }}
             >
-              <MUI.PricePaymentLabelCircle className="payment-circle" />
-              <MUI.PricePaymentBox>
-                <img src={bcelIcon} alt="bcel-icon" />
-                <Typography component={"p"}>BCEL One</Typography>
-              </MUI.PricePaymentBox>
-            </MUI.PricePaymentLabel>
-            <input
-              id="visa-ref"
-              type="radio"
-              name="payment-selected"
-              hidden={true}
-              checked={paymentSelector.paymentSelect === "visa"}
-              onChange={handlePaymentTab}
-              value="visa"
-            />
-            <MUI.PricePaymentLabel
-              className="payment-selector"
-              htmlFor="visa-ref"
-            >
-              <MUI.PricePaymentLabelCircle className="payment-circle" />
+              <input
+                style={{ maxWidth: "auto" }}
+                id="bcel-ref"
+                type="radio"
+                name="payment-selected"
+                hidden={true}
+                checked={paymentSelector.paymentSelect === "bcel"}
+                onChange={handlePaymentTab}
+                value="bcel"
+              />
+              <MUI.PricePaymentLabel
+                className="payment-selector"
+                htmlFor="bcel-ref"
+              >
+                <MUI.PricePaymentLabelCircle className="payment-circle" />
+                <MUI.PricePaymentBox>
+                  <img src={bcelIcon} alt="bcel-icon" />
+                  <Typography component={"p"}>BCEL One</Typography>
+                </MUI.PricePaymentBox>
+              </MUI.PricePaymentLabel>
+              <input
+                id="visa-ref"
+                type="radio"
+                name="payment-selected"
+                hidden={true}
+                checked={paymentSelector.paymentSelect === "visa"}
+                onChange={handlePaymentTab}
+                value="visa"
+              />
+              <MUI.PricePaymentLabel
+                className="payment-selector"
+                htmlFor="visa-ref"
+              >
+                <MUI.PricePaymentLabelCircle className="payment-circle" />
 
-              <MUI.PricePaymentBox>
-                <img src={visaIcon} alt="visa-icon" />
-                <Typography component={`p`}>Credit card</Typography>
-              </MUI.PricePaymentBox>
-            </MUI.PricePaymentLabel>
-          </MUI.PricePaymentSelector>
+                <MUI.PricePaymentBox>
+                  <img src={visaIcon} alt="visa-icon" />
+                  <Typography component={`p`}>Credit card</Typography>
+                </MUI.PricePaymentBox>
+              </MUI.PricePaymentLabel>
+            </MUI.PricePaymentSelector>
           </Grid>
           <Grid item container>
-            
-            {
-              paymentSelector.paymentSelect && paymentSelector.paymentSelect === 'bcel' ? (
-                <Grid item sm={12} md={5}>
-                  <MUI.PricePaymentQRCode sx={{width: '100%', textAlign:'center'}}>
+            {paymentSelector.paymentSelect &&
+              paymentSelector.paymentSelect === "bcel" && (
+                <Grid item sm={12}>
+                  <MUI.PricePaymentQRCode
+                    sx={{ width: "100%", textAlign: "center" }}
+                  >
                     <Typography variant="h3">Scan QR Code</Typography>
                   </MUI.PricePaymentQRCode>
                   <PricePaymentContainerBox>
                     <PricePaymentForm />
                   </PricePaymentContainerBox>
                 </Grid>
-              )
-              :
-              <Grid item sm={12} md={5}>
-                <Box sx={{display:'flex', flexDirection:'column', justifyContent: 'center', alignItems:'center', height: '100%', padding:'0 10%'}}>
-                  <Typography variant={'h3'} lineHeight={3}>
-                      Dear customer!
-                  </Typography>
-                  <Typography variant={'h3'} lineHeight={3}>
-                      We are proud to see you.
-                  </Typography>
-                </Box>
-              </Grid>
-            }
-            {
-              // paymentSelector.paymentSelect && paymentSelector.paymentSelect === 'visa' &&
-              <Grid item sm={12} md={7}>
-                <PricePaymentSummary />
-              </Grid>
-            }
+              )}
+            {paymentSelector.paymentSelect &&
+              paymentSelector.paymentSelect === "visa" && (
+                <Grid item sm={12}>
+                  <PricePaymentSummary />
+                </Grid>
+              )}
           </Grid>
         </Paper>
       </PricePaymentContainer>

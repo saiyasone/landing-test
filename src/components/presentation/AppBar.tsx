@@ -147,7 +147,8 @@ function AppBar() {
           <>
             <ListItemButton
               component={NavLink}
-              to="/auth/sign-in"
+              // to="/auth/sign-in"
+              to={`${ENV_KEYS.VITE_APP_URL_REDIRECT_CLIENT_PAGE}auth/sign-in`}
               sx={{
                 padding: "0.2rem 0 0.2rem 1rem",
                 borderBottom: "1px solid #DBDBDB",
@@ -158,7 +159,8 @@ function AppBar() {
             </ListItemButton>
             <ListItemButton
               component={NavLink}
-              to="/auth/sign-up"
+              // to="/auth/sign-up"
+              to={`${ENV_KEYS.VITE_APP_URL_REDIRECT_CLIENT_PAGE}auth/sign-up`}
               sx={{
                 padding: "0.2rem 0 0.2rem 1rem",
                 borderBottom: "1px solid #DBDBDB",
@@ -169,7 +171,10 @@ function AppBar() {
             </ListItemButton>
           </>
         ) : (
-          <ListItemButton component={NavLink} to="/dashboard">
+          <ListItemButton
+            component={NavLink}
+            to={`${ENV_KEYS.VITE_APP_URL_REDIRECT_CLIENT_PAGE}auth/sign-in`}
+          >
             <Typography
               variant="h6"
               sx={{
@@ -314,7 +319,8 @@ function AppBar() {
                 <Button
                   className="menuList"
                   component={NavLink}
-                  to="/dashboard"
+                  // to="/dashboard"
+                  to={`${ENV_KEYS.VITE_APP_URL_REDIRECT_CLIENT_PAGE}auth/sign-in`}
                   sx={{
                     ...navActive("/dashboard"),
                     borderRadius: "4px",
