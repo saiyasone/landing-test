@@ -27,10 +27,11 @@ import {
 import {
   QUERY_FILE_PUBLIC,
   QUERY_FILE_PUBLIC_LINK,
+  QUERY_FILE_PUBLICV2,
 } from "api/graphql/file.graphql";
 import {
-  QUERY_FOLDER_PUBLIC,
   QUERY_FOLDER_PUBLIC_LINK,
+  QUERY_FOLDER_PUBLICV1,
 } from "api/graphql/folder.graphql";
 import { QUERY_SETTING } from "api/graphql/setting.graphql";
 import { QUERY_USER } from "api/graphql/user.graphql";
@@ -123,11 +124,11 @@ function FileUploader() {
     },
   );
 
-  const [getMultipleFile] = useLazyQuery(QUERY_FILE_PUBLIC, {
+  const [getMultipleFile] = useLazyQuery(QUERY_FILE_PUBLICV2, {
     fetchPolicy: "cache-and-network",
   });
 
-  const [getMultipleFolder] = useLazyQuery(QUERY_FOLDER_PUBLIC, {
+  const [getMultipleFolder] = useLazyQuery(QUERY_FOLDER_PUBLICV1, {
     fetchPolicy: "cache-and-network",
   });
 
@@ -389,14 +390,14 @@ function FileUploader() {
                   folderData.map(async (folder) => {
                     const resFolder = await getMultipleFolder({
                       variables: {
-                        where: {
-                          _id: folder?.folderId,
-                          status: "active",
-                        },
+                        id: folder?.folderId,
+                        // where: {
+                        //   _id: folder?.folderId,
+                        //   status: "active",
+                        // },
                       },
                     });
-                    const resData =
-                      resFolder.data?.queryFolderPublic?.data || [];
+                    const resData = resFolder.data?.folderPublic?.data || [];
                     if (resData?.length) {
                       return resData;
                     }
@@ -421,14 +422,15 @@ function FileUploader() {
                   await fileData.map(async (file) => {
                     const result = await getMultipleFile({
                       variables: {
-                        where: {
-                          _id: file?.fileId,
-                          status: "active",
-                        },
+                        id: [file?.fileId],
+                        // where: {
+                        //   _id: file?.fileId,
+                        //   status: "active",
+                        // },
                       },
                     });
 
-                    const resData = result.data?.filesPublic?.data || [];
+                    const resData = result.data?.filePublic?.data || [];
 
                     if (resData?.length) {
                       return resData;

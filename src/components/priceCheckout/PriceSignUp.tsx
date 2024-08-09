@@ -64,19 +64,16 @@ function PriceSignUp() {
       /// need token to attach in bcel payment ---> 20240731 ----> Phonesai
       const signUpUser = await signupPayment({
         variables: {
-          input: {
-            email: values.email,
-            provider: "normal"
-          }
+          email: values.email
         }
       });
 
-      if(signUpUser?.data && signUpUser.data?.socialAuth?.token){
+      if(signUpUser?.data && signUpUser.data?.register?.token){
         const user = {
           email: values.email,
         };
 
-        const paymentToken = signUpUser?.data?.socialAuth?.token;
+        const paymentToken = signUpUser?.data?.register?.token;
         if(!paymentToken){
           throw new Error("Payment Token is empty. Payment is stopped process");
           return;
@@ -105,7 +102,7 @@ function PriceSignUp() {
         localStorage.removeItem("sessions");
         localStorage.removeItem('sessionKey');
         const cutErr = error.message.replace(/(ApolloError: )?Error: /, "");
-        if (cutErr === "User or email already registered") {
+        if (cutErr === "This email is already registered") {
           setErrorEmail(values.email);
           setIsError(true);
         } else {
@@ -179,7 +176,7 @@ function PriceSignUp() {
             <MUI.PriceCheckoutSignUpErrorContainer>
               <Typography variant="h6">
                 An account using{" "}
-                <strong>{errorEmail || "zeed@gmail.com"}</strong> already
+                <strong>{errorEmail}</strong> already
                 exists.{" "}
                 <Typography
                   component={`a`}

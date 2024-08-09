@@ -34,8 +34,8 @@ import {
   getFileNameExtension,
   getFileType,
 } from "utils/file.util";
-import { convertBytetoMBandGB } from "utils/storage.util";
 import { encryptDownloadData } from "utils/secure.util";
+import { convertBytetoMBandGB } from "utils/storage.util";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -102,7 +102,7 @@ export default function CustomizedDialogs(props) {
   const [numUploadedFiles, setNumUploadedFiles] = useState<any>(0);
   const [uploadSpeed, setUploadSpeed] = useState<any>(0);
   const [overallProgress, setOverallProgress] = useState<any>(0);
-  const [country, setCountry] = useState<any>(null);
+  const [country, setCountry] = useState<any>("");
   const [currentURL, setCurrentURL] = useState<any>(null);
 
   const isRunningRef = React.useRef(true);
@@ -111,9 +111,6 @@ export default function CustomizedDialogs(props) {
     ? (link = ENV_KEYS.VITE_APP_DOWNLOAD_URL_SERVER)
     : (link = ENV_KEYS.VITE_APP_DOWNLOAD_URL_SERVER);
 
-  // const BUNNY_URL = ENV_KEYS.VITE_APP_BUNNY_URL;
-  const ACCESS_KEY = ENV_KEYS.VITE_APP_ACCESSKEY_BUNNY;
-  const STORAGE_ZONE = ENV_KEYS.VITE_APP_STORAGE_ZONE;
   const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
   const LOAD_UPLOAD_URL = ENV_KEYS.VITE_APP_LOAD_UPLOAD_URL;
   const [value, setValue] = useState(link);
@@ -143,7 +140,7 @@ export default function CustomizedDialogs(props) {
         setCountry("other");
       }
     };
-    // fetchIPAddress();
+    fetchIPAddress();
   }, []);
 
   React.useEffect(() => {

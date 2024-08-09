@@ -151,10 +151,11 @@ function PricePaymentForm() {
               <MUI.PricePaymentQRCodeContainer>
                 {bcelOnePay.qrCode && (
                   <QrCode
-                    style={{ width: "100%" }}
+                    style={{ width: "150px", height:"150px", border: '1px solid gray', padding: '7px', borderRadius: '7px'}}
                     ref={qrCodeRef}
                     value={bcelOnePay.qrCode || ""}
                     viewBox={`0 0 256 256`}
+                    // fgColor="#17766B"
                   />
                 )}
               </MUI.PricePaymentQRCodeContainer>

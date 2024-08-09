@@ -99,20 +99,11 @@ export const QUERY_PUBLIC_PACKAGES = gql`
         uploadPerDay
         fileUploadPerDay
         maxUploadSize
-        multipleDownload
-        downLoadOption
         support
         batchDownload
         unlimitedDownload
         customExpiredLink
-        downloadFolder
-        remoteUpload
-        iosApplication
-        androidApplication
         sort
-        totalUsed
-        textColor
-        bgColor
         status
         createdAt
         updatedAt

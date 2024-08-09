@@ -110,8 +110,8 @@ function PricePayment() {
           <Grid item container>
             
             {
-              paymentSelector.paymentSelect && paymentSelector.paymentSelect === 'bcel' &&
-              <Grid item sm={12}>
+              // paymentSelector.paymentSelect && paymentSelector.paymentSelect === 'bcel' &&
+              <Grid item sm={12} md={5}>
                 <MUI.PricePaymentQRCode sx={{width: '100%', textAlign:'center'}}>
                   <Typography variant="h3">Scan QR Code</Typography>
                 </MUI.PricePaymentQRCode>
@@ -121,8 +121,8 @@ function PricePayment() {
               </Grid>
             }
             {
-              paymentSelector.paymentSelect && paymentSelector.paymentSelect === 'visa' &&
-              <Grid item sm={12}>
+              // paymentSelector.paymentSelect && paymentSelector.paymentSelect === 'visa' &&
+              <Grid item sm={12} md={7}>
                 <PricePaymentSummary />
               </Grid>
             }

@@ -165,8 +165,6 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
   window.location.protocol === "http:"
     ? (link = ENV_KEYS.VITE_APP_DOWNLOAD_URL_SERVER)
     : (link = ENV_KEYS.VITE_APP_DOWNLOAD_URL_SERVER);
-  const ACCESS_KEY = ENV_KEYS.VITE_APP_ACCESSKEY_BUNNY;
-  const STORAGE_ZONE = ENV_KEYS.VITE_APP_STORAGE_ZONE;
   const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
   const LOAD_UPLOAD_URL = ENV_KEYS.VITE_APP_LOAD_UPLOAD_URL;
 
@@ -397,6 +395,7 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
     setInformation(mergedArray);
     setIsUploading(true);
     handleUpload(mergedArray);
+    // handleUploadV1(mergedArray);
     setIsDialogQRCodeOpen(true);
   };
 
@@ -474,10 +473,6 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
             let initialUploadSpeedCalculated = false;
             const startTime = new Date().getTime();
             const headers = {
-              REGION: "sg",
-              BASE_HOSTNAME: "storage.bunnycdn.com",
-              STORAGE_ZONE_NAME: STORAGE_ZONE,
-              ACCESS_KEY: ACCESS_KEY,
               PATH: "public",
               FILENAME: newNameFile,
               createdBy: "0",

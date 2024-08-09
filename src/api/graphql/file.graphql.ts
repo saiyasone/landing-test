@@ -74,6 +74,50 @@ export const QUERY_FILE_PUBLIC = gql`
     }
   }
 `;
+export const QUERY_FILE_PUBLICV2 = gql`
+  query FilePublic($id: [ID!]!) {
+    filePublic(ID: $id) {
+      total
+      data {
+        _id
+        filename
+        newFilename
+        filePassword
+        passwordUrlAll
+        fileType
+        size
+        newPath
+        totalDownload
+        status
+        isPublic
+        checkFile
+        path
+        detail
+        urlAll
+        url
+        permissionSharePublic
+        aproveDownloadPublic
+        ip
+        folder_id {
+          _id
+          path
+          folder_name
+        }
+        createdBy {
+          _id
+          newName
+        }
+        shortUrl
+        favorite
+        actionStatus
+        expired
+        createdAt
+        updatedAt
+        actionDate
+      }
+    }
+  }
+`;
 
 export const QUERY_FILE_PUBLIC_LINK = gql`
   query QueryFileGetLinks($where: FilesWhereInput) {

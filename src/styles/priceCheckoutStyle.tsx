@@ -269,6 +269,10 @@ export const PricePaymentForm = styled("div")({
 
 export const PricePaymentQRCodeContainer = styled("div")({
   marginBottom: "0.5rem",
+  display: 'flex',
+  justifyContent:'center',
+  alignItems: 'center',
+  padding:'5px',
 
   [theme.breakpoints.down("md")]: {
     marginBottom: "1.2rem",

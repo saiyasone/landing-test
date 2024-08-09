@@ -182,13 +182,9 @@ export const MUTATION_SOCIAL_AUTH = gql`
 `;
 
 export const LANDING_PAGE_PAYMENT_SIGNUP = gql`
-  mutation SocialAuth($input: SocialAuthInput!) {
-    socialAuth(input: $input) {
+  mutation Register($email: String!) {
+    register(email: $email) {
       token
-      refreshToken
-      data {
-        _id
-      }
     }
   }
 `;

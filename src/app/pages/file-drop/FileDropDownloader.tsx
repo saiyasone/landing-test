@@ -1,6 +1,5 @@
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { styled } from "@mui/material/styles";
-import CryptoJS from "crypto-js";
 import React, { Fragment, useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { FileIcon, defaultStyles } from "react-file-icon";
@@ -41,6 +40,7 @@ import moment from "moment";
 import { errorMessage, successMessage } from "utils/alert.util";
 import { cutFileName, getFileType } from "utils/file.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
+import useManageFiles from "hooks/useManageFile";
 
 const FiledropContainer = styled(Container)({
   marginTop: "5rem",
@@ -123,6 +123,7 @@ function FileDropDownloader() {
   const [isSuccess, setIsSuccess] = useState<any>(false);
   const isMobile = useMediaQuery("(max-width: 600px)");
   const [dataFromUrl, setDataFromUrl] = useState<any>({});
+  const manageFile = useManageFiles();
 
   const [getDataButtonDownload, { data: getDataButtonDL }] = useLazyQuery(
     QUERY_SETTING,
@@ -152,8 +153,6 @@ function FileDropDownloader() {
   // const currentUrl = window.location.href;
   const [updateFileStatus] = useMutation(UPDATE_FILE_PUBLIC);
   const data: any = [];
-  const BUNNY_STORAGE_ZONE = ENV_KEYS.VITE_APP_STORAGE_ZONE;
-  const ACCESS_KEY = ENV_KEYS.VITE_APP_ACCESSKEY_BUNNY;
   const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
 
   useEffect(() => {
@@ -194,111 +193,102 @@ function FileDropDownloader() {
     }
   }, [getDataButtonDL, getDataAdvertisement]);
 
-  const handleDownloadFile = async (e, index, _id, filename, newFilename) => {
-    if (lastClickedButton?.includes(`${_id}`)) {
+  const handleDownloadFile = async (e, index, dataFile) => {
+    if (lastClickedButton?.includes(`${dataFile?._id}`)) {
       e.preventDefault();
-      const changeFilename = cutFileName(filename, newFilename);
+
       try {
         setIsHide((prev) => ({
           ...prev,
           [index]: true,
         }));
-        const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
-        const headers = {
-          accept: "*/*",
-          storageZoneName: BUNNY_STORAGE_ZONE,
-          isFolder: false,
-          path: "public/" + newFilename,
-          fileName: CryptoJS.enc.Utf8.parse(newFilename),
-          AccessKey: ACCESS_KEY,
-        };
 
-        const key = CryptoJS.enc.Utf8.parse(secretKey);
-        const iv = CryptoJS.lib.WordArray.random(16);
-        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(headers), key, {
-          iv: iv,
-          mode: CryptoJS.mode.CBC,
-          padding: CryptoJS.pad.Pkcs7,
-        });
-        const cipherText = encrypted.ciphertext.toString(CryptoJS.enc.Base64);
-        const ivText = iv.toString(CryptoJS.enc.Base64);
-        const encryptedData = cipherText + ":" + ivText;
+        const multipleData = [
+          {
+            id: dataFile?._id,
+            newFilename: dataFile?.newFilename,
+          },
+        ];
 
-        const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
-          headers: { encryptedHeaders: encryptedData },
-        });
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = changeFilename;
-        link.click();
-        handleUpdateFileStatus(_id);
-        successMessage("Download successful", 3000);
-        setIsHide((prev) => ({
-          ...prev,
-          [index]: false,
-        }));
-        setIsSuccess((prev) => ({
-          ...prev,
-          [index]: true,
-        }));
+        manageFile.handleDownloadPublicFile(
+          { multipleData },
+          {
+            onSuccess: () => {
+              handleUpdateFileStatus(dataFile?._id);
+              successMessage("Download successful", 3000);
+              setIsHide((prev) => ({
+                ...prev,
+                [index]: false,
+              }));
+              setIsSuccess((prev) => ({
+                ...prev,
+                [index]: true,
+              }));
+            },
+            onFailed: () => {
+              setIsHide((prev) => ({
+                ...prev,
+                [index]: false,
+              }));
+              setIsSuccess((prev) => ({
+                ...prev,
+                [index]: false,
+              }));
+              errorMessage("Something wrong try again!!", 2500);
+            },
+          },
+        );
       } catch (error) {
         errorMessage("Something wrong try again!!", 2500);
       }
     } else {
       setTotalClickCount((prevCount) => prevCount + 1);
       if (totalClickCount >= getActionButton) {
-        setLastClickedButton([...lastClickedButton, _id]);
+        setLastClickedButton([...lastClickedButton, dataFile?._id]);
         setTotalClickCount(0);
         e.preventDefault();
-        const changeFilename = cutFileName(filename, newFilename);
+
         try {
           setIsHide((prev) => ({
             ...prev,
             [index]: true,
           }));
-          const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
-          const headers = {
-            accept: "*/*",
-            storageZoneName: BUNNY_STORAGE_ZONE,
-            isFolder: false,
-            path: "public/" + newFilename,
-            fileName: CryptoJS.enc.Utf8.parse(newFilename),
-            AccessKey: ACCESS_KEY,
-          };
 
-          const key = CryptoJS.enc.Utf8.parse(secretKey);
-          const iv = CryptoJS.lib.WordArray.random(16);
-          const encrypted = CryptoJS.AES.encrypt(JSON.stringify(headers), key, {
-            iv: iv,
-            mode: CryptoJS.mode.CBC,
-            padding: CryptoJS.pad.Pkcs7,
-          });
-          const cipherText = encrypted.ciphertext.toString(CryptoJS.enc.Base64);
-          const ivText = iv.toString(CryptoJS.enc.Base64);
-          const encryptedData = cipherText + ":" + ivText;
+          const multipleData = [
+            {
+              id: dataFile?._id,
+              newFilename: dataFile?.newFilename,
+            },
+          ];
 
-          const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
-            headers: { encryptedHeaders: encryptedData },
-          });
-
-          const blob = await response.blob();
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = changeFilename;
-          link.click();
-          handleUpdateFileStatus(_id);
-          successMessage("Download successful", 3000);
-          setIsHide((prev) => ({
-            ...prev,
-            [index]: false,
-          }));
-          setIsSuccess((prev) => ({
-            ...prev,
-            [index]: true,
-          }));
+          manageFile.handleDownloadPublicFile(
+            { multipleData },
+            {
+              onSuccess: () => {
+                handleUpdateFileStatus(dataFile?._id);
+                successMessage("Download successful", 3000);
+                setIsHide((prev) => ({
+                  ...prev,
+                  [index]: false,
+                }));
+                setIsSuccess((prev) => ({
+                  ...prev,
+                  [index]: true,
+                }));
+              },
+              onFailed: () => {
+                setIsHide((prev) => ({
+                  ...prev,
+                  [index]: false,
+                }));
+                setIsSuccess((prev) => ({
+                  ...prev,
+                  [index]: false,
+                }));
+                errorMessage("Something wrong try again!!", 2500);
+              },
+            },
+          );
         } catch (error) {
           errorMessage("Something wrong try again!!", 2500);
         }
@@ -334,59 +324,47 @@ function FileDropDownloader() {
           }
         } else {
           e.preventDefault();
-          const changeFilename = cutFileName(filename, newFilename);
           try {
             setIsHide((prev) => ({
               ...prev,
               [index]: true,
             }));
-            const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
-            const headers = {
-              accept: "*/*",
-              storageZoneName: BUNNY_STORAGE_ZONE,
-              isFolder: false,
-              path: "public/" + newFilename,
-              fileName: CryptoJS.enc.Utf8.parse(newFilename),
-              AccessKey: ACCESS_KEY,
-            };
 
-            const key = CryptoJS.enc.Utf8.parse(secretKey);
-            const iv = CryptoJS.lib.WordArray.random(16);
-            const encrypted = CryptoJS.AES.encrypt(
-              JSON.stringify(headers),
-              key,
+            const multipleData = [
               {
-                iv: iv,
-                mode: CryptoJS.mode.CBC,
-                padding: CryptoJS.pad.Pkcs7,
+                id: dataFile?._id,
+                newFilename: dataFile?.newFilename,
+              },
+            ];
+
+            manageFile.handleDownloadPublicFile(
+              { multipleData },
+              {
+                onSuccess: () => {
+                  handleUpdateFileStatus(dataFile?._id);
+                  successMessage("Download successful", 3000);
+                  setIsHide((prev) => ({
+                    ...prev,
+                    [index]: false,
+                  }));
+                  setIsSuccess((prev) => ({
+                    ...prev,
+                    [index]: true,
+                  }));
+                },
+                onFailed: () => {
+                  setIsHide((prev) => ({
+                    ...prev,
+                    [index]: false,
+                  }));
+                  setIsSuccess((prev) => ({
+                    ...prev,
+                    [index]: false,
+                  }));
+                  errorMessage("Something wrong try again!!", 2500);
+                },
               },
             );
-            const cipherText = encrypted.ciphertext.toString(
-              CryptoJS.enc.Base64,
-            );
-            const ivText = iv.toString(CryptoJS.enc.Base64);
-            const encryptedData = cipherText + ":" + ivText;
-
-            const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
-              headers: { encryptedHeaders: encryptedData },
-            });
-
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = changeFilename;
-            link.click();
-            handleUpdateFileStatus(_id);
-            successMessage("Download successful", 3000);
-            setIsHide((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-            setIsSuccess((prev) => ({
-              ...prev,
-              [index]: true,
-            }));
           } catch (error) {
             errorMessage("Something wrong try again!!", 2500);
           }
@@ -625,7 +603,7 @@ function FileDropDownloader() {
           {dataFromUrl?.folderId?._id ? (
             ""
           ) : (
-            <div>
+            <Fragment>
               {queryFile.length > 0 ? (
                 <>
                   <Box
@@ -672,9 +650,7 @@ function FileDropDownloader() {
                             />
                           </Box>
                           <Box sx={{ textAlign: "start" }}>
-                            <span>
-                              {cutFileName(val.filename, 8)}
-                            </span>
+                            <span>{cutFileName(val.filename, 8)}</span>
                             <br />
                             <span>{convertBytetoMBandGB(val.size)}</span>
                           </Box>
@@ -695,13 +671,7 @@ function FileDropDownloader() {
                               <Tooltip title="Download" placement="top">
                                 <IconButton
                                   onClick={(e) =>
-                                    handleDownloadFile(
-                                      e,
-                                      index,
-                                      val?._id,
-                                      val?.filename,
-                                      val?.newFilename,
-                                    )
+                                    handleDownloadFile(e, index, val)
                                   }
                                 >
                                   <DownloadIcon
@@ -719,7 +689,7 @@ function FileDropDownloader() {
               ) : (
                 ""
               )}
-            </div>
+            </Fragment>
           )}
         </FiledropContainer>
       )}
