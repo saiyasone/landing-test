@@ -4,7 +4,7 @@ import React, {
   useRef,
 } from "react";
 import * as MUI from "styles/priceCheckoutStyle";
-import { Box, Button, Grid } from "@mui/material";
+import { Box, Button, Grid, Skeleton, Typography } from "@mui/material";
 
 import QrCode from "react-qr-code";
 import useBcelSubscirption from "hooks/useBcelSubscription";
@@ -45,7 +45,6 @@ function PricePaymentForm() {
         dispatch(setActiveStep(2));
       },
       onData: () => {
-        console.log("on data output after==>>");
         dispatch(
           setPaymentProfile({
             // firstName: formField.firstName,
@@ -149,7 +148,7 @@ function PricePaymentForm() {
           <Grid item container spacing={5}>
             <Grid item xs={12}>
               <MUI.PricePaymentQRCodeContainer>
-                {bcelOnePay.qrCode && (
+                {bcelOnePay.qrCode ? (
                   <QrCode
                     style={{ width: "150px", height:"150px", border: '1px solid gray', padding: '7px', borderRadius: '7px'}}
                     ref={qrCodeRef}
@@ -157,7 +156,24 @@ function PricePaymentForm() {
                     viewBox={`0 0 256 256`}
                     // fgColor="#17766B"
                   />
-                )}
+                ):
+                <Box sx={{ position: 'relative', display: 'flex',height: 150, width: 150 }}>
+                  <Skeleton sx={{ height: '100%', width: '100%', position:'relative' }} animation="wave" variant="rounded" />
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      color: 'rgba(0, 0, 0, 0.6)', // Adjust color as needed
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    Loading...
+                  </Typography>
+                </Box>
+                }
               </MUI.PricePaymentQRCodeContainer>
 
               <Box
@@ -166,13 +182,18 @@ function PricePaymentForm() {
                 alignItems="center"
                 mt={5}
               >
-                <Button
-                  type="button"
-                  variant="outlined"
-                  onClick={handleDownloadQRCode}
-                >
-                  Download QR Code
-                </Button>
+                {
+                  bcelOnePay?.qrCode ?
+                    <Button
+                      type="button"
+                      variant="outlined"
+                      onClick={handleDownloadQRCode}
+                    >
+                      Download QR Code
+                    </Button>
+                    :
+                    <Skeleton variant="rounded" width={150} height={40} />
+                }
               </Box>
             </Grid>
             {/* <Grid item lg={7} md={7} sm={7} xs={12}>
