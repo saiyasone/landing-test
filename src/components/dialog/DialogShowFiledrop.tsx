@@ -750,6 +750,79 @@ export default function CustomizedDialogs(props) {
   };
   const isMobile = useMediaQuery("(max-width: 600px)");
 
+  React.useEffect(() => {
+    const startUploads = async () => {
+      for (const fileIndex of Object.keys(fileStates)) {
+        if (
+          !fileStates[parseInt(fileIndex)]?.uploadFinished &&
+          !fileStates[fileIndex]?.cancel
+        ) {
+          uploadFileParts(
+            parseInt(fileIndex),
+            fileStates[parseInt(fileIndex)]?.file,
+          );
+        }
+      }
+    };
+    if (startUpload) {
+      startUploads();
+    }
+  }, [startUpload]);
+
+  React.useEffect(() => {
+    const completeFunction = async () => {
+      if (Object.values(fileStates).length === files.length) {
+        Object.values(fileStates).map(async (fileState, fileIndex) => {
+          if (
+            fileState?.progress >= 100 &&
+            fileState?.retryParts?.length <= 0 &&
+            fileState?.parts?.length > 0 &&
+            !fileState?.cancel &&
+            uploadComplete
+          ) {
+            // console.log("start complete:: ", fileIndex, { fileState });
+            await tryCompleteMultipartUpload(
+              fileIndex,
+              [...(fileState?.parts || [])],
+              fileState?.uploadId,
+              files[fileIndex],
+            );
+          }
+        });
+      }
+    };
+
+    completeFunction();
+  }, [fileStates, uploadComplete]);
+
+  React.useEffect(
+    () => {
+      // const newFileStates = Object.values(fileStates);
+      // const cancelState = newFileStates.map((file) => file?.cancel);
+      // const cancellAll = cancelState.filter(Boolean).length;
+      // if (cancellAll === data?.length && presignUploadSuccess) {
+      //   setCanClose(false);
+      //   setHideSelectMore(2);
+      // }
+    },
+    // fileStates, data, presignUploadSuccess
+    [],
+  );
+
+  React.useEffect(() => {
+    window.addEventListener("online", retryFailedParts);
+    window.addEventListener("offline", () =>
+      console.error("Network connection lost"),
+    );
+
+    return () => {
+      window.removeEventListener("online", retryFailedParts);
+      window.removeEventListener("offline", () =>
+        console.error("Network connection lost"),
+      );
+    };
+  }, [fileStates]);
+
   return (
     <React.Fragment>
       {!isUploading ? (
