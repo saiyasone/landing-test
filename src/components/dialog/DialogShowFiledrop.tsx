@@ -109,9 +109,9 @@ export default function CustomizedDialogs(props) {
   // presign v2
   const [fileStates, setFileStates] = useState<Record<number, any>>({});
   const [startUpload, setStartUpload] = useState(false);
+  const [presignUploadSuccess, setPresignUploadSuccess] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
   const chunkSize = 100 * 1024 * 1024; // 250 mb
-  // const [presignUpload, setpresignUpload] = useState(second)
 
   const isRunningRef = React.useRef(true);
   let link: any = null;
@@ -801,8 +801,7 @@ export default function CustomizedDialogs(props) {
       // const cancelState = newFileStates.map((file) => file?.cancel);
       // const cancellAll = cancelState.filter(Boolean).length;
       // if (cancellAll === data?.length && presignUploadSuccess) {
-      //   setCanClose(false);
-      //   setHideSelectMore(2);
+      
       // }
     },
     // fileStates, data, presignUploadSuccess
