@@ -428,7 +428,7 @@ export default function CustomizedDialogs(props) {
           ...fileState,
         }),
         {},
-      );
+      ) as any;
       setFileStates(newFileStates);
       setStartUpload(true);
       setValue(`${value}${getUrlAllWhenReturn?.urlAll}`);
