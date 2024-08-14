@@ -34,8 +34,9 @@ import {
   getFileNameExtension,
   getFileType,
 } from "utils/file.util";
-import { encryptDownloadData } from "utils/secure.util";
+import { encryptData, encryptDownloadData } from "utils/secure.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
+import { calculateTime } from "utils/date.util";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -105,6 +106,13 @@ export default function CustomizedDialogs(props) {
   const [country, setCountry] = useState<any>("");
   const [currentURL, setCurrentURL] = useState<any>(null);
 
+  // presign v2
+  const [fileStates, setFileStates] = useState<Record<number, any>>({});
+  const [startUpload, setStartUpload] = useState(false);
+  const [uploadComplete, setUploadComplete] = useState(false);
+  const chunkSize = 100 * 1024 * 1024; // 250 mb
+  // const [presignUpload, setpresignUpload] = useState(second)
+
   const isRunningRef = React.useRef(true);
   let link: any = null;
   window.location.protocol === "http:"
@@ -128,14 +136,15 @@ export default function CustomizedDialogs(props) {
   React.useEffect(() => {
     const fetchIPAddress = async () => {
       try {
-        const responseIp = await axios.get(LOAD_GET_IP_URL);
-        const ip = responseIp?.data;
-        if (ip) {
-          const res = await axios.get(
-            `https://pro.ip-api.com/json/${ip}?key=x0TWf62F7ukWWpQ`,
-          );
-          setCountry(res?.data?.countryCode);
-        }
+        setCountry("other");
+        // const responseIp = await axios.get(LOAD_GET_IP_URL);
+        // const ip = responseIp?.data;
+        // if (ip) {
+        //   const res = await axios.get(
+        //     `https://pro.ip-api.com/json/${ip}?key=x0TWf62F7ukWWpQ`,
+        //   );
+        //   setCountry(res?.data?.countryCode);
+        // }
       } catch (error) {
         setCountry("other");
       }
@@ -188,7 +197,12 @@ export default function CustomizedDialogs(props) {
       return item;
     });
     setIsUploading(true);
-    handleUpload(mergedArray);
+
+    if (userId > 0 && folderId > 0) {
+      handleUploadPresign(mergedArray);
+    } else {
+      handleUpload(mergedArray);
+    }
   };
 
   const handleUpload = async (files) => {
@@ -243,6 +257,7 @@ export default function CustomizedDialogs(props) {
             },
           },
         });
+
         getUrlAllWhenReturn = _createFilePublic.createFilesPublic;
         if (_createFilePublic) {
           let initialUploadSpeedCalculated = false;
@@ -347,6 +362,387 @@ export default function CustomizedDialogs(props) {
         errorMessage("Something Wrong Please Try Again Later!", 3000);
       }
     }
+  };
+
+  const handleUploadPresign = async (files: File[]) => {
+    let getUrlAllWhenReturn: any = [];
+
+    try {
+      const responseIp = await axios.get(LOAD_GET_IP_URL);
+      const alphabet =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+      const nanoid = customAlphabet(alphabet, 6);
+      const generateID = nanoid();
+      const urlAllFile = generateID;
+
+      const fileStateEntries = await Promise.all(
+        files.map(async (file, index) => {
+          if (!isRunningRef.current) {
+            return;
+          }
+          const randomName = Math.floor(1111111111 + Math.random() * 99999999);
+          const newFilename = randomName + getFileNameExtension(file?.name);
+          const newFilePath = String(
+            `${newPath}/${randomName + getFileNameExtension(file?.name)}`,
+          );
+          const { data: _createFilePublic } = await createFilePublic({
+            variables: {
+              data: {
+                fileExpired: [
+                  {
+                    typeDate: "days",
+                    amount: 1,
+                  },
+                ],
+                fileType: file?.type,
+                filename: String(`${file?.name}`),
+                ip: String(responseIp.data),
+                newFilename,
+                size: String(file?.size),
+                urlAll: String(urlAllFile),
+                dropUrl: currentURL,
+                path: String(`${path}/${file?.name}`) || "",
+                newPath: newFilePath || "",
+                country: country,
+                device: result.os.name || "" + result.os.version || "",
+                folder_id: folderId,
+              },
+            },
+          });
+          getUrlAllWhenReturn = _createFilePublic.createFilesPublic;
+
+          const dataFile = file as any;
+          dataFile.createdBy = String(userId);
+          dataFile.newFilename = newFilename;
+          dataFile.path = newFilePath;
+          if (_createFilePublic) {
+            const initialUpload = await initiateUpload(index, dataFile);
+            return initialUpload || {};
+          }
+        }),
+      );
+
+      const newFileStates = fileStateEntries.reduce(
+        (acc, fileState) => ({
+          ...acc,
+          ...fileState,
+        }),
+        {},
+      );
+      setFileStates(newFileStates);
+      setStartUpload(true);
+      setValue(`${value}${getUrlAllWhenReturn?.urlAll}`);
+    } catch (error: any) {
+      const cutError = error.message.replace(/(ApolloError: )?Error: /, "");
+      const str = getFileType(cutError);
+      const indexRemote = str?.indexOf("IS_NOT_ALLOWED");
+      const finalResult = str?.substring(0, indexRemote);
+      if (cutError == "FILE_NAME_CONTAINS_A_SINGLE_QUOTE(')") {
+        setUploadSpeed(0);
+        setOverallProgress(0);
+        setIsUploading(false);
+        errorMessage("Sorry We Don't Allow File Name Include (')", 3000);
+      } else if (cutError == "UPLOAD_LIMITED") {
+        setUploadSpeed(0);
+        setOverallProgress(0);
+        setIsUploading(false);
+        errorMessage("Upload Is Limited! Pleaes Try Again Tomorrow!", 3000);
+      } else if (cutError == "NONE_URL") {
+        setUploadSpeed(0);
+        setOverallProgress(0);
+        setIsUploading(false);
+        errorMessage("Your Upload Link Is Incorrect!", 3000);
+      } else if (finalResult) {
+        setUploadSpeed(0);
+        setOverallProgress(0);
+        setIsUploading(false);
+        errorMessage(`File ${finalResult} is not allowed`, 3000);
+      } else {
+        setUploadSpeed(0);
+        setOverallProgress(0);
+        setIsUploading(false);
+        errorMessage("Something Wrong Please Try Again Later!", 3000);
+      }
+    }
+  };
+
+  const initiateUpload = async (fileIndex: number, file: File | any) => {
+    try {
+      const headers = {
+        createdBy: file.createdBy,
+        FILENAME: file.newFilename,
+        PATH: file.path,
+      };
+
+      const _encryptHeader = await encryptData(headers);
+      const initiateResponse = await axios.post<{ uploadId: string }>(
+        `${ENV_KEYS.VITE_APP_LOAD_URL}initiate-multipart-upload`,
+        {},
+        {
+          headers: {
+            encryptedheaders: _encryptHeader!,
+          },
+        },
+      );
+
+      const data = await initiateResponse.data;
+      const uploadId = data.uploadId;
+
+      return {
+        [fileIndex]: {
+          file,
+          uploadId,
+          parts: [],
+          retryParts: [],
+          uploadFinished: false,
+          progress: 0,
+          startTime: Date.now(),
+          timeElapsed: "",
+          duration: "",
+          isHide: true,
+          uploadSpeed: "",
+
+          cancel: false,
+        },
+      };
+    } catch (error: any) {
+      console.error("Error initiating upload:", error);
+    }
+  };
+
+  const uploadFileParts = async (fileIndex: number, file: File) => {
+    const numParts = Math.ceil(file.size / chunkSize);
+
+    for (let partNumber = 1; partNumber <= numParts; partNumber++) {
+      const start = (partNumber - 1) * chunkSize;
+      const end = Math.min(start + chunkSize, file.size);
+      const blob = file.slice(start, end);
+
+      try {
+        await uploadPart(fileIndex, partNumber, blob);
+      } catch (error) {
+        console.error(`Error uploading part ${partNumber}:`, error);
+        setFileStates((prev) => ({
+          ...prev,
+          [fileIndex]: {
+            ...prev[fileIndex],
+            retryParts: [
+              ...prev[fileIndex].retryParts,
+              { partNumber, start, end },
+            ],
+          },
+        }));
+      }
+    }
+
+    setFileStates((prev) => ({
+      ...prev,
+      [fileIndex]: { ...prev[fileIndex], uploadFinished: true },
+    }));
+  };
+
+  const uploadPart = async (
+    fileIndex: number,
+    partNumber: number,
+    blob: Blob,
+  ) => {
+    const { uploadId, file } = fileStates[fileIndex];
+    const numParts = Math.ceil(file.size / chunkSize);
+
+    try {
+      const formData = new FormData();
+      formData.append("partNumber", partNumber.toString());
+      formData.append("uploadId", uploadId);
+
+      const headers = {
+        createdBy: userId,
+        PATH: file.path,
+        FILENAME: file.newFilename,
+      };
+
+      const _encryptHeader = await encryptData(headers);
+      const presignedResponse = await axios.post<{ url: string }>(
+        `${ENV_KEYS.VITE_APP_LOAD_URL}generate-presigned-url`,
+        formData,
+        {
+          headers: {
+            encryptedheaders: _encryptHeader!,
+          },
+        },
+      );
+
+      const { url } = await presignedResponse.data;
+      // setPresignUploadSuccess(true);
+
+      return new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("PUT", url, true);
+        xhr.setRequestHeader("Content-Type", blob.type);
+
+        setFileStates((prev) => ({
+          ...prev,
+          [fileIndex]: {
+            ...prev[fileIndex],
+            xhr,
+          },
+        }));
+
+        xhr.onload = () => {
+          const endTime = Date.now();
+          const timeTaken = (endTime - fileStates[fileIndex].startTime) / 1000;
+          const uploadSpeed = convertBytetoMBandGB(blob.size / timeTaken);
+
+          if (xhr.status >= 200 && xhr.status < 300) {
+            const endDurationTime = Date.now();
+            const duration = calculateTime(
+              endDurationTime - fileStates[fileIndex].startTime,
+            );
+
+            setFileStates((prev) => ({
+              ...prev,
+              [fileIndex]: {
+                ...prev[fileIndex],
+                duration,
+                uploadSpeed,
+                parts: [
+                  ...prev[fileIndex].parts,
+                  {
+                    ETag: xhr.getResponseHeader("ETag"),
+                    PartNumber: partNumber,
+                  },
+                ],
+              },
+            }));
+
+            const percentComplete = Math.round((partNumber * 100) / numParts);
+            setFileStates((prev) => ({
+              ...prev,
+              [fileIndex]: { ...prev[fileIndex], progress: percentComplete },
+            }));
+
+            if (percentComplete >= 100) {
+              const endTime = Date.now();
+              const timeTaken =
+                (endTime - fileStates[fileIndex].startTime) / 1000; // time in seconds
+
+              setFileStates((prev) => ({
+                ...prev,
+                [fileIndex]: {
+                  ...prev[fileIndex],
+                  timeElapsed: `${(timeTaken / 60).toFixed(2)} minutes`,
+                },
+              }));
+            }
+            setUploadComplete(true);
+            resolve();
+          } else {
+            reject(
+              new Error(
+                `Error uploading part ${partNumber}: ${xhr.statusText}`,
+              ),
+            );
+          }
+        };
+
+        xhr.onerror = () =>
+          reject(
+            new Error(`Error uploading part ${partNumber}: ${xhr.statusText}`),
+          );
+
+        xhr.send(blob);
+      });
+    } catch (error) {
+      if (axios.isCancel(error)) {
+        successMessage("Upload cancelled", 2000);
+      } else {
+        errorMessage("Upload failed", 3000);
+      }
+    }
+  };
+
+  const tryCompleteMultipartUpload = async (
+    fileIndex: number,
+    parts: any,
+    uploadId: string,
+    file: File | any,
+  ) => {
+    // if (fileStates[fileIndex]?.cancel) return;
+
+    setUploadComplete(false);
+
+    const formData = new FormData();
+    formData.append("parts", JSON.stringify(parts));
+    formData.append("uploadId", uploadId);
+
+    const headers = {
+      createdBy: file.createdBy,
+      FILENAME: file.newFilename,
+      PATH: file.path,
+    };
+
+    const _encryptHeader = encryptData(headers);
+
+    try {
+      await axios.post(
+        `${ENV_KEYS.VITE_APP_LOAD_URL}complete-multipart-upload`,
+        formData,
+        {
+          headers: {
+            encryptedheaders: _encryptHeader!,
+          },
+        },
+      );
+
+      const endTime = Date.now();
+      const timeTaken = (endTime - fileStates[fileIndex].startTime) / 1000; // time in seconds
+      setFileStates((prev) => ({
+        ...prev,
+        [fileIndex]: {
+          ...prev[fileIndex],
+          parts: [],
+          uploadFinished: true,
+          timeElapsed: `${(timeTaken / 60).toFixed(2)}`,
+        },
+      }));
+
+      // mvc
+    } catch (error: any) {
+      console.error("Error completing multipart upload:", error);
+      // alert(`Error completing multipart upload: ${error.message}`);
+    }
+  };
+
+  const retryFailedParts = async () => {
+    if (!navigator.onLine) return;
+    const promises = Object.keys(fileStates).map(async (fileIndex) => {
+      const { retryParts, file } = fileStates[parseInt(fileIndex)];
+
+      setFileStates((prev) => ({
+        ...prev,
+        [fileIndex]: { ...prev[parseInt(fileIndex)], retryParts: [] },
+      }));
+
+      for (const { partNumber, start, end } of retryParts) {
+        const blob = file.slice(start, end);
+        try {
+          await uploadPart(parseInt(fileIndex), partNumber, blob);
+        } catch (error) {
+          console.error(`Error retrying part ${partNumber}: `, error);
+          setFileStates((prev) => ({
+            ...prev,
+            [fileIndex]: {
+              ...prev[parseInt(fileIndex)],
+              retryParts: [
+                ...prev[parseInt(fileIndex)].retryParts,
+                { partNumber, start, end },
+              ],
+            },
+          }));
+        }
+      }
+    });
+
+    await Promise.all(promises);
   };
 
   const handleCloseAndDeleteFile = async () => {

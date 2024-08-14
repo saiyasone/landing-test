@@ -478,7 +478,7 @@ function FileUploader() {
               setShowBottomDeep(true);
             }, 1000);
           } else if (os.match(/Android/i)) {
-            setPlatform("android");
+            setPlatform("android");``
             setTimeout(() => {
               setShowBottomDeep(true);
             }, 1000);
