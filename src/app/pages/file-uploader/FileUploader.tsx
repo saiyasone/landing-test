@@ -301,7 +301,7 @@ function FileUploader() {
 
               if (folderData && folderData?.[0]?.folder_type) {
                 document.title =
-                  folderData[0]?.folder_name ?? "Vshare download folder";
+                  folderData?.[0]?.folder_name || "Vshare download folder";
                 if (folderData[0]?.folder_name) {
                   setDescription(folderData[0]?.folder_name + " Vshare.net");
                 }
@@ -345,9 +345,9 @@ function FileUploader() {
 
     getLinkData();
 
-    return () => {
-      document.title = "Download folder and file"; // Reset the title when the component unmounts
-    };
+    // return () => {
+    //   document.title = "Download folder and file"; // Reset the title when the component unmounts
+    // };
   }, [linkValue, urlClient, dataFileLink, dataFolderLink, resPonData]);
 
   useEffect(() => {
@@ -478,7 +478,8 @@ function FileUploader() {
               setShowBottomDeep(true);
             }, 1000);
           } else if (os.match(/Android/i)) {
-            setPlatform("android");``
+            setPlatform("android");
+            ``;
             setTimeout(() => {
               setShowBottomDeep(true);
             }, 1000);
@@ -1409,6 +1410,7 @@ function FileUploader() {
   return (
     <React.Fragment>
       <Helmet>
+        <meta name="title" content={"seoTitle"} />
         <meta name="description" content={_description} />
       </Helmet>
       <MUI.ContainerHome maxWidth="xl">
@@ -1635,12 +1637,12 @@ function FileUploader() {
                                             isMobile={isMobile}
                                             setPassword={setPassword}
                                             setFilePasswords={setFilePasswords}
-                                            handleDownloadFolder={() =>
+                                            handleDownloadFolder={() => {
                                               handleMultipleDownloadFolder({
                                                 folder,
                                                 index,
-                                              })
-                                            }
+                                              });
+                                            }}
                                           />
                                         </MUI.DivDownloadFileBox>
                                       );

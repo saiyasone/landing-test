@@ -198,11 +198,12 @@ export default function CustomizedDialogs(props) {
     });
     setIsUploading(true);
 
-    if (userId > 0 && folderId > 0) {
-      handleUploadPresign(mergedArray);
-    } else {
-      handleUpload(mergedArray);
-    }
+    handleUpload(mergedArray);
+    // if (userId > 0 && folderId > 0) {
+    //   handleUploadPresign(mergedArray);
+    // } else {
+    //   handleUpload(mergedArray);
+    // }
   };
 
   const handleUpload = async (files) => {
@@ -572,7 +573,7 @@ export default function CustomizedDialogs(props) {
       );
 
       const { url } = await presignedResponse.data;
-      // setPresignUploadSuccess(true);
+      setPresignUploadSuccess(true);
 
       return new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -800,12 +801,11 @@ export default function CustomizedDialogs(props) {
       // const newFileStates = Object.values(fileStates);
       // const cancelState = newFileStates.map((file) => file?.cancel);
       // const cancellAll = cancelState.filter(Boolean).length;
-      // if (cancellAll === data?.length && presignUploadSuccess) {
-      
+      // if (cancellAll === filesArray?.length && presignUploadSuccess) {
       // }
     },
     // fileStates, data, presignUploadSuccess
-    [],
+    [fileStates, filesArray, presignUploadSuccess],
   );
 
   React.useEffect(() => {
