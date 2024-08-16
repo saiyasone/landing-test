@@ -59,7 +59,6 @@ import { styled } from "@mui/system";
 import QRCode from "react-qr-code";
 import { DataGrid } from "@mui/x-data-grid";
 import FileDownloadDoneIcon from "@mui/icons-material/FileDownloadDone";
-import { Description } from "@mui/icons-material";
 
 ////Ads
 const AdsContainer = styled(Box)(({ theme }) => ({

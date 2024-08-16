@@ -43,7 +43,6 @@ import useManageGraphqlError from "hooks/useManageGraphqlError";
 import moment from "moment";
 import QRCode from "react-qr-code";
 import { errorMessage, successMessage } from "utils/alert.util";
-import { cutFileName } from "utils/file.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
 import useManageFiles from "hooks/useManageFile";
 
