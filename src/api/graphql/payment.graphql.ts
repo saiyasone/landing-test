@@ -167,3 +167,14 @@ export const SUBSCRIPTION_TWO_CHECKOUT = gql`
     }
   }
 `;
+
+export const BCEL_EXCHANGE_RATE = gql`
+  query BceloneLoadExchangeRate {
+    bceloneLoadExchangeRate {
+      result_code
+      status
+      message
+      info
+    }
+  }
+`;

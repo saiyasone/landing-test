@@ -15,7 +15,9 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  // IconButton,
   TextField,
+  // Tooltip,
   Typography,
   useMediaQuery,
 } from "@mui/material";
@@ -50,6 +52,62 @@ import { combineOldAndNewFileNames, cutFileName } from "utils/file.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
 import { decryptDataLink } from "utils/secure.util";
 import useManageFiles from "hooks/useManageFile";
+import { styled } from "@mui/system";
+
+////Ads
+const AdsContainer = styled(Box)(({ theme }) => ({
+  background: "#fff",
+  display: "flex",
+  flex: 1,
+  flexDirection: "row",
+  justifyContent: "center",
+  alignItems: "center",
+  width: "50%",
+  margin: "0 auto",
+  padding: ".5rem",
+  [theme.breakpoints.down("sm")]: {
+    width: "100%",
+    padding: "0",
+  },
+}));
+
+const AdsContent = styled(Box)(({ theme }) => ({
+  padding: "1rem",
+  background: "#ECF4F3",
+  width: "100%",
+  [theme.breakpoints.down("sm")]: {
+    padding: "8px",
+  },
+}));
+
+const AdsCard = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  boxShadow: "rgba(0, 0, 0, 0.05) 0px 0px 5px",
+  margin: "0 auto",
+  width: "80%",
+  padding: ".5rem 1rem",
+  background: "#fafafa",
+  borderRadius: ".3rem",
+  h4: { margin: "0.5rem 0", color: "#4B465C" },
+  p: {
+    color: "#6F6B7D",
+    fontSize: "0.8rem",
+    fontWeight: "600",
+    marginBottom: "1.5rem",
+    opacity: 0.9,
+  },
+  button: {
+    padding: ".2rem 2rem",
+  },
+  [theme.breakpoints.down("sm")]: {
+    width: "100%",
+    h1: {
+      fontSize: "18px",
+    },
+  },
+}));
 
 function FileUploader() {
   const location = useLocation();
@@ -1504,238 +1562,270 @@ function FileUploader() {
           </DialogActions>
         </Dialog>
 
-        <MUI.DivdownloadFile>
-          <MUI.DivDownloadBox>
-            {isLoading ? (
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <CircularProgress size={30} />
-              </Box>
-            ) : (
-              <Fragment>
-                <MUI.BoxDownloadHeader>
+        <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem" }}>
+          <AdsContainer>
+            <AdsContent>
+              <AdsCard>
+                <Typography variant="h4" component={"h4"}>
+                  Mltidiscriplinary, Monthly
+                </Typography>
+                <Typography component={"p"}>
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                  Error, molestias.
+                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center !important",
+                  }}
+                >
+                  <Typography component={"div"} sx={{ opacity: 0.7 }}>
+                    TIJER Research Journal
+                  </Typography>
+                  <Button variant="contained">Open</Button>
+                </Box>
+              </AdsCard>
+            </AdsContent>
+          </AdsContainer>
+          <MUI.DivdownloadFile>
+            <MUI.DivDownloadBox>
+              {isLoading ? (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <CircularProgress size={30} />
+                </Box>
+              ) : (
+                <Fragment>
+                  <MUI.BoxDownloadHeader>
+                    <Fragment>
+                      {linkClient?._id ? (
+                        <Fragment>
+                          {linkClient?.type === "file" && (
+                            <>
+                              {dataFileLink?.queryFileGetLinks?.total > 0 && (
+                                <Typography variant="h3">
+                                  {dataFileLink?.queryFileGetLinks?.total}&nbsp;
+                                  Files ({convertBytetoMBandGB(totalSize)})
+                                </Typography>
+                              )}
+                            </>
+                          )}
+                        </Fragment>
+                      ) : (
+                        <Typography variant="h3">
+                          {resPonData?.filesPublic?.total}&nbsp; Files (
+                          {convertBytetoMBandGB(totalSize)})
+                        </Typography>
+                      )}
+                    </Fragment>
+                  </MUI.BoxDownloadHeader>
+                  {folderType && (
+                    <MUI.DivDownloadFileBox>
+                      <FolderDownloader
+                        folderDownload={folderDownload}
+                        isSuccess={isSuccess}
+                        isHide={isHide}
+                        isMobile={isMobile}
+                        setPassword={setPassword}
+                        setFilePasswords={setFilePasswords}
+                        handleDownloadFolder={handleDownloadFolder}
+                        folderSize={folderSize}
+                        setIndex={setIndex}
+                      />
+                    </MUI.DivDownloadFileBox>
+                  )}
                   <Fragment>
                     {linkClient?._id ? (
                       <Fragment>
                         {linkClient?.type === "file" && (
-                          <>
-                            {dataFileLink?.queryFileGetLinks?.total > 0 && (
-                              <Typography variant="h3">
-                                {dataFileLink?.queryFileGetLinks?.total}&nbsp;
-                                Files ({convertBytetoMBandGB(totalSize)})
-                              </Typography>
+                          <Fragment>
+                            {dataFileLink?.queryFileGetLinks?.total > 0 ? (
+                              <CardFileDownloader
+                                dataFiles={
+                                  dataFileLink?.queryFileGetLinks?.data || []
+                                }
+                                isMobile={isMobile}
+                                hideDownload={hideDownload}
+                                isPublic={false}
+                                isSuccess={isSuccess}
+                                isHide={isHide}
+                                downloadFiles={_downloadFiles}
+                                downloadFilesAll={_downloadFilesAll}
+                                setIndex={setIndex}
+                                setPassword={setPassword}
+                                setGetFilenames={setGetFilenames}
+                                setGetNewFileName={setGetNewFileName}
+                                setCheckModal={setCheckModal}
+                                handleQRGeneration={handleQRGeneration}
+                                hasFileWithoutPassword={hasFileWithoutPassword}
+                                fileTotal={
+                                  dataFileLink?.queryFileGetLinks?.total || 0
+                                }
+                              />
+                            ) : (
+                              <Fragment>
+                                {!folderType && (
+                                  <MUI.DivDownloadFileBoxWrapper>
+                                    <Typography variant="h1">
+                                      No documents uploaded
+                                    </Typography>
+                                  </MUI.DivDownloadFileBoxWrapper>
+                                )}
+                              </Fragment>
                             )}
-                          </>
+                          </Fragment>
+                        )}
+
+                        {/* File and Folder for multiple */}
+                        {linkClient?.type === "multiple" && (
+                          <Fragment>
+                            {dataMultipleFile.length > 0 ||
+                            dataMultipleFolder.length > 0 ? (
+                              <Fragment>
+                                {dataMultipleFolder.length > 0 && (
+                                  <MUI.BoxMultipleFolder>
+                                    <Fragment>
+                                      <Typography variant="h4" sx={{ mb: 2 }}>
+                                        {dataMultipleFolder.length} Folders (
+                                        {convertBytetoMBandGB(
+                                          totalMultipleFolder,
+                                        )}
+                                        )
+                                      </Typography>
+
+                                      {dataMultipleFolder.map(
+                                        (folder, index) => {
+                                          return (
+                                            <MUI.DivDownloadFileBox
+                                              sx={{ padding: "5px 0" }}
+                                              key={index}
+                                            >
+                                              <FolderMultipleDownload
+                                                index={index}
+                                                folderName={
+                                                  folder?.folder_name ||
+                                                  "unknown"
+                                                }
+                                                folderPassword={
+                                                  folder?.access_password
+                                                }
+                                                folderSize={parseInt(
+                                                  folder?.total_size,
+                                                )}
+                                                isSuccess={isMultipleSuccess}
+                                                isHide={isMultipleHide}
+                                                isMobile={isMobile}
+                                                setPassword={setPassword}
+                                                setFilePasswords={
+                                                  setFilePasswords
+                                                }
+                                                handleDownloadFolder={() =>
+                                                  handleMultipleDownloadFolder({
+                                                    folder,
+                                                    index,
+                                                  })
+                                                }
+                                              />
+                                            </MUI.DivDownloadFileBox>
+                                          );
+                                        },
+                                      )}
+                                    </Fragment>
+                                  </MUI.BoxMultipleFolder>
+                                )}
+
+                                {dataMultipleFile.length > 0 && (
+                                  <Fragment>
+                                    <Typography variant="h4" sx={{ mb: 2 }}>
+                                      {dataMultipleFile.length} Files (
+                                      {convertBytetoMBandGB(totalMultipleFile)})
+                                    </Typography>
+
+                                    <CardFileDownloader
+                                      dataFiles={dataMultipleFile || []}
+                                      isMobile={isMobile}
+                                      hideDownload={hideDownload}
+                                      isPublic={false}
+                                      isSuccess={isSuccess}
+                                      isHide={isHide}
+                                      downloadFiles={_downloadFiles}
+                                      downloadFilesAll={_downloadFilesAll}
+                                      setIndex={setIndex}
+                                      setPassword={setPassword}
+                                      setGetFilenames={setGetFilenames}
+                                      setGetNewFileName={setGetNewFileName}
+                                      setCheckModal={setCheckModal}
+                                      handleQRGeneration={handleQRGeneration}
+                                      hasFileWithoutPassword={
+                                        hasFileWithoutPassword
+                                      }
+                                      fileTotal={
+                                        dataFileLink?.queryFileGetLinks
+                                          ?.total || 0
+                                      }
+                                    />
+                                  </Fragment>
+                                )}
+                              </Fragment>
+                            ) : (
+                              <MUI.DivDownloadFileBoxWrapper>
+                                <Typography variant="h3">
+                                  No documents uploaded
+                                </Typography>
+                              </MUI.DivDownloadFileBoxWrapper>
+                            )}
+                          </Fragment>
                         )}
                       </Fragment>
                     ) : (
-                      <Typography variant="h3">
-                        {resPonData?.filesPublic?.total}&nbsp; Files (
-                        {convertBytetoMBandGB(totalSize)})
-                      </Typography>
+                      <Fragment>
+                        {/* -public Files Public */}
+                        {!folderType && resPonData?.filesPublic?.total > 0 ? (
+                          <CardFileDownloader
+                            dataFiles={resPonData?.filesPublic?.data || []}
+                            isMobile={isMobile}
+                            hideDownload={hideDownload}
+                            isDownloadAll={isDownloadAll}
+                            isProcessing={isProcessAll}
+                            isPublic={true}
+                            isSuccess={isSuccess}
+                            isHide={isHide}
+                            downloadFiles={_downloadFiles}
+                            downloadFilesAll={_downloadFilesAll}
+                            setIndex={setIndex}
+                            setPassword={setPassword}
+                            setGetFilenames={setGetFilenames}
+                            setGetNewFileName={setGetNewFileName}
+                            setCheckModal={setCheckModal}
+                            handleQRGeneration={handleQRGeneration}
+                            hasFileWithoutPassword={hasFileWithoutPassword}
+                            fileTotal={resPonData?.filesPublic?.total || 0}
+                          />
+                        ) : (
+                          <Fragment>
+                            {!folderType && !isLoading && (
+                              <MUI.DivDownloadFileBoxWrapper>
+                                <Typography variant="h1">
+                                  No documents uploaded
+                                </Typography>
+                              </MUI.DivDownloadFileBoxWrapper>
+                            )}
+                          </Fragment>
+                        )}
+                      </Fragment>
                     )}
                   </Fragment>
-                </MUI.BoxDownloadHeader>
-                {folderType && (
-                  <MUI.DivDownloadFileBox>
-                    <FolderDownloader
-                      folderDownload={folderDownload}
-                      isSuccess={isSuccess}
-                      isHide={isHide}
-                      isMobile={isMobile}
-                      setPassword={setPassword}
-                      setFilePasswords={setFilePasswords}
-                      handleDownloadFolder={handleDownloadFolder}
-                      folderSize={folderSize}
-                      setIndex={setIndex}
-                    />
-                  </MUI.DivDownloadFileBox>
-                )}
-                <Fragment>
-                  {linkClient?._id ? (
-                    <Fragment>
-                      {linkClient?.type === "file" && (
-                        <Fragment>
-                          {dataFileLink?.queryFileGetLinks?.total > 0 ? (
-                            <CardFileDownloader
-                              dataFiles={
-                                dataFileLink?.queryFileGetLinks?.data || []
-                              }
-                              isMobile={isMobile}
-                              hideDownload={hideDownload}
-                              isPublic={false}
-                              isSuccess={isSuccess}
-                              isHide={isHide}
-                              downloadFiles={_downloadFiles}
-                              downloadFilesAll={_downloadFilesAll}
-                              setIndex={setIndex}
-                              setPassword={setPassword}
-                              setGetFilenames={setGetFilenames}
-                              setGetNewFileName={setGetNewFileName}
-                              setCheckModal={setCheckModal}
-                              handleQRGeneration={handleQRGeneration}
-                              hasFileWithoutPassword={hasFileWithoutPassword}
-                              fileTotal={
-                                dataFileLink?.queryFileGetLinks?.total || 0
-                              }
-                            />
-                          ) : (
-                            <Fragment>
-                              {!folderType && (
-                                <MUI.DivDownloadFileBoxWrapper>
-                                  <Typography variant="h1">
-                                    No documents uploaded
-                                  </Typography>
-                                </MUI.DivDownloadFileBoxWrapper>
-                              )}
-                            </Fragment>
-                          )}
-                        </Fragment>
-                      )}
-
-                      {/* File and Folder for multiple */}
-                      {linkClient?.type === "multiple" && (
-                        <Fragment>
-                          {dataMultipleFile.length > 0 ||
-                          dataMultipleFolder.length > 0 ? (
-                            <Fragment>
-                              {dataMultipleFolder.length > 0 && (
-                                <MUI.BoxMultipleFolder>
-                                  <Fragment>
-                                    <Typography variant="h4" sx={{ mb: 2 }}>
-                                      {dataMultipleFolder.length} Folders (
-                                      {convertBytetoMBandGB(
-                                        totalMultipleFolder,
-                                      )}
-                                      )
-                                    </Typography>
-
-                                    {dataMultipleFolder.map((folder, index) => {
-                                      return (
-                                        <MUI.DivDownloadFileBox
-                                          sx={{ padding: "5px 0" }}
-                                          key={index}
-                                        >
-                                          <FolderMultipleDownload
-                                            index={index}
-                                            folderName={
-                                              folder?.folder_name || "unknown"
-                                            }
-                                            folderPassword={
-                                              folder?.access_password
-                                            }
-                                            folderSize={parseInt(
-                                              folder?.total_size,
-                                            )}
-                                            isSuccess={isMultipleSuccess}
-                                            isHide={isMultipleHide}
-                                            isMobile={isMobile}
-                                            setPassword={setPassword}
-                                            setFilePasswords={setFilePasswords}
-                                            handleDownloadFolder={() => {
-                                              handleMultipleDownloadFolder({
-                                                folder,
-                                                index,
-                                              });
-                                            }}
-                                          />
-                                        </MUI.DivDownloadFileBox>
-                                      );
-                                    })}
-                                  </Fragment>
-                                </MUI.BoxMultipleFolder>
-                              )}
-
-                              {dataMultipleFile.length > 0 && (
-                                <Fragment>
-                                  <Typography variant="h4" sx={{ mb: 2 }}>
-                                    {dataMultipleFile.length} Files (
-                                    {convertBytetoMBandGB(totalMultipleFile)})
-                                  </Typography>
-
-                                  <CardFileDownloader
-                                    dataFiles={dataMultipleFile || []}
-                                    isMobile={isMobile}
-                                    hideDownload={hideDownload}
-                                    isPublic={false}
-                                    isSuccess={isSuccess}
-                                    isHide={isHide}
-                                    downloadFiles={_downloadFiles}
-                                    downloadFilesAll={_downloadFilesAll}
-                                    setIndex={setIndex}
-                                    setPassword={setPassword}
-                                    setGetFilenames={setGetFilenames}
-                                    setGetNewFileName={setGetNewFileName}
-                                    setCheckModal={setCheckModal}
-                                    handleQRGeneration={handleQRGeneration}
-                                    hasFileWithoutPassword={
-                                      hasFileWithoutPassword
-                                    }
-                                    fileTotal={
-                                      dataFileLink?.queryFileGetLinks?.total ||
-                                      0
-                                    }
-                                  />
-                                </Fragment>
-                              )}
-                            </Fragment>
-                          ) : (
-                            <MUI.DivDownloadFileBoxWrapper>
-                              <Typography variant="h3">
-                                No documents uploaded
-                              </Typography>
-                            </MUI.DivDownloadFileBoxWrapper>
-                          )}
-                        </Fragment>
-                      )}
-                    </Fragment>
-                  ) : (
-                    <Fragment>
-                      {/* -public Files Public */}
-                      {!folderType && resPonData?.filesPublic?.total > 0 ? (
-                        <CardFileDownloader
-                          dataFiles={resPonData?.filesPublic?.data || []}
-                          isMobile={isMobile}
-                          hideDownload={hideDownload}
-                          isDownloadAll={isDownloadAll}
-                          isProcessing={isProcessAll}
-                          isPublic={true}
-                          isSuccess={isSuccess}
-                          isHide={isHide}
-                          downloadFiles={_downloadFiles}
-                          downloadFilesAll={_downloadFilesAll}
-                          setIndex={setIndex}
-                          setPassword={setPassword}
-                          setGetFilenames={setGetFilenames}
-                          setGetNewFileName={setGetNewFileName}
-                          setCheckModal={setCheckModal}
-                          handleQRGeneration={handleQRGeneration}
-                          hasFileWithoutPassword={hasFileWithoutPassword}
-                          fileTotal={resPonData?.filesPublic?.total || 0}
-                        />
-                      ) : (
-                        <Fragment>
-                          {!folderType && !isLoading && (
-                            <MUI.DivDownloadFileBoxWrapper>
-                              <Typography variant="h1">
-                                No documents uploaded
-                              </Typography>
-                            </MUI.DivDownloadFileBoxWrapper>
-                          )}
-                        </Fragment>
-                      )}
-                    </Fragment>
-                  )}
                 </Fragment>
-              </Fragment>
-            )}
-          </MUI.DivDownloadBox>
-        </MUI.DivdownloadFile>
+              )}
+            </MUI.DivDownloadBox>
+          </MUI.DivdownloadFile>
+        </Box>
       </MUI.ContainerHome>
 
       <DialogPreviewQRcode

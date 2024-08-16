@@ -6,8 +6,11 @@ import SelectStyled from "components/SelectStyled";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  COUNTRIES,
+  PAYMENT_METHOD,
   paymentState,
   setActivePaymentId,
+  setExchangeRate,
   setPackageIdData,
   setPaymentType,
   setPaymentTypeSummary,
@@ -16,8 +19,9 @@ import ButtonSelectStyled from "components/ButtonSelectStyled";
 import { useNavigate } from "react-router-dom";
 
 import { decryptDataLink, encryptDataLink } from "utils/secure.util";
-import { useSubscription } from "@apollo/client";
-import { SUBSCRIPTION_TWO_CHECKOUT } from "api/graphql/payment.graphql";
+import { useLazyQuery, useSubscription } from "@apollo/client";
+import { BCEL_EXCHANGE_RATE, SUBSCRIPTION_TWO_CHECKOUT } from "api/graphql/payment.graphql";
+import { func_exchange_calc } from "utils/exchange.calc";
 export interface PaymentProp {
   _id: string;
   status: string;
@@ -28,6 +32,7 @@ export interface PaymentProp {
 }
 
 function PricePaymentSummary() {
+  const [XChangeRate] = useLazyQuery(BCEL_EXCHANGE_RATE);
   const isMobile = useMediaQuery("(max-width:768px)");
   const [pricePayment, setPricePayment] = useState("");
   const [menuPackage, setMenuPackage] = useState("");
@@ -67,13 +72,23 @@ function PricePaymentSummary() {
   useEffect(() => {
     if (paymentSelector.packageIdData) {
       setMenuPackage(paymentSelector.packageIdData._id);
+      const price = selectPayment === "monthly"
+      ? paymentSelector.packageIdData?.monthlyPrice
+      : paymentSelector.packageIdData?.annualPrice;
+
+
       setPricePayment(
-        selectPayment === "monthly"
-          ? String(paymentSelector.packageIdData?.monthlyPrice)
-          : String(paymentSelector.packageIdData?.annualPrice || "0"),
+        () => {
+          if(paymentSelector.country === COUNTRIES.LAOS && (paymentSelector.paymentSelect === PAYMENT_METHOD.bcelOne || paymentSelector.activePaymentMethod === PAYMENT_METHOD.bcelOne)){
+            const total = (func_exchange_calc(paymentSelector.currencySymbol, price, paymentSelector.exchangeRate));
+            return total.toLocaleString();
+          }
+
+          return price.toLocaleString();
+        }
       );
     }
-  }, [paymentSelector.packageIdData, selectPayment]);
+  }, [paymentSelector.packageIdData, selectPayment, paymentSelector.exchangeRate, paymentSelector.country, paymentSelector.currencySymbol, paymentSelector.paymentSelect]);
 
   useEffect(() => {
     if (paymentSelector.packageData) {
@@ -100,9 +115,8 @@ function PricePaymentSummary() {
 
   useEffect(() => {
     if (dataSubscription) {
-      console.log("Ok");
       const result = dataSubscription.twoCheckoutSubscription?.message;
-      console.log(result);
+      
       if (result === "SUCCESS") {
         navigate("/pricing/confirm-payment");
       }
@@ -115,9 +129,22 @@ function PricePaymentSummary() {
     }
   }, [selectPayment, dispatch]);
 
-  useEffect(() => {
-    return () => {};
-  }, []);
+  useEffect(()=>{
+    const getExchangeRate = async() => {
+      await XChangeRate().then((data: any)=>{
+        if(data?.data && data?.data?.bceloneLoadExchangeRate?.result_code === 200){
+          const rate = data?.data?.bceloneLoadExchangeRate?.info?.rows[0]?.Sell_Rates;
+          if(rate> 0){
+            dispatch(
+              setExchangeRate(rate)
+            );
+          }
+        }
+      })
+    };
+
+    getExchangeRate();
+  }, [paymentSelector.exchangeRate])
 
   return (
     <MUI.PricePaymentSummaryContainer>
@@ -173,7 +200,7 @@ function PricePaymentSummary() {
 
           <MUI.SummaryBoxPriceBody>
             <Typography variant="h2">
-              ${pricePayment}
+              {paymentSelector.currencySymbol}{pricePayment}
               <Typography component={"span"}>/{selectPayment}</Typography>{" "}
             </Typography>
           </MUI.SummaryBoxPriceBody>
@@ -214,15 +241,15 @@ function PricePaymentSummary() {
         <MUI.SummaryListContainer>
           <MUI.SummaryListFlex>
             <Typography component={`p`}>Subscription</Typography>
-            <Typography component={`span`}>${pricePayment}</Typography>
+            <Typography component={`span`}>{paymentSelector.currencySymbol}{pricePayment}</Typography>
           </MUI.SummaryListFlex>
           <MUI.SummaryListFlex>
             <Typography component={`p`}>Coupon Discount</Typography>
-            <Typography component={`span`}>0</Typography>
+            <Typography component={`span`}>{paymentSelector.currencySymbol}0</Typography>
           </MUI.SummaryListFlex>
           <MUI.SummaryListFlex>
             <Typography component={`p`}>Tax</Typography>
-            <Typography component={`span`}>$0</Typography>
+            <Typography component={`span`}>{paymentSelector.currencySymbol}0</Typography>
           </MUI.SummaryListFlex>
 
           <hr />
@@ -230,10 +257,10 @@ function PricePaymentSummary() {
           <MUI.SummaryListFlex sx={{ mb: 4 }}>
             <Typography component={`p`}>Total</Typography>
             <Typography component={`span`}>
-              $
+              {paymentSelector.currencySymbol}
               {selectPayment === "monthly"
-                ? dataPackage?.monthlyPrice
-                : dataPackage?.annualPrice}
+                ? (paymentSelector.country === COUNTRIES.LAOS && paymentSelector.paymentSelect === "bcel" ? func_exchange_calc(paymentSelector.currencySymbol, Number(dataPackage?.monthlyPrice), paymentSelector.exchangeRate) : (Number(dataPackage.monthlyPrice))).toLocaleString()
+                : (paymentSelector.country === COUNTRIES.LAOS && paymentSelector.paymentSelect === "bcel" ? func_exchange_calc(paymentSelector.currencySymbol,Number(dataPackage?.annualPrice), paymentSelector.exchangeRate) : (Number(dataPackage.annualPrice))).toLocaleString()}
             </Typography>
           </MUI.SummaryListFlex>
 
