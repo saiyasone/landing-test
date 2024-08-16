@@ -1,6 +1,5 @@
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { styled } from "@mui/material/styles";
-import CryptoJS from "crypto-js";
 import React, { Fragment, useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
@@ -46,13 +45,13 @@ import QRCode from "react-qr-code";
 import { errorMessage, successMessage } from "utils/alert.util";
 import { cutFileName } from "utils/file.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
+import useManageFiles from "hooks/useManageFile";
 
 const FiledropContainer = styled(Container)({
   // marginTop: "5rem",
   textAlign: "center",
   // padding: "4rem 0",
 });
-
 
 const UploadArea = styled(Box)(({ theme }) => ({
   padding: "2rem",
@@ -97,7 +96,6 @@ const ExpiredArea = styled(Box)(({ theme }) => ({
   },
 }));
 
-
 ////display files zone
 const FileListContainer = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -134,6 +132,8 @@ function FileDropDownloader() {
   const [isSuccess, setIsSuccess] = useState<any>(false);
   const isMobile = useMediaQuery("(max-width: 600px)");
   const [dataFromUrl, setDataFromUrl] = useState<any>({});
+  const manageFile = useManageFiles();
+
   const [timeLeft, setTimeLeft] = useState("");
   // const [multiId, setMultiId] = useState<any>([]);
   // const [selectedRow, setSelectedRow] = React.useState([]);
@@ -168,8 +168,6 @@ function FileDropDownloader() {
   // const currentUrl = window.location.href;
   const [updateFileStatus] = useMutation(UPDATE_FILE_PUBLIC);
   const data: any = [];
-  const BUNNY_STORAGE_ZONE = ENV_KEYS.VITE_APP_STORAGE_ZONE;
-  const ACCESS_KEY = ENV_KEYS.VITE_APP_ACCESSKEY_BUNNY;
   const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
 
   useEffect(() => {
@@ -189,7 +187,7 @@ function FileDropDownloader() {
   useEffect(() => {
     getDataButtonDownload({
       variables: {
-        where: {  
+        where: {
           groupName: "file_seeting_landing_page",
           productKey: "ASALPAS",
         },
@@ -210,111 +208,102 @@ function FileDropDownloader() {
     }
   }, [getDataButtonDL, getDataAdvertisement]);
 
-  const handleDownloadFile = async (e, index, _id, filename, newFilename) => {
-    if (lastClickedButton?.includes(`${_id}`)) {
+  const handleDownloadFile = async (e, index, dataFile) => {
+    if (lastClickedButton?.includes(`${dataFile?._id}`)) {
       e.preventDefault();
-      const changeFilename = cutFileName(filename, newFilename);
+
       try {
         setIsHide((prev) => ({
           ...prev,
           [index]: true,
         }));
-        const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
-        const headers = {
-          accept: "*/*",
-          storageZoneName: BUNNY_STORAGE_ZONE,
-          isFolder: false,
-          path: "public/" + newFilename,
-          fileName: CryptoJS.enc.Utf8.parse(newFilename),
-          AccessKey: ACCESS_KEY,
-        };
 
-        const key = CryptoJS.enc.Utf8.parse(secretKey);
-        const iv = CryptoJS.lib.WordArray.random(16);
-        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(headers), key, {
-          iv: iv,
-          mode: CryptoJS.mode.CBC,
-          padding: CryptoJS.pad.Pkcs7,
-        });
-        const cipherText = encrypted.ciphertext.toString(CryptoJS.enc.Base64);
-        const ivText = iv.toString(CryptoJS.enc.Base64);
-        const encryptedData = cipherText + ":" + ivText;
+        const multipleData = [
+          {
+            id: dataFile?._id,
+            newFilename: dataFile?.newFilename,
+          },
+        ];
 
-        const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
-          headers: { encryptedHeaders: encryptedData },
-        });
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = changeFilename;
-        link.click();
-        handleUpdateFileStatus(_id);
-        successMessage("Download successful", 3000);
-        setIsHide((prev) => ({
-          ...prev,
-          [index]: false,
-        }));
-        setIsSuccess((prev) => ({
-          ...prev,
-          [index]: true,
-        }));
+        manageFile.handleDownloadPublicFile(
+          { multipleData },
+          {
+            onSuccess: () => {
+              handleUpdateFileStatus(dataFile?._id);
+              successMessage("Download successful", 3000);
+              setIsHide((prev) => ({
+                ...prev,
+                [index]: false,
+              }));
+              setIsSuccess((prev) => ({
+                ...prev,
+                [index]: true,
+              }));
+            },
+            onFailed: () => {
+              setIsHide((prev) => ({
+                ...prev,
+                [index]: false,
+              }));
+              setIsSuccess((prev) => ({
+                ...prev,
+                [index]: false,
+              }));
+              errorMessage("Something wrong try again!!", 2500);
+            },
+          },
+        );
       } catch (error) {
         errorMessage("Something wrong try again!!", 2500);
       }
     } else {
       setTotalClickCount((prevCount) => prevCount + 1);
       if (totalClickCount >= getActionButton) {
-        setLastClickedButton([...lastClickedButton, _id]);
+        setLastClickedButton([...lastClickedButton, dataFile?._id]);
         setTotalClickCount(0);
         e.preventDefault();
-        const changeFilename = cutFileName(filename, newFilename);
+
         try {
           setIsHide((prev) => ({
             ...prev,
             [index]: true,
           }));
-          const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
-          const headers = {
-            accept: "*/*",
-            storageZoneName: BUNNY_STORAGE_ZONE,
-            isFolder: false,
-            path: "public/" + newFilename,
-            fileName: CryptoJS.enc.Utf8.parse(newFilename),
-            AccessKey: ACCESS_KEY,
-          };
 
-          const key = CryptoJS.enc.Utf8.parse(secretKey);
-          const iv = CryptoJS.lib.WordArray.random(16);
-          const encrypted = CryptoJS.AES.encrypt(JSON.stringify(headers), key, {
-            iv: iv,
-            mode: CryptoJS.mode.CBC,
-            padding: CryptoJS.pad.Pkcs7,
-          });
-          const cipherText = encrypted.ciphertext.toString(CryptoJS.enc.Base64);
-          const ivText = iv.toString(CryptoJS.enc.Base64);
-          const encryptedData = cipherText + ":" + ivText;
+          const multipleData = [
+            {
+              id: dataFile?._id,
+              newFilename: dataFile?.newFilename,
+            },
+          ];
 
-          const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
-            headers: { encryptedHeaders: encryptedData },
-          });
-
-          const blob = await response.blob();
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = changeFilename;
-          link.click();
-          handleUpdateFileStatus(_id);
-          successMessage("Download successful", 3000);
-          setIsHide((prev) => ({
-            ...prev,
-            [index]: false,
-          }));
-          setIsSuccess((prev) => ({
-            ...prev,
-            [index]: true,
-          }));
+          manageFile.handleDownloadPublicFile(
+            { multipleData },
+            {
+              onSuccess: () => {
+                handleUpdateFileStatus(dataFile?._id);
+                successMessage("Download successful", 3000);
+                setIsHide((prev) => ({
+                  ...prev,
+                  [index]: false,
+                }));
+                setIsSuccess((prev) => ({
+                  ...prev,
+                  [index]: true,
+                }));
+              },
+              onFailed: () => {
+                setIsHide((prev) => ({
+                  ...prev,
+                  [index]: false,
+                }));
+                setIsSuccess((prev) => ({
+                  ...prev,
+                  [index]: false,
+                }));
+                errorMessage("Something wrong try again!!", 2500);
+              },
+            },
+          );
         } catch (error) {
           errorMessage("Something wrong try again!!", 2500);
         }
@@ -350,59 +339,47 @@ function FileDropDownloader() {
           }
         } else {
           e.preventDefault();
-          const changeFilename = cutFileName(filename, newFilename);
           try {
             setIsHide((prev) => ({
               ...prev,
               [index]: true,
             }));
-            const secretKey = ENV_KEYS.VITE_APP_UPLOAD_SECRET_KEY;
-            const headers = {
-              accept: "*/*",
-              storageZoneName: BUNNY_STORAGE_ZONE,
-              isFolder: false,
-              path: "public/" + newFilename,
-              fileName: CryptoJS.enc.Utf8.parse(newFilename),
-              AccessKey: ACCESS_KEY,
-            };
 
-            const key = CryptoJS.enc.Utf8.parse(secretKey);
-            const iv = CryptoJS.lib.WordArray.random(16);
-            const encrypted = CryptoJS.AES.encrypt(
-              JSON.stringify(headers),
-              key,
+            const multipleData = [
               {
-                iv: iv,
-                mode: CryptoJS.mode.CBC,
-                padding: CryptoJS.pad.Pkcs7,
+                id: dataFile?._id,
+                newFilename: dataFile?.newFilename,
+              },
+            ];
+
+            manageFile.handleDownloadPublicFile(
+              { multipleData },
+              {
+                onSuccess: () => {
+                  handleUpdateFileStatus(dataFile?._id);
+                  successMessage("Download successful", 3000);
+                  setIsHide((prev) => ({
+                    ...prev,
+                    [index]: false,
+                  }));
+                  setIsSuccess((prev) => ({
+                    ...prev,
+                    [index]: true,
+                  }));
+                },
+                onFailed: () => {
+                  setIsHide((prev) => ({
+                    ...prev,
+                    [index]: false,
+                  }));
+                  setIsSuccess((prev) => ({
+                    ...prev,
+                    [index]: false,
+                  }));
+                  errorMessage("Something wrong try again!!", 2500);
+                },
               },
             );
-            const cipherText = encrypted.ciphertext.toString(
-              CryptoJS.enc.Base64,
-            );
-            const ivText = iv.toString(CryptoJS.enc.Base64);
-            const encryptedData = cipherText + ":" + ivText;
-
-            const response = await fetch(ENV_KEYS.VITE_APP_DOWNLOAD_URL, {
-              headers: { encryptedHeaders: encryptedData },
-            });
-
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = changeFilename;
-            link.click();
-            handleUpdateFileStatus(_id);
-            successMessage("Download successful", 3000);
-            setIsHide((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-            setIsSuccess((prev) => ({
-              ...prev,
-              [index]: true,
-            }));
           } catch (error) {
             errorMessage("Something wrong try again!!", 2500);
           }
@@ -441,26 +418,24 @@ function FileDropDownloader() {
           url: currentUrl,
         },
       },
-      onError: (err)=>{
-        setStatus('expired');
+      onError: (err) => {
+        setStatus("expired");
         const cutErr = err?.message?.replace(/(ApolloError: )?Error: /, "");
         errorMessage(
           manageGraphqlError.handleErrorMessage(
-            cutErr ||
-            err?.message ||
-              "Something went wrong, Please try again",
+            cutErr || err?.message || "Something went wrong, Please try again",
           ) as string,
           2000,
         );
       },
-      onCompleted: (data)=>{
+      onCompleted: (data) => {
         const item = data?.getPublicFileDropUrl?.data[0];
 
         // if (item?.status == "expired" || !item) {
         //   setStatus(item?.status || 'expired');
         // }
-  
-        setStatus(item?.status || 'expired');
+
+        setStatus(item?.status || "expired");
 
         if (item?.createdBy?._id > 0 || item?.createdBy?._id) {
           setDataFromUrl(item);
@@ -471,11 +446,10 @@ function FileDropDownloader() {
           setNewPath(item?.folderId?.newPath);
           setFolderNewName(item?.folderId?.newFolder_name);
         }
-      }
+      },
     });
   }, [currentUrl, dropData]);
 
-  
   React.useEffect(() => {
     getFileDrop({
       variables: {
@@ -621,11 +595,10 @@ function FileDropDownloader() {
       renderCell: (params) => {
         const status = params?.row?.status || "Inactive";
         return (
-          status?.toLowerCase() === "active" && (
-            userId > 0 ? (
-              <FileDownloadDoneIcon sx={{ color: "#17766B" }} />
-            ):
-            (
+          status?.toLowerCase() === "active" &&
+          (userId > 0 ? (
+            <FileDownloadDoneIcon sx={{ color: "#17766B" }} />
+          ) : (
             <>
               <Box>
                 {isSuccess[params?.row?.no] ? (
@@ -639,15 +612,9 @@ function FileDropDownloader() {
                 ) : (
                   <Tooltip title="Download" placement="top">
                     <IconButton
-                      onClick={(e) =>
-                        handleDownloadFile(
-                          e,
-                          params?.row?.no,
-                          params?.row?._id,
-                          params?.row?.filename,
-                          params?.row?.newFilename,
-                        )
-                      }
+                      onClick={(e) => {
+                        handleDownloadFile(e, 1, params?.row);
+                      }}
                     >
                       <DownloadIcon sx={{ ":hover": { color: "#17766B" } }} />
                     </IconButton>
@@ -655,29 +622,28 @@ function FileDropDownloader() {
                 )}
               </Box>
               <Box
-              sx={{
-                "&:hover": {
-                  transform: "scale(1.05)",
-                  cursor: "pointer",
-                },
-              }}
-            >
-              <QRCode
-                style={{
-                  backgroundColor: "#fff",
-                  padding: "7px",
-                  borderRadius: "7px",
+                sx={{
+                  "&:hover": {
+                    transform: "scale(1.05)",
+                    cursor: "pointer",
+                  },
                 }}
-                value={params?.row?.dropUrl}
-                size={50}
-                level="H"
-                fgColor="#000000"
-                bgColor="#FFFFFF"
-              />
-            </Box>
+              >
+                <QRCode
+                  style={{
+                    backgroundColor: "#fff",
+                    padding: "7px",
+                    borderRadius: "7px",
+                  }}
+                  value={params?.row?.dropUrl}
+                  size={50}
+                  level="H"
+                  fgColor="#000000"
+                  bgColor="#FFFFFF"
+                />
+              </Box>
             </>
-            )
-          )
+          ))
         );
       },
     },
@@ -859,10 +825,14 @@ function FileDropDownloader() {
                         overflow: "hidden",
                       }}
                     >
-                      
                       <Card>
-                        <Typography variant="h4" sx={{textAlign:'start', padding:'1rem .5rem'}}>
-                          {dataFromUrl?.title ? dataFromUrl?.title : "File List"}
+                        <Typography
+                          variant="h4"
+                          sx={{ textAlign: "start", padding: "1rem .5rem" }}
+                        >
+                          {dataFromUrl?.title
+                            ? dataFromUrl?.title
+                            : "File List"}
                         </Typography>
                         <CardContent
                           sx={{

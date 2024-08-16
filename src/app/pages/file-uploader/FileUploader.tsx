@@ -32,10 +32,11 @@ import {
 import {
   QUERY_FILE_PUBLIC,
   QUERY_FILE_PUBLIC_LINK,
+  QUERY_FILE_PUBLICV2,
 } from "api/graphql/file.graphql";
 import {
-  QUERY_FOLDER_PUBLIC,
   QUERY_FOLDER_PUBLIC_LINK,
+  QUERY_FOLDER_PUBLICV1,
 } from "api/graphql/folder.graphql";
 import { QUERY_SETTING } from "api/graphql/setting.graphql";
 import { QUERY_USER } from "api/graphql/user.graphql";
@@ -295,11 +296,11 @@ function FileUploader() {
     },
   );
 
-  const [getMultipleFile] = useLazyQuery(QUERY_FILE_PUBLIC, {
+  const [getMultipleFile] = useLazyQuery(QUERY_FILE_PUBLICV2, {
     fetchPolicy: "cache-and-network",
   });
 
-  const [getMultipleFolder] = useLazyQuery(QUERY_FOLDER_PUBLIC, {
+  const [getMultipleFolder] = useLazyQuery(QUERY_FOLDER_PUBLICV1, {
     fetchPolicy: "cache-and-network",
   });
 
@@ -350,7 +351,6 @@ function FileUploader() {
         _id: decode?._id,
         type: decode?.type,
       };
-
     }
   } catch (error) {
     console.error(error);
@@ -477,7 +477,7 @@ function FileUploader() {
 
               if (folderData && folderData?.[0]?.folder_type) {
                 document.title =
-                  folderData[0]?.folder_name ?? "Vshare download folder";
+                  folderData?.[0]?.folder_name || "Vshare download folder";
                 if (folderData[0]?.folder_name) {
                   setDescription(folderData[0]?.folder_name + " Vshare.net");
                 }
@@ -521,9 +521,9 @@ function FileUploader() {
 
     getLinkData();
 
-    return () => {
-      document.title = "Download folder and file"; // Reset the title when the component unmounts
-    };
+    // return () => {
+    //   document.title = "Download folder and file"; // Reset the title when the component unmounts
+    // };
   }, [linkValue, urlClient, dataFileLink, dataFolderLink, resPonData]);
 
   console.log(dataFileLink);
@@ -568,14 +568,14 @@ function FileUploader() {
                   folderData.map(async (folder) => {
                     const resFolder = await getMultipleFolder({
                       variables: {
-                        where: {
-                          _id: folder?.folderId,
-                          status: "active",
-                        },
+                        id: folder?.folderId,
+                        // where: {
+                        //   _id: folder?.folderId,
+                        //   status: "active",
+                        // },
                       },
                     });
-                    const resData =
-                      resFolder.data?.queryFolderPublic?.data || [];
+                    const resData = resFolder.data?.folderPublic?.data || [];
                     if (resData?.length) {
                       return resData;
                     }
@@ -600,14 +600,15 @@ function FileUploader() {
                   await fileData.map(async (file) => {
                     const result = await getMultipleFile({
                       variables: {
-                        where: {
-                          _id: file?.fileId,
-                          status: "active",
-                        },
+                        id: [file?.fileId],
+                        // where: {
+                        //   _id: file?.fileId,
+                        //   status: "active",
+                        // },
                       },
                     });
 
-                    const resData = result.data?.filesPublic?.data || [];
+                    const resData = result.data?.filePublic?.data || [];
 
                     if (resData?.length) {
                       return resData;
@@ -656,6 +657,7 @@ function FileUploader() {
             }, 1000);
           } else if (os.match(/Android/i)) {
             setPlatform("android");
+            ``;
             setTimeout(() => {
               setShowBottomDeep(true);
             }, 1000);
@@ -1702,6 +1704,7 @@ console.log({dataFileLink});
   return (
     <React.Fragment>
       <Helmet>
+        <meta name="title" content={"seoTitle"} />
         <meta name="description" content={_description} />
       </Helmet>
       <MUI.ContainerHome maxWidth="xl">
@@ -1932,38 +1935,43 @@ console.log({dataFileLink});
                                         )
                                       </Typography>
 
-                                      {dataMultipleFolder.map((folder, index) => {
-                                        return (
-                                          <MUI.DivDownloadFileBox
-                                            sx={{ padding: "5px 0" }}
-                                            key={index}
-                                          >
-                                            <FolderMultipleDownload
-                                              index={index}
-                                              folderName={
-                                                folder?.folder_name || "unknown"
-                                              }
-                                              folderPassword={
-                                                folder?.access_password
-                                              }
-                                              folderSize={parseInt(
-                                                folder?.total_size,
-                                              )}
-                                              isSuccess={isMultipleSuccess}
-                                              isHide={isMultipleHide}
-                                              isMobile={isMobile}
-                                              setPassword={setPassword}
-                                              setFilePasswords={setFilePasswords}
-                                              handleDownloadFolder={() =>
-                                                handleMultipleDownloadFolder({
-                                                  folder,
-                                                  index,
-                                                })
-                                              }
-                                            />
-                                          </MUI.DivDownloadFileBox>
-                                        );
-                                      })}
+                                      {dataMultipleFolder.map(
+                                        (folder, index) => {
+                                          return (
+                                            <MUI.DivDownloadFileBox
+                                              sx={{ padding: "5px 0" }}
+                                              key={index}
+                                            >
+                                              <FolderMultipleDownload
+                                                index={index}
+                                                folderName={
+                                                  folder?.folder_name ||
+                                                  "unknown"
+                                                }
+                                                folderPassword={
+                                                  folder?.access_password
+                                                }
+                                                folderSize={parseInt(
+                                                  folder?.total_size,
+                                                )}
+                                                isSuccess={isMultipleSuccess}
+                                                isHide={isMultipleHide}
+                                                isMobile={isMobile}
+                                                setPassword={setPassword}
+                                                setFilePasswords={
+                                                  setFilePasswords
+                                                }
+                                                handleDownloadFolder={() =>
+                                                  handleMultipleDownloadFolder({
+                                                    folder,
+                                                    index,
+                                                  })
+                                                }
+                                              />
+                                            </MUI.DivDownloadFileBox>
+                                          );
+                                        },
+                                      )}
                                     </Fragment>
                                   </MUI.BoxMultipleFolder>
                                 )}
@@ -1994,8 +2002,8 @@ console.log({dataFileLink});
                                         hasFileWithoutPassword
                                       }
                                       fileTotal={
-                                        dataFileLink?.queryFileGetLinks?.total ||
-                                        0
+                                        dataFileLink?.queryFileGetLinks
+                                          ?.total || 0
                                       }
                                     />
                                   </Fragment>

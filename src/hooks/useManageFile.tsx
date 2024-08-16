@@ -42,35 +42,11 @@ const useManageFiles = () => {
       };
 
       const encryptedData = encryptDownloadData(headers);
-
       const baseUrl = `${ENV_KEYS.VITE_APP_LOAD_URL}downloader/file/download-multifolders-and-files?download=${encryptedData}`;
       startDownload({ baseUrl });
-
-      const response = await fetch(baseUrl);
-      const reader = await response.body?.getReader();
-
-      new ReadableStream({
-        async start(controller) {
-          // eslint-disable-next-line no-constant-condition
-          while (true) {
-            try {
-              const { done, value } = await reader!.read();
-              if (done) {
-                onSuccess?.();
-                controller.close();
-                break;
-              }
-
-              controller.enqueue(value);
-            } catch (error: any) {
-              onFailed?.(error);
-              controller.error(error);
-              break;
-            }
-          }
-        },
-      });
-      onSuccess?.(response);
+      setTimeout(() => {
+        onSuccess?.();
+      }, 2000);
     } catch (error) {
       onFailed?.(error);
     }
@@ -100,31 +76,9 @@ const useManageFiles = () => {
 
       const baseUrl = `${ENV_KEYS.VITE_APP_LOAD_URL}downloader/file/download-multifolders-and-files?download=${encryptedData}`;
       startDownload({ baseUrl });
-
-      const response = await fetch(baseUrl);
-      const reader = await response.body?.getReader();
-
-      new ReadableStream({
-        async start(controller) {
-          // eslint-disable-next-line no-constant-condition
-          while (true) {
-            try {
-              const { done, value } = await reader!.read();
-              if (done) {
-                onSuccess?.();
-                controller.close();
-                break;
-              }
-
-              controller.enqueue(value);
-            } catch (error: any) {
-              onFailed?.(error);
-              controller.error(error);
-              break;
-            }
-          }
-        },
-      });
+      setTimeout(() => {
+        onSuccess?.();
+      }, 2000);
     } catch (error) {
       onFailed?.(error);
     }
@@ -161,31 +115,9 @@ const useManageFiles = () => {
       const baseUrl = `${ENV_KEYS.VITE_APP_LOAD_URL}downloader/file/download-multifolders-and-files?download=${encryptedData}`;
       startDownload({ baseUrl });
 
-      const response = await fetch(baseUrl);
-      const reader = await response.body?.getReader();
-
-      new ReadableStream({
-        async start(controller) {
-          // eslint-disable-next-line no-constant-condition
-          while (true) {
-            try {
-              const { done, value } = await reader!.read();
-              if (done) {
-                onSuccess?.();
-                controller.close();
-                break;
-              }
-
-              controller.enqueue(value);
-            } catch (error: any) {
-              onFailed?.(error);
-              controller.error(error);
-              break;
-            }
-          }
-        },
-      });
-      onSuccess?.(response);
+      setTimeout(() => {
+        onSuccess?.();
+      }, 2000);
     } catch (error) {
       onFailed?.(error);
     }

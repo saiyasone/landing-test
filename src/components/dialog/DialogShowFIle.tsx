@@ -165,8 +165,6 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
   window.location.protocol === "http:"
     ? (link = ENV_KEYS.VITE_APP_DOWNLOAD_URL_SERVER)
     : (link = ENV_KEYS.VITE_APP_DOWNLOAD_URL_SERVER);
-  const ACCESS_KEY = ENV_KEYS.VITE_APP_ACCESSKEY_BUNNY;
-  const STORAGE_ZONE = ENV_KEYS.VITE_APP_STORAGE_ZONE;
   const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
   const LOAD_UPLOAD_URL = ENV_KEYS.VITE_APP_LOAD_UPLOAD_URL;
 
@@ -397,6 +395,7 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
     setInformation(mergedArray);
     setIsUploading(true);
     handleUpload(mergedArray);
+    // handleUploadV1(mergedArray);
     setIsDialogQRCodeOpen(true);
   };
 
@@ -474,10 +473,6 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
             let initialUploadSpeedCalculated = false;
             const startTime = new Date().getTime();
             const headers = {
-              REGION: "sg",
-              BASE_HOSTNAME: "storage.bunnycdn.com",
-              STORAGE_ZONE_NAME: STORAGE_ZONE,
-              ACCESS_KEY: ACCESS_KEY,
               PATH: "public",
               FILENAME: newNameFile,
               createdBy: "0",
@@ -540,7 +535,7 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
       setCheckUpload(true);
       successMessage("Upload successful!!", 3000);
     } catch (error: any) {
-      const cutError = error.message.replace(/(ApolloError: )?Error: /, "");
+      const cutError = error.message?.replace(/(ApolloError: )?Error: /, "");
       const fileUploadSize = dataMaxSize?.action?.split(".")[0];
       if (
         cutError ===
@@ -564,7 +559,7 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
         errorMessage(`The file size is bigger than ${fileMaxSize}`, 10000);
         handleCloseModal();
       } else {
-        const cutDataError = error.message.replace(
+        const cutDataError = error.message?.replace(
           /(ApolloError: )?Error: /,
           "",
         );
@@ -589,7 +584,7 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
       ctx.drawImage(img, centerX, centerY, 50, 40);
       const pngUrl = tempCanvas
         .toDataURL("image/png")
-        .replace("image/png", "image/octet-stream");
+        ?.replace("image/png", "image/octet-stream");
       const downloadLink = document.createElement("a");
       downloadLink.href = pngUrl;
       downloadLink.download = "qr-code.png";
