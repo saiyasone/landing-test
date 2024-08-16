@@ -115,6 +115,7 @@ function FileDrop() {
 
   const handleData = (value) => {
     if (value) {
+      window.__reCaptcha = value;
       setUsedCaptcha(true);
       setCaptchaKey(false);
     }
@@ -128,6 +129,7 @@ function FileDrop() {
         variables: {
           input: {
             url: genLink,
+            captcha: window.__reCaptcha
           },
         },
       });
