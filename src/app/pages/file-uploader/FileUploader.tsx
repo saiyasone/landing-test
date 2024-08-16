@@ -18,9 +18,9 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  // IconButton,
+  IconButton,
   TextField,
-  // Tooltip,
+  Tooltip,
   Typography,
   useMediaQuery,
 } from "@mui/material";
@@ -59,6 +59,7 @@ import { styled } from "@mui/system";
 import QRCode from "react-qr-code";
 import { DataGrid } from "@mui/x-data-grid";
 import FileDownloadDoneIcon from "@mui/icons-material/FileDownloadDone";
+import DownloadIcon from "@mui/icons-material/Download";
 
 ////Ads
 const AdsContainer = styled(Box)(({ theme }) => ({
@@ -1640,59 +1641,93 @@ function FileUploader() {
       headerAlign: "center",
       align: "center",
       renderCell: (params) => {
-        const status = params?.row?.status || "Inactive";
+        const row = params?.row;
+        const status = row?.status || "Inactive";
+        console.log({row});
         return (
-          status?.toLowerCase() === "active" && (
-            dataFileLink?.queryFileGetLinks?.total > 0 ? (
-              <FileDownloadDoneIcon sx={{ color: "#17766B" }} />
-            ):
-            (
-            <>
-              <Box>
-                {isSuccess[params?.row?.no] ? (
-                  <FileDownloadDoneIcon sx={{ color: "#17766B" }} />
-                ) : isHide[params?.row?.no] ? (
-                  <CircularProgress
-                    color="success"
-                    sx={{ color: "#17766B" }}
-                    size={isMobile ? "18px" : "22px"}
+          status === "active" &&
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+          <Fragment>
+            {
+              isSuccess[index] ? 
+              (
+                <FileDownloadDoneIcon sx={{ color: "#17766B" }} />
+              ) 
+              : 
+              isHide[index] ? (
+                <CircularProgress
+                  color="success"
+                  sx={{ color: "#17766B" }}
+                  size={isMobile ? "18px" : "22px"}
+                />
+              )
+              :
+              !row?.filePassword ? (
+                <IconButton
+                  onClick={() => {
+                    _downloadFiles(
+                      index,
+                      row?._id,
+                      row?.newFilename,
+                      row?.filename,
+                      row?.filePassword,
+                      row?.newPath ?? "",
+                      row?.createdBy,
+                      row,
+                    );
+                    setIndex(index);
+                    setPassword("");
+                    setGetFilenames(row?.filename);
+                    setGetNewFileName(row?.newFilename);
+                    setCheckModal(true);
+                  }}
+                >
+                  <DownloadIcon
+                    sx={{
+                      color: "#17766B",
+                      fontSize: isMobile ? "17px" : "22px",
+                    }}
                   />
-                ) : (
-                  // <Tooltip title="Download" placement="top">
-                  //   <IconButton
-                  //     onClick={_downloadFiles}
-                  //   >
-                  //     <DownloadIcon sx={{ ":hover": { color: "#17766B" } }} />
-                  //   </IconButton>
-                  // </Tooltip>
-                  null
-                )}
-              </Box>
-              <Box
-              sx={{
-                "&:hover": {
-                  transform: "scale(1.05)",
-                  cursor: "pointer",
-                },
-              }}
-            >
-              <QRCode
-                style={{
-                  backgroundColor: "#fff",
-                  padding: "7px",
-                  borderRadius: "7px",
-                }}
-                value={params?.row?.dropUrl}
-                size={50}
-                level="H"
-                fgColor="#000000"
-                bgColor="#FFFFFF"
-              />
-            </Box>
-            </>
-            )
-          )
-        );
+                </IconButton>
+              )
+              :
+              (
+                <IconButton
+                    onClick={() => {
+                      _downloadFiles(
+                        index,
+                        row?._id,
+                        row?.newFilename,
+                        row?.filename,
+                        row?.filePassword,
+                        row?.newPath || "",
+                        row?.createdBy,
+                        row,
+                      );
+                      setIndex(index);
+                      setPassword("");
+                      setGetFilenames(row?.filename);
+                      setGetNewFileName(row?.newFilename);
+                      setCheckModal(true);
+                    }}
+                  >
+                    {/* <FileDownloadOffIcon
+                      sx={{
+                        fontSize: isMobile ? "17px" : "22px",
+                      }}
+                    /> */}
+                  </IconButton>
+              )
+            }
+          </Fragment>
+          </Box>
+        )
       },
     },
   ];
