@@ -85,7 +85,7 @@ export const BoxShowUploadDetail = styled(Box)(({ theme }) => ({
   justifyContent: "center",
   flexDirection: "column",
   border: "2px dashed #85b7b1",
-  padding: "1rem 0 2.5rem 0",
+  padding: "1rem 0 1.2rem 0",
   background: "#EDF3F2",
   borderRadius: "10px",
   [theme.breakpoints.down("sm")]: {

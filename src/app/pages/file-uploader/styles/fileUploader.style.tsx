@@ -59,7 +59,8 @@ export const DivdownloadFile = styled("div")({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  minHeight: "50vh",
+  // minHeight: "50vh",
+  margin: '3rem 0',
 
   [theme.breakpoints.down("sm")]: {
     paddingLeft: "1rem",

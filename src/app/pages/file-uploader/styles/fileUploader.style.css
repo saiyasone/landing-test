@@ -11,6 +11,15 @@
   z-index: 9999999;
 }
 
+.appbar-bg-gradient-r {
+  background: linear-gradient(
+    232.69deg,
+    #0ac8b3 2%,
+    #0f6c61 95.18%
+  ) !important;
+  z-index: 9999999;
+}
+
 .appbar .container {
   padding: 0.5rem;
 }

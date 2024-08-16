@@ -13,10 +13,22 @@ export const PAYMENT_METHOD = {
   stripe: "Credit card",
 };
 
+export const COUNTRIES = {
+  LAOS: 'LA',
+  FOREIGN: "Fireign"
+};
+
+export const CURRENCIES = {
+  DOLLAR: '$',
+  KIP: '₭',
+}
+
 const initialState = {
   paymentId: null,
   isPayment: false,
-  currencySymbol: "$",
+  currencySymbol: CURRENCIES.KIP,
+  exchangeRate: 0,
+  country: COUNTRIES.LAOS,
   taxValue: TAX_PERCENT / 100,
   taxPercent: TAX_PERCENT,
   couponCode: null,
@@ -103,6 +115,18 @@ export const paymentSlice = createSlice({
       } else {
         state.couponType = coupon.type;
       }
+    },
+
+    setExchangeRate: (state, action) => {
+        state.exchangeRate = action.payload;
+    },
+
+    setCountry: (state, action)=>{
+      state.country = action.payload;
+    },
+
+    setCurencySymbol: (state, action)=>{
+      state.currencySymbol = action.payload;
     },
 
     setPaymentType: (state, action) => {
@@ -197,7 +221,10 @@ export const paymentSlice = createSlice({
 
 export const {
   setActivePaymentType,
-  setPackageType,
+  setPackageType,  
+  setCountry,
+  setExchangeRate,
+  setCurencySymbol,
   setActivePaymentId,
   setPackageData,
   setCalculatePrice,

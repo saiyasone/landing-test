@@ -1,4 +1,4 @@
-import { Grid, Paper, Typography } from "@mui/material";
+import { Box, Grid, Paper, Typography } from "@mui/material";
 import { ChangeEvent, Fragment, useEffect } from "react";
 import PricePaymentForm from "./PricePaymentForm";
 import PricePaymentSummary from "./PricePaymentSummary";
@@ -10,7 +10,7 @@ import StepV1 from "components/StepV1";
 import useManagePublicPackages from "hooks/useManagePublicPackage";
 import usePackageFilter from "hooks/usePackageFilter";
 import { useDispatch, useSelector } from "react-redux";
-import { paymentState, setCalculatePrice, setPackageData, setPackageIdData, setPaymentSelect } from "stores/features/paymentSlice";
+import { COUNTRIES, CURRENCIES, PAYMENT_METHOD, paymentState, setActivePaymentMethod, setCalculatePrice, setCountry, setCurencySymbol, setPackageData, setPackageIdData, setPaymentSelect } from "stores/features/paymentSlice";
 import { useParams } from "react-router-dom";
 import { decryptDataLink } from "utils/secure.util";
 import * as MUI from "styles/priceCheckoutStyle";
@@ -30,6 +30,17 @@ function PricePayment() {
 
   const handlePaymentTab = (event: ChangeEvent<HTMLInputElement>) => {
     dispatch(setPaymentSelect(event.target.value));
+
+    if(event?.target?.value.toLowerCase()==='bcel'){
+      dispatch(setCountry(COUNTRIES.LAOS));
+      dispatch(setCurencySymbol(CURRENCIES.KIP));
+      dispatch(setActivePaymentMethod(PAYMENT_METHOD.bcelOne));
+    }
+    else{
+      dispatch(setCountry(COUNTRIES.FOREIGN));
+      dispatch(setCurencySymbol(CURRENCIES.DOLLAR));
+      dispatch(setActivePaymentMethod(PAYMENT_METHOD.stripe));
+    }
   };
 
   useEffect(() => {
@@ -46,7 +57,6 @@ function PricePayment() {
       dispatch(setCalculatePrice());
     }
   }, [paymentSelector.packageData, paymentSelector.activePackageId, dispatch]);
-
 
   return (
     <Fragment>
@@ -110,14 +120,26 @@ function PricePayment() {
           <Grid item container>
             
             {
-              // paymentSelector.paymentSelect && paymentSelector.paymentSelect === 'bcel' &&
+              paymentSelector.paymentSelect && paymentSelector.paymentSelect === 'bcel' ? (
+                <Grid item sm={12} md={5}>
+                  <MUI.PricePaymentQRCode sx={{width: '100%', textAlign:'center'}}>
+                    <Typography variant="h3">Scan QR Code</Typography>
+                  </MUI.PricePaymentQRCode>
+                  <PricePaymentContainerBox>
+                    <PricePaymentForm />
+                  </PricePaymentContainerBox>
+                </Grid>
+              )
+              :
               <Grid item sm={12} md={5}>
-                <MUI.PricePaymentQRCode sx={{width: '100%', textAlign:'center'}}>
-                  <Typography variant="h3">Scan QR Code</Typography>
-                </MUI.PricePaymentQRCode>
-                <PricePaymentContainerBox>
-                  <PricePaymentForm />
-                </PricePaymentContainerBox>
+                <Box sx={{display:'flex', flexDirection:'column', justifyContent: 'center', alignItems:'center', height: '100%', padding:'0 10%'}}>
+                  <Typography variant={'h3'} lineHeight={3}>
+                      Dear customer!
+                  </Typography>
+                  <Typography variant={'h3'} lineHeight={3}>
+                      We are proud to see you.
+                  </Typography>
+                </Box>
               </Grid>
             }
             {
