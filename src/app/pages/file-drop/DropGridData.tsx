@@ -151,38 +151,34 @@ function DropGridData(props: Props) {
 
         return (
           <Fragment>
-            {dataFromUrl?.allowDownload && (
-              <Fragment>
-                <Box>
-                  {isSuccess?.[params?.row?.no] ? (
-                    <FileDownloadDoneIcon sx={{ color: "#17766B" }} />
-                  ) : isHide?.[params?.row?.no] ? (
-                    <CircularProgress
-                      color="success"
-                      sx={{ color: "#17766B" }}
-                      size={isMobile ? "18px" : "22px"}
-                    />
-                  ) : (
-                    <Tooltip title="Download" placement="top">
-                      <IconButton
-                        onClick={(e) => {
-                          handleDownloadFile?.(e, params?.row?.no, params?.row);
-                        }}
-                      >
-                        <DownloadIcon sx={{ ":hover": { color: "#17766B" } }} />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                </Box>
-                <IconButton
-                  onClick={() => {
-                    handleQrCode?.(params?.row, "preview-qr");
-                  }}
-                >
-                  <QrCode />
-                </IconButton>
-              </Fragment>
-            )}
+            <Box>
+              {isSuccess?.[params?.row?.no] ? (
+                <FileDownloadDoneIcon sx={{ color: "#17766B" }} />
+              ) : isHide?.[params?.row?.no] ? (
+                <CircularProgress
+                  color="success"
+                  sx={{ color: "#17766B" }}
+                  size={isMobile ? "18px" : "22px"}
+                />
+              ) : (
+                <Tooltip title="Download" placement="top">
+                  <IconButton
+                    onClick={(e) => {
+                      handleDownloadFile?.(e, params?.row?.no, params?.row);
+                    }}
+                  >
+                    <DownloadIcon sx={{ ":hover": { color: "#17766B" } }} />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Box>
+            <IconButton
+              onClick={() => {
+                handleQrCode?.(params?.row, "preview-qr");
+              }}
+            >
+              <QrCode />
+            </IconButton>
           </Fragment>
         );
       },

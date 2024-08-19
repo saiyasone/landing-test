@@ -9,24 +9,17 @@ import { NavLink } from "react-router-dom";
 import * as Mui from "./styles/fileDropDownloader.style";
 
 // material ui
-import DownloadIcon from "@mui/icons-material/Download";
-import FileDownloadDoneIcon from "@mui/icons-material/FileDownloadDone";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import {
   Box,
   Button,
   Card,
   CardContent,
-  Chip,
-  CircularProgress,
   Container,
-  IconButton,
-  Tooltip,
   Typography,
   createTheme,
   useMediaQuery,
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
 import {
   CREATE_DETAIL_ADVERTISEMENT,
   QUERY_ADVERTISEMENT,
@@ -41,9 +34,8 @@ import DialogShowFiledrop from "components/dialog/DialogShowFiledrop";
 import { ENV_KEYS } from "constants/env.constant";
 import useManageGraphqlError from "hooks/useManageGraphqlError";
 import moment from "moment";
-import QrCode from "@mui/icons-material/QrCode";
 import { errorMessage, successMessage } from "utils/alert.util";
-import { convertBytetoMBandGB } from "utils/storage.util";
+
 import useManageFiles from "hooks/useManageFile";
 import DialogPreviewQRcode from "components/dialog/DialogPreviewQRCode";
 import NormalButton from "components/NormalButton";
@@ -534,40 +526,38 @@ function FileDropDownloader() {
   };
 
   const handleMultipleDownloadFiles = () => {
-    if (dataFromUrl?.allowMultiples) {
-      const newModelData = multiId.map((index) => {
-        const options = queryFile.find((file) => file._id === index);
+    const newModelData = multiId.map((index) => {
+      const options = queryFile.find((file) => file._id === index);
 
-        if (options) {
-          return options;
-        }
+      if (options) {
+        return options;
+      }
 
-        return {};
-      });
-      const multipleData = newModelData?.map((file) => {
-        return {
-          id: file?._id,
-          name: file?.filename,
-          newFilename: file?.newFilename,
-          checkType: "file",
-          newPath: file?.newPath,
-          createdBy: file?.createdBy,
-        };
-      });
+      return {};
+    });
+    const multipleData = newModelData?.map((file) => {
+      return {
+        id: file?._id,
+        name: file?.filename,
+        newFilename: file?.newFilename,
+        checkType: "file",
+        newPath: file?.newPath,
+        createdBy: file?.createdBy,
+      };
+    });
 
-      manageFile.handleDownloadPublicFile(
-        { multipleData },
-        {
-          onSuccess: () => {
-            console.log("ok");
-          },
-
-          onFailed: () => {
-            console.log("failed error");
-          },
+    manageFile.handleDownloadPublicFile(
+      { multipleData },
+      {
+        onSuccess: () => {
+          console.log("ok");
         },
-      );
-    }
+
+        onFailed: () => {
+          console.log("failed error");
+        },
+      },
+    );
   };
 
   // const handleClearSelectDataGrid = () => {
@@ -605,109 +595,6 @@ function FileDropDownloader() {
 
     return () => clearInterval(intervalId);
   }, [dataFromUrl?.expiredAt]);
-
-  const columns: any = [
-    {
-      field: "no",
-      headerName: "ID",
-      width: 70,
-      headerAlign: "center",
-      align: "center",
-    },
-    {
-      field: "filename",
-      headerName: "Name",
-      flex: 1,
-      headerAlign: "center",
-    },
-    {
-      field: "size",
-      headerName: "Size",
-      width: 70,
-      headerAlign: "center",
-      align: "center",
-      renderCell: (params) => {
-        const size = params?.row?.size || 0;
-        return <span>{convertBytetoMBandGB(size)}</span>;
-      },
-    },
-    {
-      field: "status",
-      headerName: "Status",
-      headerAlign: "center",
-      width: 70,
-      align: "center",
-      renderCell: (params) => {
-        const status = params?.row?.status || "Inactive";
-        return (
-          <div style={{ color: "green" }}>
-            <Chip
-              sx={{
-                backgroundColor:
-                  status?.toLowerCase() === "active" ? "#DCF6E8" : "#dcf6e8",
-                color:
-                  status?.toLowerCase() === "active" ? "#17766B" : "#29c770",
-                fontWeight: "bold",
-              }}
-              label={
-                status?.toLowerCase() === "active" ? "" + "Active" : "Inactive"
-              }
-              size="small"
-            />
-          </div>
-        );
-      },
-    },
-    {
-      field: "action",
-      headerName: "Action",
-      flex: 1,
-      headerAlign: "center",
-      align: "center",
-      renderCell: (params) => {
-        const status = params?.row?.status || "Inactive";
-        return (
-          <Fragment>
-            {dataFromUrl?.allowDownload && (
-              <Fragment>
-                <Box>
-                  {isSuccess[params?.row?.no] ? (
-                    <FileDownloadDoneIcon sx={{ color: "#17766B" }} />
-                  ) : isHide[params?.row?.no] ? (
-                    <CircularProgress
-                      color="success"
-                      sx={{ color: "#17766B" }}
-                      size={isMobile ? "18px" : "22px"}
-                    />
-                  ) : (
-                    <Tooltip title="Download" placement="top">
-                      <IconButton
-                        onClick={(e) => {
-                          handleDownloadFile(e, 1, params?.row);
-                        }}
-                      >
-                        <DownloadIcon sx={{ ":hover": { color: "#17766B" } }} />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                </Box>
-                <IconButton
-                  onClick={() => {
-                    setDataForEvent({
-                      data: params?.row,
-                      action: "preview-qr",
-                    });
-                  }}
-                >
-                  <QrCode />
-                </IconButton>
-              </Fragment>
-            )}
-          </Fragment>
-        );
-      },
-    },
-  ];
 
   return (
     <React.Fragment>
@@ -915,61 +802,9 @@ function FileDropDownloader() {
                               });
                             }}
                           />
-                          {/* <DataGrid
-                            sx={{
-                              borderRadius: 0,
-                              height: "100% !important",
-                              "& .MuiDataGrid-columnSeparator": {
-                                display: "none",
-                              },
-                              "& .MuiDataGrid-cell:focus": {
-                                outline: "none",
-                              },
-                            }}
-                            autoHeight
-                            getRowId={(row) => row?._id}
-                            rows={queryFile}
-                            columns={columns}
-                            checkboxSelection={
-                              dataFromUrl?.allowMultiples ? true : false
-                            }
-                            disableSelectionOnClick
-                            disableColumnFilter
-                            disableColumnMenu
-                            hideFooter
-                            onSelectionModelChange={(ids: any) => {
-                              if (dataFromUrl?.allowMultiples) {
-                                setMultiId(ids);
-                              }
-                            }}
-                          /> */}
-                          {/* {queryFile?.length > 15 && (
-                            <Box
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              <Box
-                                sx={{
-                                  padding: (theme) => theme.spacing(4),
-                                }}
-                              >
-                                Showing 1 to 10 of {100} entries
-                              </Box>
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  justifyContent: "flex-end",
-                                  padding: (theme) => theme.spacing(4),
-                                  flex: "1 1 0%",
-                                }}
-                              ></Box>
-                            </Box>
-                          )} */}
                         </CardContent>
 
-                        {dataFromUrl?.allowMultiples && (
+                        {dataFromUrl?.allowDownload && (
                           <Box
                             sx={{
                               mb: 4,
@@ -1024,7 +859,7 @@ function FileDropDownloader() {
         </Box>
       )}
 
-      {showQrCode && dataFromUrl?.allowDownload && (
+      {showQrCode && (
         <DialogPreviewQRcode
           isOpen={showQrCode}
           data={dataForEvent.data?.dropUrl || ""}
