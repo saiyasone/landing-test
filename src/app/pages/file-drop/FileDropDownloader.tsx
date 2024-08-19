@@ -41,10 +41,13 @@ import DialogShowFiledrop from "components/dialog/DialogShowFiledrop";
 import { ENV_KEYS } from "constants/env.constant";
 import useManageGraphqlError from "hooks/useManageGraphqlError";
 import moment from "moment";
-import QRCode from "react-qr-code";
+import QrCode from "@mui/icons-material/QrCode";
 import { errorMessage, successMessage } from "utils/alert.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
 import useManageFiles from "hooks/useManageFile";
+import DialogPreviewQRcode from "components/dialog/DialogPreviewQRCode";
+import NormalButton from "components/NormalButton";
+import DropGridData from "./DropGridData";
 
 const FiledropContainer = styled(Container)({
   // marginTop: "5rem",
@@ -132,9 +135,14 @@ function FileDropDownloader() {
   const isMobile = useMediaQuery("(max-width: 600px)");
   const [dataFromUrl, setDataFromUrl] = useState<any>({});
   const manageFile = useManageFiles();
+  const [showQrCode, setShowQrCode] = useState(false);
+  const [dataForEvent, setDataForEvent] = useState<any>({
+    data: {},
+    action: "",
+  });
 
   const [timeLeft, setTimeLeft] = useState("");
-  // const [multiId, setMultiId] = useState<any>([]);
+  const [multiId, setMultiId] = useState<any>([]);
   // const [selectedRow, setSelectedRow] = React.useState([]);
   const [getDataButtonDownload, { data: getDataButtonDL }] = useLazyQuery(
     QUERY_SETTING,
@@ -152,9 +160,7 @@ function FileDropDownloader() {
     },
   );
 
-  const [getFileDrop, { data: filesData, refetch }] = useLazyQuery(
-    QUERY_FILE_DROP_PUBLIC,
-  );
+  const [getFileDrop, { refetch }] = useLazyQuery(QUERY_FILE_DROP_PUBLIC);
 
   const [getUserByDropUrl, { data: dropData }] = useLazyQuery(
     QUERY_FILE_DROP_PUBLIC_URL,
@@ -221,10 +227,11 @@ function FileDropDownloader() {
           {
             id: dataFile?._id,
             newFilename: dataFile?.newFilename,
+            createdBy: dataFile?.createdBy,
           },
         ];
 
-        manageFile.handleDownloadPublicFile(
+        manageFile.handleDownloadFile(
           { multipleData },
           {
             onSuccess: () => {
@@ -394,6 +401,32 @@ function FileDropDownloader() {
     setDataIP(resData);
   }
 
+  function handleClosePreviewQR() {
+    setDataForEvent({
+      action: "",
+      data: {},
+    });
+    setShowQrCode(false);
+  }
+
+  function menuOnClick(action: string) {
+    switch (action) {
+      case "preview-qr":
+        setShowQrCode(true);
+        return;
+
+      default:
+        break;
+    }
+  }
+
+  useEffect(() => {
+    if (dataForEvent.action) {
+      console.log(dataForEvent.data);
+      menuOnClick(dataForEvent.action);
+    }
+  }, [dataForEvent.action]);
+
   useEffect(() => {
     getDataIP();
   }, []);
@@ -430,10 +463,6 @@ function FileDropDownloader() {
       onCompleted: (data) => {
         const item = data?.getPublicFileDropUrl?.data[0];
 
-        // if (item?.status == "expired" || !item) {
-        //   setStatus(item?.status || 'expired');
-        // }
-
         setStatus(item?.status || "expired");
 
         if (item?.createdBy?._id > 0 || item?.createdBy?._id) {
@@ -458,19 +487,20 @@ function FileDropDownloader() {
           status: "active",
         },
       },
+      onCompleted: (data) => {
+        if (data?.getFileDrop?.total == null) {
+          setQueryFile([]);
+        } else {
+          const datas = data?.getFileDrop?.data?.map((value, index) => ({
+            ...value,
+            no: index + 1,
+          }));
+
+          setQueryFile(datas || []);
+        }
+      },
     });
-
-    if (filesData?.getFileDrop?.total == null) {
-      setQueryFile([]);
-    } else {
-      const datas = filesData?.getFileDrop?.data?.map((value, index) => ({
-        ...value,
-        no: index + 1,
-      }));
-
-      setQueryFile(datas || []);
-    }
-  }, [filesData, currentUrl]);
+  }, [currentUrl]);
 
   const handleClose = () => {
     setOpen(false);
@@ -502,6 +532,48 @@ function FileDropDownloader() {
       errorMessage("Something wrong. Try again later!", 2000);
     }
   };
+
+  const handleMultipleDownloadFiles = () => {
+    if (dataFromUrl?.allowMultiples) {
+      const newModelData = multiId.map((index) => {
+        const options = queryFile.find((file) => file._id === index);
+
+        if (options) {
+          return options;
+        }
+
+        return {};
+      });
+      const multipleData = newModelData?.map((file) => {
+        return {
+          id: file?._id,
+          name: file?.filename,
+          newFilename: file?.newFilename,
+          checkType: "file",
+          newPath: file?.newPath,
+          createdBy: file?.createdBy,
+        };
+      });
+
+      manageFile.handleDownloadPublicFile(
+        { multipleData },
+        {
+          onSuccess: () => {
+            console.log("ok");
+          },
+
+          onFailed: () => {
+            console.log("failed error");
+          },
+        },
+      );
+    }
+  };
+
+  // const handleClearSelectDataGrid = () => {
+  //   setMultiId([]);
+  //   setSelectedRow([]);
+  // };
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
@@ -572,12 +644,13 @@ function FileDropDownloader() {
             <Chip
               sx={{
                 backgroundColor:
-                  status?.toLowerCase() === "active" ? "#FFEFE1" : "#dcf6e8",
+                  status?.toLowerCase() === "active" ? "#DCF6E8" : "#dcf6e8",
                 color:
-                  status?.toLowerCase() === "active" ? "#FFA44F" : "#29c770",
+                  status?.toLowerCase() === "active" ? "#17766B" : "#29c770",
+                fontWeight: "bold",
               }}
               label={
-                status?.toLowerCase() === "active" ? "/" + "Active" : "Inactive"
+                status?.toLowerCase() === "active" ? "" + "Active" : "Inactive"
               }
               size="small"
             />
@@ -594,55 +667,43 @@ function FileDropDownloader() {
       renderCell: (params) => {
         const status = params?.row?.status || "Inactive";
         return (
-          status?.toLowerCase() === "active" &&
-          (userId > 0 ? (
-            <FileDownloadDoneIcon sx={{ color: "#17766B" }} />
-          ) : (
-            <>
-              <Box>
-                {isSuccess[params?.row?.no] ? (
-                  <FileDownloadDoneIcon sx={{ color: "#17766B" }} />
-                ) : isHide[params?.row?.no] ? (
-                  <CircularProgress
-                    color="success"
-                    sx={{ color: "#17766B" }}
-                    size={isMobile ? "18px" : "22px"}
-                  />
-                ) : (
-                  <Tooltip title="Download" placement="top">
-                    <IconButton
-                      onClick={(e) => {
-                        handleDownloadFile(e, 1, params?.row);
-                      }}
-                    >
-                      <DownloadIcon sx={{ ":hover": { color: "#17766B" } }} />
-                    </IconButton>
-                  </Tooltip>
-                )}
-              </Box>
-              <Box
-                sx={{
-                  "&:hover": {
-                    transform: "scale(1.05)",
-                    cursor: "pointer",
-                  },
-                }}
-              >
-                <QRCode
-                  style={{
-                    backgroundColor: "#fff",
-                    padding: "7px",
-                    borderRadius: "7px",
+          <Fragment>
+            {dataFromUrl?.allowDownload && (
+              <Fragment>
+                <Box>
+                  {isSuccess[params?.row?.no] ? (
+                    <FileDownloadDoneIcon sx={{ color: "#17766B" }} />
+                  ) : isHide[params?.row?.no] ? (
+                    <CircularProgress
+                      color="success"
+                      sx={{ color: "#17766B" }}
+                      size={isMobile ? "18px" : "22px"}
+                    />
+                  ) : (
+                    <Tooltip title="Download" placement="top">
+                      <IconButton
+                        onClick={(e) => {
+                          handleDownloadFile(e, 1, params?.row);
+                        }}
+                      >
+                        <DownloadIcon sx={{ ":hover": { color: "#17766B" } }} />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </Box>
+                <IconButton
+                  onClick={() => {
+                    setDataForEvent({
+                      data: params?.row,
+                      action: "preview-qr",
+                    });
                   }}
-                  value={params?.row?.dropUrl}
-                  size={50}
-                  level="H"
-                  fgColor="#000000"
-                  bgColor="#FFFFFF"
-                />
-              </Box>
-            </>
-          ))
+                >
+                  <QrCode />
+                </IconButton>
+              </Fragment>
+            )}
+          </Fragment>
         );
       },
     },
@@ -835,14 +896,26 @@ function FileDropDownloader() {
                         </Typography>
                         <CardContent
                           sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            height: "100%",
                             paddingLeft: "0 !important",
                             paddingRight: "0 !important",
                           }}
                         >
-                          <DataGrid
+                          <DropGridData
+                            queryFile={queryFile}
+                            dataFromUrl={dataFromUrl}
+                            isHide={isHide}
+                            isSuccess={isSuccess}
+                            isMobile={isMobile}
+                            setMultiId={setMultiId}
+                            handleDownloadFile={handleDownloadFile}
+                            handleQrCode={(data, action) => {
+                              setDataForEvent({
+                                data,
+                                action,
+                              });
+                            }}
+                          />
+                          {/* <DataGrid
                             sx={{
                               borderRadius: 0,
                               height: "100% !important",
@@ -857,17 +930,20 @@ function FileDropDownloader() {
                             getRowId={(row) => row?._id}
                             rows={queryFile}
                             columns={columns}
-                            // checkboxSelection
+                            checkboxSelection={
+                              dataFromUrl?.allowMultiples ? true : false
+                            }
                             disableSelectionOnClick
                             disableColumnFilter
                             disableColumnMenu
                             hideFooter
-                            // onSelectionModelChange={(ids: any) => {
-                            //   setSelectedRow(ids);
-                            //   setMultiId(ids);
-                            // }}
-                          />
-                          {queryFile?.length > 15 && (
+                            onSelectionModelChange={(ids: any) => {
+                              if (dataFromUrl?.allowMultiples) {
+                                setMultiId(ids);
+                              }
+                            }}
+                          /> */}
+                          {/* {queryFile?.length > 15 && (
                             <Box
                               sx={{
                                 display: "flex",
@@ -888,30 +964,72 @@ function FileDropDownloader() {
                                   padding: (theme) => theme.spacing(4),
                                   flex: "1 1 0%",
                                 }}
-                              >
-                                {/* <PaginationStyled
-                            currentPage={filter.data.currentPageNumber}
-                            total={Math.ceil(
-                              manageFileDrop.total / manageFileDrop.pageLimit,
-                            )}
-                            setCurrentPage={(e) =>
-                              filter.dispatch({
-                                type: filter.ACTION_TYPE.PAGINATION,
-                                payload: e,
-                              })
-                            }
-                          /> */}
-                              </Box>
+                              ></Box>
                             </Box>
-                          )}
+                          )} */}
                         </CardContent>
+
+                        {dataFromUrl?.allowMultiples && (
+                          <Box
+                            sx={{
+                              mb: 4,
+                              mr: 5,
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              gap: "1.5rem",
+                            }}
+                          >
+                            <NormalButton
+                              sx={{
+                                padding: (theme) =>
+                                  `${theme.spacing(1.5)} ${theme.spacing(3)}`,
+                                borderRadius: (theme) => theme.spacing(2),
+                                color: "#828282 !important",
+                                fontWeight: "bold",
+                                backgroundColor: "#fff",
+                                border: "2px solid #DCEAE9",
+                                width: "inherit",
+
+                                ":disabled": {
+                                  border: "2px solid #ddd",
+                                  cursor: "not-allowed",
+                                },
+                              }}
+                              disabled={multiId?.length > 0 ? false : true}
+                              onClick={handleMultipleDownloadFiles}
+                            >
+                              Download
+                            </NormalButton>
+                            {/* <NormalButton
+                              sx={{
+                                padding: (theme) =>
+                                  `${theme.spacing(1.5)} ${theme.spacing(3)}`,
+                                borderRadius: (theme) => theme.spacing(2),
+                                color: "#828282 !important",
+                                fontWeight: "bold",
+                                backgroundColor: "#fff",
+                                border: "2px solid #DCEAE9",
+                                width: "inherit",
+                              }}
+                            >
+                              Cancel
+                            </NormalButton> */}
+                          </Box>
+                        )}
                       </Card>
                     </Box>
-                    
                   </FileListContainer>
                 )}
           </FiledropContainer>
         </Box>
+      )}
+
+      {showQrCode && dataFromUrl?.allowDownload && (
+        <DialogPreviewQRcode
+          isOpen={showQrCode}
+          data={dataForEvent.data?.dropUrl || ""}
+          onClose={handleClosePreviewQR}
+        />
       )}
     </React.Fragment>
   );
