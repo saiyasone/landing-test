@@ -168,7 +168,6 @@ function FileDropDownloader() {
   );
 
   const [currentUrl, setCurrentUrl] = useState("");
-  // const currentUrl = window.location.href;
   const [updateFileStatus] = useMutation(UPDATE_FILE_PUBLIC);
   const data: any = [];
   const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
