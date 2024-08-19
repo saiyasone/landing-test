@@ -79,7 +79,7 @@ function DropGridData(props: Props) {
                 backgroundColor:
                   status?.toLowerCase() === "active" ? "#DCF6E8" : "#dcf6e8",
                 color:
-                  status?.toLowerCase() === "active" ? "#17766B" : "#29c770",
+                  status?.toLowerCase() === "active" ? "#4BD087" : "#29c770",
                 fontWeight: "bold",
               }}
               label={
