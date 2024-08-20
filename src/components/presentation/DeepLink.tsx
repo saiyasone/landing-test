@@ -14,8 +14,12 @@ import { Fragment, useEffect, useState } from "react";
 import * as MUI from "styles/presentation/deepLink.style";
 
 function DeepLink(props) {
-  const { showBottom, _platform, onClose, scriptScheme } = props;
+  const { showBottom, platform, onClose, scriptScheme } = props;
   const [browser, setBrowser] = useState<any>("");
+  const androidStore =
+    "https://play.google.com/store/apps/details?id=com.vshare.app.client";
+  const appleStore =
+    "https://apps.apple.com/la/app/vshare-file-transfer-app/id6476536606";
 
   const Icons = [
     {
@@ -59,33 +63,22 @@ function DeepLink(props) {
     }
   }
 
-  /*   const openAppOrStore = () => {
-    // Create an iframe
-    const iframe = document.createElement("iframe");
-    iframe.style.display = "none";
-    document.body.appendChild(iframe);
-
-    // Attempt to open the deep link
-    iframe.src = scriptScheme;
-    // Check if the app is installed
-    setTimeout(() => {
-      setAppInstalled(true);
-      document.body.removeChild(iframe); // Remove the iframe
-    }, 1000); // Adjust timeout as needed
-
-    // If app is still running, window.location will not change
-    setTimeout(() => {
-      if (!appInstalled) {
-        // App is not installed, redirect to store
-        window.location.href =
-          "https://play.google.com/store/apps/details?id=com.vshare.app.client";
-      }
-    }, 3000);
-    // Adjust timeout as needed
-  }; */
-
   function handleOpenApp() {
+    const timeout = setTimeout(() => {
+      if (platform === "android") {
+        window.location.href = androidStore;
+      }
+
+      if (platform === "ios") {
+        window.location.href = appleStore;
+      }
+    }, 1500);
+
     window.location.href = scriptScheme;
+
+    window.onblur = () => {
+      clearTimeout(timeout);
+    };
   }
 
   useEffect(() => {

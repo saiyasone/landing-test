@@ -140,6 +140,7 @@ function FileDropDownloader() {
 
   const [timeLeft, setTimeLeft] = useState("");
   const [multiId, setMultiId] = useState<any>([]);
+  const [platform, setPlatform] = useState("");
   // const [selectedRow, setSelectedRow] = React.useState([]);
   const [getDataButtonDownload, { data: getDataButtonDL }] = useLazyQuery(
     QUERY_SETTING,
@@ -606,12 +607,14 @@ function FileDropDownloader() {
       const operation = navigator.userAgent;
 
       if (operation.match(/iPhone|iPad|iPod/i)) {
+        setPlatform("ios");
         setTimeout(() => {
           setShowDeepLink(true);
         }, 1000);
       }
 
       if (operation.match(/Android/i)) {
+        setPlatform("android");
         setTimeout(() => {
           setShowDeepLink(true);
         }, 1000);
@@ -891,6 +894,7 @@ function FileDropDownloader() {
       )}
 
       <DeepLink
+        platform={platform}
         showBottom={showDeepLink}
         scriptScheme={appSchema}
         onClose={() => {
