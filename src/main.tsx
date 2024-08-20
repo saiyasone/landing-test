@@ -79,6 +79,7 @@ export const clientMockup = new ApolloClient({
 const wsLink = new GraphQLWsLink(
   createClient({
     url: `wss://${ENV_KEYS.VITE_APP_SUBSCRIPTION_URL}`,
+
   }),
 );
 

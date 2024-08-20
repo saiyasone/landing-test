@@ -546,7 +546,7 @@ function FileDropDownloader() {
       };
     });
 
-    manageFile.handleDownloadPublicFile(
+    manageFile.handleDownloadFile(
       { multipleData },
       {
         onSuccess: () => {
