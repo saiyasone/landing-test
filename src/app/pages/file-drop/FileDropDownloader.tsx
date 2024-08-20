@@ -40,6 +40,7 @@ import useManageFiles from "hooks/useManageFile";
 import DialogPreviewQRcode from "components/dialog/DialogPreviewQRCode";
 import NormalButton from "components/NormalButton";
 import DropGridData from "./DropGridData";
+import DeepLink from "components/presentation/DeepLink";
 
 const FiledropContainer = styled(Container)({
   // marginTop: "5rem",
@@ -132,6 +133,10 @@ function FileDropDownloader() {
     data: {},
     action: "",
   });
+
+  const currentURL = window.location.href;
+  const appSchema = "vshare.app://download?url=" + currentURL;
+  const [showDeepLink, setShowDeepLink] = useState(false);
 
   const [timeLeft, setTimeLeft] = useState("");
   const [multiId, setMultiId] = useState<any>([]);
@@ -596,6 +601,24 @@ function FileDropDownloader() {
     return () => clearInterval(intervalId);
   }, [dataFromUrl?.expiredAt]);
 
+  useEffect(() => {
+    if (dataFromUrl) {
+      const operation = navigator.userAgent;
+
+      if (operation.match(/iPhone|iPad|iPod/i)) {
+        setTimeout(() => {
+          setShowDeepLink(true);
+        }, 1000);
+      }
+
+      if (operation.match(/Android/i)) {
+        setTimeout(() => {
+          setShowDeepLink(true);
+        }, 1000);
+      }
+    }
+  }, [dataFromUrl]);
+
   return (
     <React.Fragment>
       {status == "expired" ? (
@@ -866,6 +889,14 @@ function FileDropDownloader() {
           onClose={handleClosePreviewQR}
         />
       )}
+
+      <DeepLink
+        showBottom={showDeepLink}
+        scriptScheme={appSchema}
+        onClose={() => {
+          setShowDeepLink(false);
+        }}
+      />
     </React.Fragment>
   );
 }

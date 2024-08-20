@@ -2051,233 +2051,220 @@ function FileUploader() {
             </MUI.DivDownloadBox>
           </MUI.DivdownloadFile>
           {/* table  */}
-          {!isLoading &&
-            (dataFileLink?.queryFileGetLinks?.data?.length > 0 ||
-              dataMultipleFile.length > 0 ||
-              dataMultipleFolder.length > 0) && (
-              <FileListContainer>
-                <Box
-                  sx={{
-                    width: { xs: "100%", md: "70%" },
-                    overflow: "hidden",
-                  }}
-                >
-                  <Card
+          {/* <Box>
+            {!isLoading &&
+              (dataFileLink?.queryFileGetLinks?.data?.length > 0 ||
+                dataMultipleFile.length > 0 ||
+                dataMultipleFolder.length > 0) && (
+                <FileListContainer>
+                  <Box
                     sx={{
-                      boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
+                      width: { xs: "100%", md: "70%" },
+                      overflow: "hidden",
                     }}
                   >
-                    <Typography
-                      variant="h4"
-                      sx={{ textAlign: "start", padding: "1rem .5rem" }}
-                    >
-                      {_description}
-                    </Typography>
-                    <CardContent
+                    <Card
                       sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        height: "100%",
-                        paddingLeft: "0 !important",
-                        paddingRight: "0 !important",
+                        boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
                       }}
                     >
-                      <DataGrid
+                      <Typography
+                        variant="h4"
+                        sx={{ textAlign: "start", padding: "1rem .5rem" }}
+                      >
+                        {_description}
+                      </Typography>
+                      <CardContent
                         sx={{
-                          borderRadius: 0,
-                          height: "100% !important",
-                          "& .MuiDataGrid-columnSeparator": {
-                            display: "none",
-                          },
-                          "& .MuiDataGrid-cell:focus": {
-                            outline: "none",
-                          },
+                          display: "flex",
+                          flexDirection: "column",
+                          height: "100%",
+                          paddingLeft: "0 !important",
+                          paddingRight: "0 !important",
                         }}
-                        autoHeight
-                        getRowId={(row) => row?._id}
-                        rows={
-                          dataFileLink?.queryFileGetLinks?.data?.length > 0
-                            ? dataFileLink?.queryFileGetLinks?.data
-                            : dataMultipleFile.length < 0
-                            ? dataMultipleFile
-                            : dataMultipleFolder.length > 0
-                            ? dataMultipleFolder
-                            : []
-                        }
-                        columns={columns}
-                        // checkboxSelection
-                        disableSelectionOnClick
-                        disableColumnFilter
-                        disableColumnMenu
-                        hideFooter
-                        // onSelectionModelChange={(ids: any) => {
-                        //   setSelectedRow(ids);
-                        //   setMultiId(ids);
-                        // }}
-                      />
-                      {dataFileLink?.queryFileGetLinks?.data?.length > 15 && (
-                        <Box
+                      >
+                        <DataGrid
                           sx={{
-                            display: "flex",
-                            alignItems: "center",
+                            borderRadius: 0,
+                            height: "100% !important",
+                            "& .MuiDataGrid-columnSeparator": {
+                              display: "none",
+                            },
+                            "& .MuiDataGrid-cell:focus": {
+                              outline: "none",
+                            },
                           }}
-                        >
-                          <Box
-                            sx={{
-                              padding: (theme) => theme.spacing(4),
-                            }}
-                          >
-                            Showing 1 to 10 of {100} entries
-                          </Box>
+                          autoHeight
+                          getRowId={(row) => row?._id}
+                          rows={
+                            dataFileLink?.queryFileGetLinks?.data?.length > 0
+                              ? dataFileLink?.queryFileGetLinks?.data
+                              : dataMultipleFile.length < 0
+                              ? dataMultipleFile
+                              : dataMultipleFolder.length > 0
+                              ? dataMultipleFolder
+                              : []
+                          }
+                          columns={columns}
+                          disableSelectionOnClick
+                          disableColumnFilter
+                          disableColumnMenu
+                          hideFooter
+                        />
+                        {dataFileLink?.queryFileGetLinks?.data?.length > 15 && (
                           <Box
                             sx={{
                               display: "flex",
-                              justifyContent: "flex-end",
-                              padding: (theme) => theme.spacing(4),
-                              flex: "1 1 0%",
+                              alignItems: "center",
                             }}
                           >
-                            {/* <PaginationStyled
-                    currentPage={filter.data.currentPageNumber}
-                    total={Math.ceil(
-                      manageFileDrop.total / manageFileDrop.pageLimit,
-                    )}
-                    setCurrentPage={(e) =>
-                      filter.dispatch({
-                        type: filter.ACTION_TYPE.PAGINATION,
-                        payload: e,
-                      })
-                    }
-                  /> */}
+                            <Box
+                              sx={{
+                                padding: (theme) => theme.spacing(4),
+                              }}
+                            >
+                              Showing 1 to 10 of {100} entries
+                            </Box>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                padding: (theme) => theme.spacing(4),
+                                flex: "1 1 0%",
+                              }}
+                            ></Box>
                           </Box>
-                        </Box>
-                      )}
-                    </CardContent>
-                  </Card>
-                </Box>
-                <Box
-                  sx={{
-                    width: { xs: "100%", md: "35%" },
-                    borderRadius: 1.5,
-                    boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
-                    overflow: "hidden",
-                  }}
-                >
-                  <Box sx={{ padding: "1.5rem" }}>
-                    <Box sx={{ display: "flex" }}>
-                      <Button
-                        variant="contained"
-                        sx={{
-                          width: { xs: "100%", md: "80%" },
-                          mx: "auto !important",
-                        }}
-                      >
-                        Download
-                      </Button>
-                    </Box>
-                    <Box sx={{ textAlign: "start", padding: "1rem 0" }}>
-                      <Typography variant="h5" sx={{ color: "rgb(0,0,0,0.9)" }}>
-                        Social Share
-                      </Typography>
-                      <Typography
-                        lineHeight={1}
-                        sx={{
-                          mt: 2,
-                          fontWeight: 500,
-                          color: "rgb(0,0,0,0.7)",
-                        }}
-                      >
-                        Share this link via
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        flexWrap: "wrap",
-                        gap: 3,
-                        mt: 7,
-                      }}
-                    >
-                      {arrayMedias.map((item, index) => (
-                        <Button
-                          key={index}
-                          sx={{
-                            width: "60px",
-                            height: "60px",
-                            borderRadius: "100%",
-                            background: "rgb(221, 221, 221,0.8)",
-                            fontSize: "2rem",
-                          }}
-                        >
-                          {item.icon}
-                        </Button>
-                      ))}
-                    </Box>
+                        )}
+                      </CardContent>
+                    </Card>
                   </Box>
                   <Box
-                    className="appbar appbar-bg-gradient-r"
                     sx={{
-                      display: "flex",
-                      flexDirection: { xs: "column", md: "row" },
-                      justifyContent: "space-between",
-                      width: "100%",
-                      paddingTop: "1.2rem",
+                      width: { xs: "100%", md: "35%" },
+                      borderRadius: 1.5,
+                      boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
+                      overflow: "hidden",
                     }}
                   >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        color: "#fff",
-                        padding: ".8rem",
-                        textAlign: { xs: "center", md: "start" },
-                        ml: ".4rem",
-                      }}
-                    >
-                      <Typography variant={"h4"} sx={{ m: 0, p: 0 }}>
-                        View on mobile phone
-                      </Typography>
-                      <Typography
-                        variant={"h6"}
-                        sx={{ my: 4, fontWeight: 400 }}
+                    <Box sx={{ padding: "1.5rem" }}>
+                      <Box sx={{ display: "flex" }}>
+                        <Button
+                          variant="contained"
+                          sx={{
+                            width: { xs: "100%", md: "80%" },
+                            mx: "auto !important",
+                          }}
+                        >
+                          Download
+                        </Button>
+                      </Box>
+                      <Box sx={{ textAlign: "start", padding: "1rem 0" }}>
+                        <Typography
+                          variant="h5"
+                          sx={{ color: "rgb(0,0,0,0.9)" }}
+                        >
+                          Social Share
+                        </Typography>
+                        <Typography
+                          lineHeight={1}
+                          sx={{
+                            mt: 2,
+                            fontWeight: 500,
+                            color: "rgb(0,0,0,0.7)",
+                          }}
+                        >
+                          Share this link via
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          flexWrap: "wrap",
+                          gap: 3,
+                          mt: 7,
+                        }}
                       >
-                        Scan to view on your mobile
-                        <br />
-                        phone for faster download
-                      </Typography>
-                      <Typography variant={"h6"} sx={{ fontWeight: 400 }}>
-                        Android users cn scan with
-                        <br />a browser, and iOS users can
-                        <br /> scan with camera
-                      </Typography>
+                        {arrayMedias.map((item, index) => (
+                          <Button
+                            key={index}
+                            sx={{
+                              width: "60px",
+                              height: "60px",
+                              borderRadius: "100%",
+                              background: "rgb(221, 221, 221,0.8)",
+                              fontSize: "2rem",
+                            }}
+                          >
+                            {item.icon}
+                          </Button>
+                        ))}
+                      </Box>
                     </Box>
                     <Box
+                      className="appbar appbar-bg-gradient-r"
                       sx={{
                         display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        padding: ".9rem",
+                        flexDirection: { xs: "column", md: "row" },
+                        justifyContent: "space-between",
+                        width: "100%",
+                        paddingTop: "1.2rem",
                       }}
                     >
-                      <QRCode
-                        style={{
-                          backgroundColor: "#fff",
-                          border: "1px solid gray",
-                          padding: "7px",
-                          borderRadius: "7px",
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          color: "#fff",
+                          padding: ".8rem",
+                          textAlign: { xs: "center", md: "start" },
+                          ml: ".4rem",
                         }}
-                        value={"1234567"}
-                        size={150}
-                        level="H"
-                        fgColor="#000000"
-                        bgColor="#FFFFFF"
-                      />
+                      >
+                        <Typography variant={"h4"} sx={{ m: 0, p: 0 }}>
+                          View on mobile phone
+                        </Typography>
+                        <Typography
+                          variant={"h6"}
+                          sx={{ my: 4, fontWeight: 400 }}
+                        >
+                          Scan to view on your mobile
+                          <br />
+                          phone for faster download
+                        </Typography>
+                        <Typography variant={"h6"} sx={{ fontWeight: 400 }}>
+                          Android users cn scan with
+                          <br />a browser, and iOS users can
+                          <br /> scan with camera
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          padding: ".9rem",
+                        }}
+                      >
+                        <QRCode
+                          style={{
+                            backgroundColor: "#fff",
+                            border: "1px solid gray",
+                            padding: "7px",
+                            borderRadius: "7px",
+                          }}
+                          value={"1234567"}
+                          size={150}
+                          level="H"
+                          fgColor="#000000"
+                          bgColor="#FFFFFF"
+                        />
+                      </Box>
                     </Box>
                   </Box>
-                </Box>
-              </FileListContainer>
-            )}
+                </FileListContainer>
+              )}
+          </Box> */}
         </Box>
       </MUI.ContainerHome>
 
