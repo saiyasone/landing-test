@@ -861,20 +861,6 @@ function FileDropDownloader() {
                             >
                               Download
                             </NormalButton>
-                            {/* <NormalButton
-                              sx={{
-                                padding: (theme) =>
-                                  `${theme.spacing(1.5)} ${theme.spacing(3)}`,
-                                borderRadius: (theme) => theme.spacing(2),
-                                color: "#828282 !important",
-                                fontWeight: "bold",
-                                backgroundColor: "#fff",
-                                border: "2px solid #DCEAE9",
-                                width: "inherit",
-                              }}
-                            >
-                              Cancel
-                            </NormalButton> */}
                           </Box>
                         )}
                       </Card>

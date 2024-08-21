@@ -60,7 +60,7 @@ export const DivdownloadFile = styled("div")({
   alignItems: "center",
   justifyContent: "center",
   // minHeight: "50vh",
-  margin: '3rem 0',
+  margin: "3rem 0",
 
   [theme.breakpoints.down("sm")]: {
     paddingLeft: "1rem",
@@ -913,3 +913,72 @@ export const BoxLiveChat = styled(Box)({
 export const BoxMultipleFolder = styled("div")({
   marginBottom: "20px",
 });
+
+////display files zone
+export const FileListContainer = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  flex: 1,
+  gap: 10,
+  [theme.breakpoints.down("sm")]: {
+    flexDirection: "column",
+  },
+}));
+
+////Ads
+export const AdsContainer = styled(Box)(({ theme }) => ({
+  background: "#fff",
+  display: "flex",
+  flex: 1,
+  flexDirection: "row",
+  justifyContent: "center",
+  alignItems: "center",
+  width: "50%",
+  margin: "0 auto",
+  padding: ".5rem",
+  [theme.breakpoints.down("sm")]: {
+    width: "100%",
+    padding: "0",
+  },
+}));
+
+export const AdsContent = styled(Box)(({ theme }) => ({
+  padding: "1rem",
+  background: "#ECF4F3",
+  width: "100%",
+  [theme.breakpoints.down("sm")]: {
+    padding: "8px",
+  },
+}));
+
+export const AdsCard = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  boxShadow: "rgba(0, 0, 0, 0.05) 0px 0px 5px",
+  margin: "0 auto",
+  width: "80%",
+  padding: ".5rem 1rem",
+  background: "#fafafa",
+  borderRadius: ".3rem",
+  h4: { margin: "0.5rem 0", color: "#4B465C" },
+  p: {
+    color: "#6F6B7D",
+    fontSize: "0.8rem",
+    fontWeight: "600",
+    marginBottom: "1.5rem",
+    opacity: 0.9,
+  },
+  button: {
+    padding: ".2rem 2rem",
+  },
+  [theme.breakpoints.down("sm")]: {
+    width: "100%",
+    h1: {
+      fontSize: "18px",
+    },
+  },
+}));
+
+////display files zone

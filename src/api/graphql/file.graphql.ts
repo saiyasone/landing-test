@@ -108,6 +108,7 @@ export const QUERY_FILE_PUBLICV2 = gql`
           newName
         }
         shortUrl
+        longUrl
         favorite
         actionStatus
         expired
@@ -119,7 +120,7 @@ export const QUERY_FILE_PUBLICV2 = gql`
   }
 `;
 
-export const QUERY_FILE_PUBLIC_LINK = gql`
+export const QUERY_FILE_GET_LINK = gql`
   query QueryFileGetLinks($where: FilesWhereInput) {
     queryFileGetLinks(where: $where) {
       data {
@@ -134,6 +135,8 @@ export const QUERY_FILE_PUBLIC_LINK = gql`
         status
         path
         newPath
+        shortUrl
+        longUrl
         url
         urlAll
         createdBy {

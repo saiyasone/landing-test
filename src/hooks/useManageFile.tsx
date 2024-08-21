@@ -44,9 +44,7 @@ const useManageFiles = () => {
       const encryptedData = encryptDownloadData(headers);
       const baseUrl = `${ENV_KEYS.VITE_APP_LOAD_URL}downloader/file/download-multifolders-and-files?download=${encryptedData}`;
       startDownload({ baseUrl });
-      setTimeout(() => {
-        onSuccess?.();
-      }, 2000);
+      onSuccess?.();
     } catch (error) {
       onFailed?.(error);
     }
@@ -76,9 +74,7 @@ const useManageFiles = () => {
 
       const baseUrl = `${ENV_KEYS.VITE_APP_LOAD_URL}downloader/file/download-multifolders-and-files?download=${encryptedData}`;
       startDownload({ baseUrl });
-      setTimeout(() => {
-        onSuccess?.();
-      }, 2000);
+      onSuccess?.();
     } catch (error) {
       onFailed?.(error);
     }
@@ -114,10 +110,7 @@ const useManageFiles = () => {
 
       const baseUrl = `${ENV_KEYS.VITE_APP_LOAD_URL}downloader/file/download-multifolders-and-files?download=${encryptedData}`;
       startDownload({ baseUrl });
-
-      setTimeout(() => {
-        onSuccess?.();
-      }, 2000);
+      onSuccess?.();
     } catch (error) {
       onFailed?.(error);
     }

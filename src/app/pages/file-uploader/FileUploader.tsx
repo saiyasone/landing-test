@@ -1,26 +1,20 @@
 import { useLazyQuery, useMutation } from "@apollo/client";
 import axios from "axios";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 // components
 import * as MUI from "./styles/fileUploader.style";
 import "./styles/fileUploader.style.css";
-
 import {
   Box,
   Button,
-  Card,
-  CardContent,
-  Chip,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  // IconButton,
   TextField,
-  // Tooltip,
   Typography,
   useMediaQuery,
 } from "@mui/material";
@@ -31,7 +25,7 @@ import {
 } from "api/graphql/ad.graphql";
 import {
   QUERY_FILE_PUBLIC,
-  QUERY_FILE_PUBLIC_LINK,
+  QUERY_FILE_GET_LINK,
   QUERY_FILE_PUBLICV2,
 } from "api/graphql/file.graphql";
 import {
@@ -55,171 +49,7 @@ import { combineOldAndNewFileNames, cutFileName } from "utils/file.util";
 import { convertBytetoMBandGB } from "utils/storage.util";
 import { decryptDataLink } from "utils/secure.util";
 import useManageFiles from "hooks/useManageFile";
-import { styled } from "@mui/system";
-import QRCode from "react-qr-code";
-import { DataGrid } from "@mui/x-data-grid";
-import FileDownloadDoneIcon from "@mui/icons-material/FileDownloadDone";
-
-////Ads
-const AdsContainer = styled(Box)(({ theme }) => ({
-  background: "#fff",
-  display: "flex",
-  flex: 1,
-  flexDirection: "row",
-  justifyContent: "center",
-  alignItems: "center",
-  width: "50%",
-  margin: "0 auto",
-  padding: ".5rem",
-  [theme.breakpoints.down("sm")]: {
-    width: "100%",
-    padding: "0",
-  },
-}));
-
-const AdsContent = styled(Box)(({ theme }) => ({
-  padding: "1rem",
-  background: "#ECF4F3",
-  width: "100%",
-  [theme.breakpoints.down("sm")]: {
-    padding: "8px",
-  },
-}));
-
-const AdsCard = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  boxShadow: "rgba(0, 0, 0, 0.05) 0px 0px 5px",
-  margin: "0 auto",
-  width: "80%",
-  padding: ".5rem 1rem",
-  background: "#fafafa",
-  borderRadius: ".3rem",
-  h4: { margin: "0.5rem 0", color: "#4B465C" },
-  p: {
-    color: "#6F6B7D",
-    fontSize: "0.8rem",
-    fontWeight: "600",
-    marginBottom: "1.5rem",
-    opacity: 0.9,
-  },
-  button: {
-    padding: ".2rem 2rem",
-  },
-  [theme.breakpoints.down("sm")]: {
-    width: "100%",
-    h1: {
-      fontSize: "18px",
-    },
-  },
-}));
-
-////display files zone
-const FileListContainer = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "space-between",
-  flex: 1,
-  gap: 10,
-  [theme.breakpoints.down("sm")]: {
-    flexDirection: "column",
-  },
-}));
-
-//https://icon-sets.iconify.design/mdi/dots-horizontal/
-const arrayMedias = [
-  {
-    id: 1,
-    title: "Facebook",
-    link: "",
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="1em"
-        height="1em"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill="currentColor"
-          d="M12 2.04c-5.5 0-10 4.49-10 10.02c0 5 3.66 9.15 8.44 9.9v-7H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.89 3.78-3.89c1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7a10 10 0 0 0 8.44-9.9c0-5.53-4.5-10.02-10-10.02"
-        />
-      </svg>
-    ),
-  },
-  {
-    id: 2,
-    title: "Facebook",
-    link: "",
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="1em"
-        height="1em"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill="currentColor"
-          d="M12 2C6.36 2 2 6.13 2 11.7c0 2.91 1.19 5.44 3.14 7.17c.16.13.26.35.27.57l.05 1.78c.04.57.61.94 1.13.71l1.98-.87c.17-.06.36-.09.53-.06c.9.27 1.9.4 2.9.4c5.64 0 10-4.13 10-9.7S17.64 2 12 2m6 7.46l-2.93 4.67c-.47.73-1.47.92-2.17.37l-2.34-1.73a.6.6 0 0 0-.72 0l-3.16 2.4c-.42.33-.97-.17-.68-.63l2.93-4.67c.47-.73 1.47-.92 2.17-.4l2.34 1.76a.6.6 0 0 0 .72 0l3.16-2.4c.42-.33.97.17.68.63"
-        />
-      </svg>
-    ),
-  },
-  {
-    id: 3,
-    title: "WhatsApp",
-    link: "",
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="1em"
-        height="1em"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill="currentColor"
-          d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91c0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.23 8.23 0 0 1 2.41 5.83c0 4.54-3.7 8.23-8.24 8.23c-1.48 0-2.93-.39-4.19-1.15l-.3-.17l-3.12.82l.83-3.04l-.2-.32a8.2 8.2 0 0 1-1.26-4.38c.01-4.54 3.7-8.24 8.25-8.24M8.53 7.33c-.16 0-.43.06-.66.31c-.22.25-.87.86-.87 2.07c0 1.22.89 2.39 1 2.56c.14.17 1.76 2.67 4.25 3.73c.59.27 1.05.42 1.41.53c.59.19 1.13.16 1.56.1c.48-.07 1.46-.6 1.67-1.18s.21-1.07.15-1.18c-.07-.1-.23-.16-.48-.27c-.25-.14-1.47-.74-1.69-.82c-.23-.08-.37-.12-.56.12c-.16.25-.64.81-.78.97c-.15.17-.29.19-.53.07c-.26-.13-1.06-.39-2-1.23c-.74-.66-1.23-1.47-1.38-1.72c-.12-.24-.01-.39.11-.5c.11-.11.27-.29.37-.44c.13-.14.17-.25.25-.41c.08-.17.04-.31-.02-.43c-.06-.11-.56-1.35-.77-1.84c-.2-.48-.4-.42-.56-.43c-.14 0-.3-.01-.47-.01"
-        />
-      </svg>
-    ),
-  },
-  {
-    id: 4,
-    title: "Telegram",
-    link: "",
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="0.8em"
-        height="0.8em"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill="currentColor"
-          d="m4 6.03l7.5 3.22l-7.5-1zm7.5 8.72L4 17.97v-2.22zM2 3v7l15 2l-15 2v7l21-9z"
-        />
-      </svg>
-    ),
-  },
-  {
-    id: 99,
-    title: "...",
-    link: "",
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="1em"
-        height="1em"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill="currentColor"
-          d="M12 2a10 10 0 0 1 10 10a10 10 0 0 1-10 10A10 10 0 0 1 2 12A10 10 0 0 1 12 2m0 8.5a1.5 1.5 0 0 0-1.5 1.5a1.5 1.5 0 0 0 1.5 1.5a1.5 1.5 0 0 0 1.5-1.5a1.5 1.5 0 0 0-1.5-1.5m-5.5 0A1.5 1.5 0 0 0 5 12a1.5 1.5 0 0 0 1.5 1.5A1.5 1.5 0 0 0 8 12a1.5 1.5 0 0 0-1.5-1.5m11 0A1.5 1.5 0 0 0 16 12a1.5 1.5 0 0 0 1.5 1.5A1.5 1.5 0 0 0 19 12a1.5 1.5 0 0 0-1.5-1.5"
-        />
-      </svg>
-    ),
-  },
-];
+import GridFileData from "components/presentation/GridFileData";
 
 function FileUploader() {
   const location = useLocation();
@@ -277,6 +107,8 @@ function FileUploader() {
   const androidScheme = "vshare.app://download?url=" + currentURL;
   const iosScheme = "vshare.app://download?url=" + currentURL;
 
+  const [multipleIds, setMultipleIds] = useState<any[]>([]);
+
   // const [qrcodeUser, setQrcodeUser] = useState([]);
   const [index, setIndex] = useState<any>(null);
   const [hideDownload, seHideDownload] = useState(true);
@@ -284,11 +116,13 @@ function FileUploader() {
     fetchPolicy: "cache-and-network",
   });
 
+  // const [messageData, setMessageData] = useState<any[]>([]);
+
   // hooks
   const manageFile = useManageFiles();
 
   const [getFileLink, { data: dataFileLink }] = useLazyQuery(
-    QUERY_FILE_PUBLIC_LINK,
+    QUERY_FILE_GET_LINK,
     {
       fetchPolicy: "cache-and-network",
     },
@@ -336,7 +170,7 @@ function FileUploader() {
 
   let linkClient: any = { _id: "", type: "" };
 
-  // let userData: any = { userId: "", newName: "" };
+  // let userData: any = { userId: zard@gmail.com"", newName: "" };
 
   try {
     if (urlClient) {
@@ -357,6 +191,10 @@ function FileUploader() {
   function handleDecryptFile(val) {
     const decryptedData = decryptDataLink(val);
     return decryptedData;
+  }
+
+  function handleClearGridSelection() {
+    setMultipleIds([]);
   }
 
   // get Download button
@@ -382,9 +220,6 @@ function FileUploader() {
           newName: userqrcode,
         },
       },
-      // onCompleted: (data) => {
-      //   setQrcodeUser(data?.getUser?.data);
-      // },
     });
   }, []);
 
@@ -595,10 +430,6 @@ function FileUploader() {
                     const result = await getMultipleFile({
                       variables: {
                         id: [file?.fileId],
-                        // where: {
-                        //   _id: file?.fileId,
-                        //   status: "active",
-                        // },
                       },
                     });
 
@@ -845,6 +676,160 @@ function FileUploader() {
     }
   };
 
+  const handleDownloadFileGetLink = async () => {
+    if (multipleIds?.length > 0) {
+      setTotalClickCount((prevCount) => prevCount + 1);
+      // setFileDataSelect({ ...dataFile, newPath, createdBy });
+      setMultipleType("file");
+
+      if (totalClickCount >= getActionButton) {
+        // setLastClickedButton([...lastClickedButton, fileId]);
+        setTotalClickCount(0);
+        // const changeFilename = combineOldAndNewFileNames(filename, newFilename);
+
+        try {
+          // setFilePasswords(filePassword);
+          // setGetNewFileName(newFilename);
+          // if (linkClient?._id) {
+          //   if (filePassword) {
+          //     handleClickOpen();
+          //   } else {
+          //     handleDoneDownloadFiles({
+          //       index,
+          //       filename,
+          //       newFilename,
+          //       createdBy,
+          //       dataFile,
+          //     });
+          //   }
+          // } else {
+          //   if (filePassword) {
+          //     handleClickOpen();
+          //   } else {
+          //     handleDoneDownloadFilesOnPublic({
+          //       index,
+          //       changeFilename,
+          //       newFilename: dataFile?.newFilename,
+          //       dataFile,
+          //     });
+          //   }
+          // }
+        } catch (error: any) {
+          errorMessage(error, 2000);
+        }
+      } else {
+        if (getAdvertisemment.length) {
+          const availableAds = getAdvertisemment.filter(
+            (ad) => !usedAds.includes(ad._id),
+          );
+          if (availableAds.length === 0) {
+            setUsedAds([]);
+            return;
+          }
+
+          const randomIndex = Math.floor(Math.random() * availableAds.length);
+          const randomAd = availableAds[randomIndex];
+          setUsedAds([...usedAds, randomAd._id]);
+          try {
+            const responseIp = await axios.get(LOAD_GET_IP_URL);
+            const _createDetailAdvertisement = await createDetailAdvertisement({
+              variables: {
+                data: {
+                  ip: String(responseIp?.data),
+                  advertisementsID: randomAd?._id,
+                },
+              },
+            });
+            if (
+              _createDetailAdvertisement?.data?.createDetailadvertisements?._id
+            ) {
+              let httpData = "";
+              if (!randomAd.url.match(/^https?:\/\//i || /^http?:\/\//i)) {
+                httpData = "http://" + randomAd.url;
+              } else {
+                httpData = randomAd.url;
+              }
+
+              const newWindow = window.open(httpData, "_blank");
+              if (
+                !newWindow ||
+                newWindow.closed ||
+                typeof newWindow.closed == "undefined"
+              ) {
+                window.location.href = httpData;
+              }
+            }
+          } catch (error: any) {
+            errorMessage(error, 3000);
+          }
+        } else {
+          // const changeFilename = combineOldAndNewFileNames(
+          //   filename,
+          //   newFilename,
+          // );
+
+          try {
+            // setFilePasswords(filePassword);
+            // setGetNewFileName(newFilename);
+            // if (filePassword) {
+            //   handleClickOpen();
+            // } else {
+            //   if (linkClient?._id) {
+            //     handleDoneDownloadFiles({
+            //       index,
+            //       filename,
+            //       newFilename,
+            //       createdBy,
+            //       dataFile,
+            //     });
+            //   } else {
+            //     handleDoneDownloadFilesOnPublic({
+            //       index,
+            //       changeFilename,
+            //       newFilename,
+            //       dataFile,
+            //     });
+            //   }
+            // }
+          } catch (error) {
+            errorMessage("Something wrong try again later!", 2000);
+          }
+        }
+      }
+
+      const newModelData = multipleIds.map((value) => {
+        const newVal = dataLinkMemo?.find((file) => file._id === value);
+
+        if (newVal) {
+          return newVal;
+        }
+
+        return "";
+      });
+
+      const multipleData = newModelData.map((file) => {
+        return {
+          id: file._id,
+          name: file.filename,
+          newFilename: file.newFilename,
+          checkType: "file",
+          newPath: file.newPath || "",
+          createdBy: file.createdBy,
+        };
+      });
+
+      manageFile.handleDownloadFile(
+        {
+          multipleData,
+        },
+        {
+          onFailed: () => {},
+          onSuccess: () => {},
+        },
+      );
+    }
+  };
+
   // download multiple folder
   const handleMultipleDownloadFolder = async ({ folder, index }) => {
     setFolderDataSelect(folder);
@@ -978,6 +963,40 @@ function FileUploader() {
       }));
       setIsMultipleSuccess((prev) => ({ ...prev, [index]: false }));
       errorMessage(error, 3000);
+    }
+  };
+
+  const handleDownloadAsZip = () => {
+    if (linkClient?._id) {
+      // private
+      if (linkClient?.type === "multiple") {
+        //
+      } else {
+        if (linkClient?.type === "file") {
+          const multipleData = dataLinkMemo?.map((file) => {
+            return {
+              id: file._id,
+              name: file.filename,
+              newFilename: file.newFilename,
+              newPath: file?.newPath || "",
+              createdBy: file?.createdBy || {},
+            };
+          });
+
+          manageFile.handleDownloadFile(
+            { multipleData },
+            {
+              onSuccess: () => {},
+              onFailed: () => {},
+            },
+          );
+        }
+        if (linkClient?.type === "folder") {
+          //
+        }
+      }
+    } else {
+      // public
     }
   };
 
@@ -1565,7 +1584,7 @@ function FileUploader() {
     setIsVerifyQRCode(false);
   }
 
-  const handleQRGeneration = (e, file, url) => {
+  const handleQRGeneration = (e: HTMLFormElement, file: any, url: string) => {
     e.preventDefault();
     setDataValue(file);
     setFileUrl(url);
@@ -1577,116 +1596,38 @@ function FileUploader() {
     }
   };
 
-  const columns: any = [
-    {
-      field: "no",
-      headerName: "ID",
-      width: 70,
-      headerAlign: "center",
-      align: "center",
-    },
-    {
-      field: "filename",
-      headerName: "Name",
-      flex: 1,
-      headerAlign: "center",
-    },
-    {
-      field: "size",
-      headerName: "Size",
-      width: 70,
-      headerAlign: "center",
-      align: "center",
-      renderCell: (params) => {
-        const size = params?.row?.size || 0;
-        return <span>{convertBytetoMBandGB(size)}</span>;
-      },
-    },
-    {
-      field: "status",
-      headerName: "Status",
-      headerAlign: "center",
-      width: 70,
-      align: "center",
-      renderCell: (params) => {
-        const status = params?.row?.status || "Inactive";
-        return (
-          <div style={{ color: "green" }}>
-            <Chip
-              sx={{
-                backgroundColor:
-                  status?.toLowerCase() === "active" ? "#FFEFE1" : "#dcf6e8",
-                color:
-                  status?.toLowerCase() === "active" ? "#FFA44F" : "#29c770",
-              }}
-              label={
-                status?.toLowerCase() === "active" ? "/" + "Active" : "Inactive"
-              }
-              size="small"
-            />
-          </div>
+  useEffect(() => {
+    // async function fetchData() {
+    //   const response = await axios.get<{ messages: any[] }>(
+    //     "http://192.168.100.129:3000/api/Read/Reply/Message",
+    //   );
+    //   const values = await response.data;
+    //   setMessageData(values.messages);
+    // }
+    // fetchData();
+  }, []);
+
+  const dataLinkMemo = useMemo<any[]>(() => {
+    if (linkClient?._id) {
+      if (linkClient?.type === "multiple") {
+        const fileData = dataMultipleFile?.map((file, index) => ({
+          ...file,
+          index,
+        }));
+
+        return fileData || [];
+      } else {
+        const fileData = dataFileLink?.queryFileGetLinks?.data?.map(
+          (file, index) => ({
+            ...file,
+            index,
+          }),
         );
-      },
-    },
-    {
-      field: "action",
-      headerName: "Action",
-      flex: 1,
-      headerAlign: "center",
-      align: "center",
-      renderCell: (params) => {
-        const status = params?.row?.status || "Inactive";
-        return (
-          status?.toLowerCase() === "active" &&
-          (dataFileLink?.queryFileGetLinks?.total > 0 ? (
-            <FileDownloadDoneIcon sx={{ color: "#17766B" }} />
-          ) : (
-            <>
-              <Box>
-                {isSuccess[params?.row?.no] ? (
-                  <FileDownloadDoneIcon sx={{ color: "#17766B" }} />
-                ) : isHide[params?.row?.no] ? (
-                  <CircularProgress
-                    color="success"
-                    sx={{ color: "#17766B" }}
-                    size={isMobile ? "18px" : "22px"}
-                  />
-                ) : // <Tooltip title="Download" placement="top">
-                //   <IconButton
-                //     onClick={_downloadFiles}
-                //   >
-                //     <DownloadIcon sx={{ ":hover": { color: "#17766B" } }} />
-                //   </IconButton>
-                // </Tooltip>
-                null}
-              </Box>
-              <Box
-                sx={{
-                  "&:hover": {
-                    transform: "scale(1.05)",
-                    cursor: "pointer",
-                  },
-                }}
-              >
-                <QRCode
-                  style={{
-                    backgroundColor: "#fff",
-                    padding: "7px",
-                    borderRadius: "7px",
-                  }}
-                  value={params?.row?.dropUrl}
-                  size={50}
-                  level="H"
-                  fgColor="#000000"
-                  bgColor="#FFFFFF"
-                />
-              </Box>
-            </>
-          ))
-        );
-      },
-    },
-  ];
+
+        return fileData || [];
+      }
+    }
+  }, [linkClient, dataFileLink, dataFileAndFolderLink]);
 
   const isMobile = useMediaQuery("(max-width: 600px)");
 
@@ -1696,6 +1637,7 @@ function FileUploader() {
         <meta name="title" content={"seoTitle"} />
         <meta name="description" content={_description} />
       </Helmet>
+
       <MUI.ContainerHome maxWidth="xl">
         <Dialog open={open}>
           <DialogTitle
@@ -1788,9 +1730,9 @@ function FileUploader() {
         </Dialog>
 
         <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem" }}>
-          <AdsContainer>
-            <AdsContent>
-              <AdsCard>
+          <MUI.AdsContainer>
+            <MUI.AdsContent>
+              <MUI.AdsCard>
                 <Typography variant="h4" component={"h4"}>
                   Mltidiscriplinary, Monthly
                 </Typography>
@@ -1810,9 +1752,9 @@ function FileUploader() {
                   </Typography>
                   <Button variant="contained">Open</Button>
                 </Box>
-              </AdsCard>
-            </AdsContent>
-          </AdsContainer>
+              </MUI.AdsCard>
+            </MUI.AdsContent>
+          </MUI.AdsContainer>
           <MUI.DivdownloadFile>
             <MUI.DivDownloadBox>
               {isLoading ? (
@@ -2010,7 +1952,6 @@ function FileUploader() {
                       </Fragment>
                     ) : (
                       <Fragment>
-                        {/* -public Files Public */}
                         {!folderType && resPonData?.filesPublic?.total > 0 ? (
                           <CardFileDownloader
                             dataFiles={resPonData?.filesPublic?.data || []}
@@ -2050,221 +1991,33 @@ function FileUploader() {
               )}
             </MUI.DivDownloadBox>
           </MUI.DivdownloadFile>
-          {/* table  */}
-          {/* <Box>
+
+          <Fragment>
+            {/* <GridFileData
+              _description={_description}
+              dataLinks={dataLinkMemo}
+              multipleIds={multipleIds}
+              setMultipleIds={setMultipleIds}
+              handleQRGeneration={handleQRGeneration}
+              handleClearGridSelection={handleClearGridSelection}
+              handleDownloadAsZip={handleDownloadAsZip}
+              handleDownloadFileGetLink={handleDownloadFileGetLink}
+            /> */}
             {!isLoading &&
               (dataFileLink?.queryFileGetLinks?.data?.length > 0 ||
-                dataMultipleFile.length > 0 ||
-                dataMultipleFolder.length > 0) && (
-                <FileListContainer>
-                  <Box
-                    sx={{
-                      width: { xs: "100%", md: "70%" },
-                      overflow: "hidden",
-                    }}
-                  >
-                    <Card
-                      sx={{
-                        boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
-                      }}
-                    >
-                      <Typography
-                        variant="h4"
-                        sx={{ textAlign: "start", padding: "1rem .5rem" }}
-                      >
-                        {_description}
-                      </Typography>
-                      <CardContent
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          height: "100%",
-                          paddingLeft: "0 !important",
-                          paddingRight: "0 !important",
-                        }}
-                      >
-                        <DataGrid
-                          sx={{
-                            borderRadius: 0,
-                            height: "100% !important",
-                            "& .MuiDataGrid-columnSeparator": {
-                              display: "none",
-                            },
-                            "& .MuiDataGrid-cell:focus": {
-                              outline: "none",
-                            },
-                          }}
-                          autoHeight
-                          getRowId={(row) => row?._id}
-                          rows={
-                            dataFileLink?.queryFileGetLinks?.data?.length > 0
-                              ? dataFileLink?.queryFileGetLinks?.data
-                              : dataMultipleFile.length < 0
-                              ? dataMultipleFile
-                              : dataMultipleFolder.length > 0
-                              ? dataMultipleFolder
-                              : []
-                          }
-                          columns={columns}
-                          disableSelectionOnClick
-                          disableColumnFilter
-                          disableColumnMenu
-                          hideFooter
-                        />
-                        {dataFileLink?.queryFileGetLinks?.data?.length > 15 && (
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                padding: (theme) => theme.spacing(4),
-                              }}
-                            >
-                              Showing 1 to 10 of {100} entries
-                            </Box>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "flex-end",
-                                padding: (theme) => theme.spacing(4),
-                                flex: "1 1 0%",
-                              }}
-                            ></Box>
-                          </Box>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </Box>
-                  <Box
-                    sx={{
-                      width: { xs: "100%", md: "35%" },
-                      borderRadius: 1.5,
-                      boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <Box sx={{ padding: "1.5rem" }}>
-                      <Box sx={{ display: "flex" }}>
-                        <Button
-                          variant="contained"
-                          sx={{
-                            width: { xs: "100%", md: "80%" },
-                            mx: "auto !important",
-                          }}
-                        >
-                          Download
-                        </Button>
-                      </Box>
-                      <Box sx={{ textAlign: "start", padding: "1rem 0" }}>
-                        <Typography
-                          variant="h5"
-                          sx={{ color: "rgb(0,0,0,0.9)" }}
-                        >
-                          Social Share
-                        </Typography>
-                        <Typography
-                          lineHeight={1}
-                          sx={{
-                            mt: 2,
-                            fontWeight: 500,
-                            color: "rgb(0,0,0,0.7)",
-                          }}
-                        >
-                          Share this link via
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          flexWrap: "wrap",
-                          gap: 3,
-                          mt: 7,
-                        }}
-                      >
-                        {arrayMedias.map((item, index) => (
-                          <Button
-                            key={index}
-                            sx={{
-                              width: "60px",
-                              height: "60px",
-                              borderRadius: "100%",
-                              background: "rgb(221, 221, 221,0.8)",
-                              fontSize: "2rem",
-                            }}
-                          >
-                            {item.icon}
-                          </Button>
-                        ))}
-                      </Box>
-                    </Box>
-                    <Box
-                      className="appbar appbar-bg-gradient-r"
-                      sx={{
-                        display: "flex",
-                        flexDirection: { xs: "column", md: "row" },
-                        justifyContent: "space-between",
-                        width: "100%",
-                        paddingTop: "1.2rem",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          color: "#fff",
-                          padding: ".8rem",
-                          textAlign: { xs: "center", md: "start" },
-                          ml: ".4rem",
-                        }}
-                      >
-                        <Typography variant={"h4"} sx={{ m: 0, p: 0 }}>
-                          View on mobile phone
-                        </Typography>
-                        <Typography
-                          variant={"h6"}
-                          sx={{ my: 4, fontWeight: 400 }}
-                        >
-                          Scan to view on your mobile
-                          <br />
-                          phone for faster download
-                        </Typography>
-                        <Typography variant={"h6"} sx={{ fontWeight: 400 }}>
-                          Android users cn scan with
-                          <br />a browser, and iOS users can
-                          <br /> scan with camera
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          padding: ".9rem",
-                        }}
-                      >
-                        <QRCode
-                          style={{
-                            backgroundColor: "#fff",
-                            border: "1px solid gray",
-                            padding: "7px",
-                            borderRadius: "7px",
-                          }}
-                          value={"1234567"}
-                          size={150}
-                          level="H"
-                          fgColor="#000000"
-                          bgColor="#FFFFFF"
-                        />
-                      </Box>
-                    </Box>
-                  </Box>
-                </FileListContainer>
-              )}
-          </Box> */}
+                (dataMultipleFile?.length > 0 && (
+                  <GridFileData
+                    _description={_description}
+                    dataLinks={dataLinkMemo}
+                    multipleIds={multipleIds}
+                    setMultipleIds={setMultipleIds}
+                    handleQRGeneration={handleQRGeneration}
+                    handleClearGridSelection={handleClearGridSelection}
+                    handleDownloadAsZip={handleDownloadAsZip}
+                    handleDownloadFileGetLink={handleDownloadFileGetLink}
+                  />
+                )))}
+          </Fragment>
         </Box>
       </MUI.ContainerHome>
 
