@@ -10,7 +10,19 @@ import StepV1 from "components/StepV1";
 import useManagePublicPackages from "hooks/useManagePublicPackage";
 import usePackageFilter from "hooks/usePackageFilter";
 import { useDispatch, useSelector } from "react-redux";
-import { COUNTRIES, CURRENCIES, PAYMENT_METHOD, paymentState, setActivePaymentMethod, setCalculatePrice, setCountry, setCurencySymbol, setPackageData, setPackageIdData, setPaymentSelect } from "stores/features/paymentSlice";
+import {
+  COUNTRIES,
+  CURRENCIES,
+  PAYMENT_METHOD,
+  paymentState,
+  setActivePaymentMethod,
+  setCalculatePrice,
+  setCountry,
+  setCurencySymbol,
+  setPackageData,
+  setPackageIdData,
+  setPaymentSelect,
+} from "stores/features/paymentSlice";
 import { useParams } from "react-router-dom";
 import { decryptDataLink } from "utils/secure.util";
 import * as MUI from "styles/priceCheckoutStyle";
@@ -30,12 +42,11 @@ function PricePayment() {
   const handlePaymentTab = (event: ChangeEvent<HTMLInputElement>) => {
     dispatch(setPaymentSelect(event.target.value));
 
-    if(event?.target?.value.toLowerCase()==='bcel'){
+    if (event?.target?.value.toLowerCase() === "bcel") {
       dispatch(setCountry(COUNTRIES.LAOS));
       dispatch(setCurencySymbol(CURRENCIES.KIP));
       dispatch(setActivePaymentMethod(PAYMENT_METHOD.bcelOne));
-    }
-    else{
+    } else {
       dispatch(setCountry(COUNTRIES.FOREIGN));
       dispatch(setCurencySymbol(CURRENCIES.DOLLAR));
       dispatch(setActivePaymentMethod(PAYMENT_METHOD.stripe));
