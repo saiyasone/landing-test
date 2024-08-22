@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -9,7 +9,11 @@ import {
   Typography,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { FileListContainer } from "app/pages/file-uploader/styles/fileUploader.style";
+import {
+  FileBoxDownload,
+  FileBoxSocial,
+  FileListContainer,
+} from "app/pages/file-uploader/styles/fileUploader.style";
 import NormalButton from "components/NormalButton";
 
 // Icons
@@ -22,11 +26,18 @@ import QrCodeIcon from "@mui/icons-material/QrCodeOutlined";
 import LockIcon from "@mui/icons-material/Lock";
 import { convertBytetoMBandGB } from "utils/storage.util";
 import QRCode from "react-qr-code";
+import { formatDate } from "utils/date.util";
+import {
+  BoxAdsAction,
+  BoxAdsContainer,
+} from "styles/presentation/presentation.style";
+import { cutFileName } from "utils/file.util";
 
 type Props = {
   _description?: string;
   dataLinks?: any[];
   multipleIds: any[];
+  countAction: number;
 
   setMultipleIds?: (value: any[]) => void;
   handleQRGeneration?: (e: any, file: any, longUrl: string) => void;
@@ -36,6 +47,9 @@ type Props = {
 };
 
 function GridFileData(props: Props) {
+  const currentUrl = window.location.href;
+  const [expireDate, setExpireDate] = useState("");
+
   const arrayMedias = [
     {
       id: 1,
@@ -127,7 +141,9 @@ function GridFileData(props: Props) {
         const dataFile = params?.row;
         return (
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Typography component={"span"}>{dataFile?.filename}</Typography>
+            <Typography title={dataFile?.filename} component={"span"}>
+              {cutFileName(dataFile?.filename || "", 20)}
+            </Typography>
             {dataFile?.filePassword && (
               <LockIcon sx={{ color: "#666", fontSize: "1.2rem" }} />
             )}
@@ -191,26 +207,29 @@ function GridFileData(props: Props) {
     },
   ];
 
+  useEffect(() => {
+    if (props?.dataLinks?.[0]?.expired) {
+      setExpireDate(props?.dataLinks?.[0]?.expired || "");
+    }
+  }, [props]);
+
   return (
     <Fragment>
       <FileListContainer>
-        <Box
-          sx={{
-            width: { xs: "100%", md: "70%" },
-            overflow: "hidden",
-          }}
-        >
+        <FileBoxDownload className="box-download">
           <Card
             sx={{
               boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
             }}
           >
-            <Typography
-              variant="h4"
-              sx={{ textAlign: "start", padding: "1rem .5rem" }}
-            >
-              {props?._description}
-            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Typography
+                variant="h4"
+                sx={{ textAlign: "start", padding: "1rem .5rem" }}
+              >
+                Application apply ({props?.dataLinks?.[0]?.filename})
+              </Typography>
+            </Box>
             <CardContent
               sx={{
                 display: "flex",
@@ -260,7 +279,7 @@ function GridFileData(props: Props) {
                   >
                     <Typography component={"p"}>Expireation Date</Typography>
                     <Chip
-                      label="Never"
+                      label={expireDate ? formatDate(expireDate) : "Never"}
                       size="small"
                       sx={{ padding: "0 1rem" }}
                     />
@@ -270,32 +289,50 @@ function GridFileData(props: Props) {
                     sx={{
                       display: "flex",
                       justifyContent: "flex-end",
-                      gap: "2rem",
+                      gap: "3.5rem",
                       padding: "1rem 2rem 0.5rem 2rem",
                     }}
                   >
-                    <NormalButton
-                      onClick={props?.handleDownloadFileGetLink}
-                      disabled={props?.multipleIds?.length > 0 ? false : true}
-                      sx={{
-                        padding: (theme) =>
-                          `${theme.spacing(1.6)} ${theme.spacing(5)}`,
-                        borderRadius: (theme) => theme.spacing(2),
-                        color: "#828282 !important",
-                        fontWeight: "bold",
-                        backgroundColor: "#fff",
-                        border: "1px solid #ddd",
-                        width: "inherit",
+                    <Box sx={{ position: "relative" }}>
+                      {props.multipleIds?.length > 0 && (
+                        <Fragment>
+                          {props.countAction > 0 && (
+                            <BoxAdsContainer
+                              sx={{ top: "-8px", right: "-1.6rem" }}
+                            >
+                              <BoxAdsAction
+                                sx={{ padding: "2px 8px", fontSize: "0.66rem" }}
+                              >
+                                {props?.countAction} close ads
+                              </BoxAdsAction>
+                            </BoxAdsContainer>
+                          )}
+                        </Fragment>
+                      )}
+                      <NormalButton
+                        onClick={props?.handleDownloadFileGetLink}
+                        disabled={props?.multipleIds?.length > 0 ? false : true}
+                        sx={{
+                          padding: (theme) =>
+                            `${theme.spacing(1.6)} ${theme.spacing(5)}`,
+                          borderRadius: (theme) => theme.spacing(2),
+                          color: "#828282 !important",
+                          fontWeight: "bold",
+                          backgroundColor: "#fff",
+                          border: "1px solid #ddd",
+                          width: "inherit",
+                          outline: "none",
 
-                        ":disabled": {
-                          cursor: "context-menu",
-                          backgroundColor: "#D6D6D6",
-                          color: "#ddd",
-                        },
-                      }}
-                    >
-                      Download
-                    </NormalButton>
+                          ":disabled": {
+                            cursor: "context-menu",
+                            backgroundColor: "#D6D6D6",
+                            color: "#ddd",
+                          },
+                        }}
+                      >
+                        Download
+                      </NormalButton>
+                    </Box>
                     <NormalButton
                       onClick={props?.handleClearGridSelection}
                       sx={{
@@ -307,6 +344,7 @@ function GridFileData(props: Props) {
                         backgroundColor: "#fff",
                         border: "1px solid #ddd",
                         width: "inherit",
+                        outline: "none",
 
                         ":disabled": {
                           border: "2px solid #ddd",
@@ -321,17 +359,15 @@ function GridFileData(props: Props) {
               )}
             </CardContent>
           </Card>
-        </Box>
-        <Box
-          sx={{
-            width: { xs: "100%", md: "35%" },
-            borderRadius: 1.5,
-            boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
-            overflow: "hidden",
-          }}
-        >
+        </FileBoxDownload>
+        <FileBoxSocial className="box-social">
           <Box sx={{ padding: "1.5rem" }}>
-            <Box sx={{ display: "flex" }}>
+            <Box sx={{ display: "flex", position: "relative" }}>
+              {props?.countAction > 0 && (
+                <BoxAdsContainer>
+                  <BoxAdsAction>{props?.countAction} close ads</BoxAdsAction>
+                </BoxAdsContainer>
+              )}
               <Button
                 variant="contained"
                 sx={{
@@ -432,7 +468,7 @@ function GridFileData(props: Props) {
                   padding: "7px",
                   borderRadius: "7px",
                 }}
-                value={"1234567"}
+                value={currentUrl}
                 size={150}
                 level="H"
                 fgColor="#000000"
@@ -440,7 +476,7 @@ function GridFileData(props: Props) {
               />
             </Box>
           </Box>
-        </Box>
+        </FileBoxSocial>
       </FileListContainer>
     </Fragment>
   );

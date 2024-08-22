@@ -26,10 +26,13 @@ const useManageFiles = () => {
           real_path = removeFileNameOutOfPath(file.newPath);
         }
 
-        const path = `${file?.createdBy?.newName}-${file?.createdBy?._id}/${real_path}`;
+        const isPublic = `public/${file.newFilename}`;
+        const isPrivate = `${file?.createdBy?.newName}-${file?.createdBy?._id}/${real_path}/${file.newFilename}`;
+        const path = file?.isPublic ? isPublic : isPrivate;
+
         return {
+          path,
           isFolder: false,
-          path: `${path}/${file.newFilename}`,
           _id: file.id,
           createdBy: file.createdBy?._id,
         };

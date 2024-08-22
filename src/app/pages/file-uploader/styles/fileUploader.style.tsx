@@ -916,15 +916,57 @@ export const BoxMultipleFolder = styled("div")({
 
 ////display files zone
 export const FileListContainer = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "space-between",
-  flex: 1,
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
   gap: 10,
+
   [theme.breakpoints.down("sm")]: {
     flexDirection: "column",
   },
+
+  [theme.breakpoints.down(997)]: {
+    ".box-download": {
+      width: "100%",
+    },
+
+    ".box-social": {
+      display: "none",
+    },
+  },
 }));
+
+export const FileBoxDownload = styled("div")({
+  // width: "70%",
+  overflow: "hidden",
+});
+
+export const FileBoxSocial = styled("div")({
+  // width: "35%",
+  borderRadius: 1.5,
+  boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
+  overflow: "hidden",
+
+  [theme.breakpoints.down(35)]: {},
+});
+
+export const FilBoxBottomContainer = styled("div")({
+  display: "none",
+  position: "fixed",
+  left: 0,
+  bottom: 0,
+  padding: "1rem",
+  width: "100%",
+
+  // display: "flex",
+  gap: "1rem",
+  justifyContent: "center",
+  backgroundColor: "#fff",
+  boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
+
+  [theme.breakpoints.down(997)]: {
+    display: "flex",
+  },
+});
 
 ////Ads
 export const AdsContainer = styled(Box)(({ theme }) => ({
@@ -941,6 +983,7 @@ export const AdsContainer = styled(Box)(({ theme }) => ({
     width: "100%",
     padding: "0",
   },
+  marginBottom: "3rem",
 }));
 
 export const AdsContent = styled(Box)(({ theme }) => ({
