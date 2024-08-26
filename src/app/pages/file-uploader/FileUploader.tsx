@@ -1607,7 +1607,7 @@ function FileUploader() {
 
       return fileData || [];
     }
-  }, [linkClient, dataFileLink, dataFileAndFolderLink, getDataRes]);
+  }, [linkClient, dataFileLink, getDataRes]);
 
   const isMobile = useMediaQuery("(max-width: 600px)");
 

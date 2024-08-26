@@ -38,7 +38,6 @@ import { errorMessage, successMessage } from "utils/alert.util";
 
 import useManageFiles from "hooks/useManageFile";
 import DialogPreviewQRcode from "components/dialog/DialogPreviewQRCode";
-import NormalButton from "components/NormalButton";
 import DropGridData from "./DropGridData";
 import DeepLink from "components/presentation/DeepLink";
 
@@ -141,6 +140,7 @@ function FileDropDownloader() {
   const [timeLeft, setTimeLeft] = useState("");
   const [multiId, setMultiId] = useState<any>([]);
   const [platform, setPlatform] = useState("");
+  const [isMultiple, setIsMultiple] = useState(false);
   // const [selectedRow, setSelectedRow] = React.useState([]);
   const [getDataButtonDownload, { data: getDataButtonDL }] = useLazyQuery(
     QUERY_SETTING,
@@ -612,6 +612,7 @@ function FileDropDownloader() {
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
+    multiple: isMultiple,
   });
 
   useEffect(() => {
@@ -643,6 +644,9 @@ function FileDropDownloader() {
 
   useEffect(() => {
     if (dataFromUrl) {
+      if (dataFromUrl?.allowMultiples) {
+        setIsMultiple(true);
+      }
       const operation = navigator.userAgent;
 
       if (operation.match(/iPhone|iPad|iPod/i)) {

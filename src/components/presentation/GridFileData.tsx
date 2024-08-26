@@ -7,6 +7,7 @@ import {
   Chip,
   IconButton,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import {
@@ -49,8 +50,10 @@ type Props = {
 };
 
 function GridFileData(props: Props) {
-  const currentUrl = window.location.href;
   const [expireDate, setExpireDate] = useState("");
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
+  const currentUrl = window.location.href;
 
   const arrayMedias = [
     {
@@ -142,14 +145,16 @@ function GridFileData(props: Props) {
       renderCell: (params) => {
         const dataFile = params?.row;
         return (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Typography title={dataFile?.filename} component={"span"}>
-              {cutFileName(dataFile?.filename || "", 20)}
-            </Typography>
-            {dataFile?.filePassword && (
-              <LockIcon sx={{ color: "#666", fontSize: "1.2rem" }} />
-            )}
-          </Box>
+          <Fragment>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Typography title={dataFile?.filename} component={"span"}>
+                {cutFileName(dataFile?.filename || "", 20)}
+              </Typography>
+              {dataFile?.filePassword && (
+                <LockIcon sx={{ color: "#666", fontSize: "1.2rem" }} />
+              )}
+            </Box>
+          </Fragment>
         );
       },
     },
