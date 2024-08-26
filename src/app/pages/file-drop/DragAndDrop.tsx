@@ -120,8 +120,6 @@ const DragAndDrop = () => {
     // const currentUrl = window.location.href;
     const [updateFileStatus] = useMutation(UPDATE_FILE_PUBLIC);
     const data: any = [];
-    const BUNNY_STORAGE_ZONE = ENV_KEYS.VITE_APP_STORAGE_ZONE;
-    const ACCESS_KEY = ENV_KEYS.VITE_APP_ACCESSKEY_BUNNY;
     const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
 
     useEffect(() => {

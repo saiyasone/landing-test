@@ -1,17 +1,14 @@
 import { useLazyQuery, useMutation } from "@apollo/client";
 import axios from "axios";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 // components
 import * as MUI from "./styles/fileUploader.style";
 import "./styles/fileUploader.style.css";
-
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Chip,
   CircularProgress,
   Dialog,
@@ -20,7 +17,6 @@ import {
   DialogTitle,
   IconButton,
   TextField,
-  Tooltip,
   Typography,
   useMediaQuery,
 } from "@mui/material";
@@ -31,7 +27,7 @@ import {
 } from "api/graphql/ad.graphql";
 import {
   QUERY_FILE_PUBLIC,
-  QUERY_FILE_PUBLIC_LINK,
+  QUERY_FILE_GET_LINK,
   QUERY_FILE_PUBLICV2,
 } from "api/graphql/file.graphql";
 import {
@@ -60,6 +56,7 @@ import QRCode from "react-qr-code";
 import { DataGrid } from "@mui/x-data-grid";
 import FileDownloadDoneIcon from "@mui/icons-material/FileDownloadDone";
 import DownloadIcon from "@mui/icons-material/Download";
+import GridFileData from "components/presentation/GridFileData";
 
 ////Ads
 const AdsContainer = styled(Box)(({ theme }) => ({
@@ -242,9 +239,12 @@ function FileUploader() {
   const [fileUrl, setFileUrl] = useState("");
   const [getActionButton, setGetActionButton] = useState<any>();
   const [getAdvertisemment, setGetAvertisement] = useState<any>([]);
+
   const [usedAds, setUsedAds] = useState<any[]>([]);
   const [lastClickedButton, setLastClickedButton] = useState<any>([]);
   const [totalClickCount, setTotalClickCount] = useState(0);
+  const [adAlive, setAdAlive] = useState(0);
+
   const [isHide, setIsHide] = useState<any>(false);
   const [isSuccess, setIsSuccess] = useState<any>(false);
   const [isProcessAll, setIsProcessAll] = useState(false);
@@ -279,6 +279,8 @@ function FileUploader() {
   const androidScheme = "vshare.app://download?url=" + currentURL;
   const iosScheme = "vshare.app://download?url=" + currentURL;
 
+  const [multipleIds, setMultipleIds] = useState<any[]>([]);
+
   // const [qrcodeUser, setQrcodeUser] = useState([]);
   const [index, setIndex] = useState<any>(null);
   const [hideDownload, seHideDownload] = useState(true);
@@ -286,11 +288,13 @@ function FileUploader() {
     fetchPolicy: "cache-and-network",
   });
 
+  // const [messageData, setMessageData] = useState<any[]>([]);
+
   // hooks
   const manageFile = useManageFiles();
 
   const [getFileLink, { data: dataFileLink }] = useLazyQuery(
-    QUERY_FILE_PUBLIC_LINK,
+    QUERY_FILE_GET_LINK,
     {
       fetchPolicy: "cache-and-network",
     },
@@ -338,7 +342,7 @@ function FileUploader() {
 
   let linkClient: any = { _id: "", type: "" };
 
-  // let userData: any = { userId: "", newName: "" };
+  // let userData: any = { userId: zard@gmail.com"", newName: "" };
 
   try {
     if (urlClient) {
@@ -356,11 +360,13 @@ function FileUploader() {
     console.error(error);
   }
 
-  console.log({linkClient});
-
   function handleDecryptFile(val) {
     const decryptedData = decryptDataLink(val);
     return decryptedData;
+  }
+
+  function handleClearGridSelection() {
+    setMultipleIds([]);
   }
 
   // get Download button
@@ -386,11 +392,19 @@ function FileUploader() {
           newName: userqrcode,
         },
       },
-      // onCompleted: (data) => {
-      //   setQrcodeUser(data?.getUser?.data);
-      // },
     });
   }, []);
+
+  useEffect(() => {
+    if (getActionButton) {
+      const actionButton = getActionButton - totalClickCount;
+      if (totalClickCount >= getActionButton) {
+        setAdAlive(0);
+      } else {
+        setAdAlive(actionButton);
+      }
+    }
+  }, [totalClickCount, getActionButton]);
 
   useEffect(() => {
     getDataButtonDownload({
@@ -413,7 +427,6 @@ function FileUploader() {
     if (getDataButtonDL?.general_settings?.data[0]) {
       const countAction =
         getDataButtonDL?.general_settings?.data[0]?.action || 0;
-
       setGetActionButton(parseInt(`${countAction}`));
     }
 
@@ -526,8 +539,6 @@ function FileUploader() {
     // };
   }, [linkValue, urlClient, dataFileLink, dataFolderLink, resPonData]);
 
-  console.log(dataFileLink);
-
   useEffect(() => {
     const getMultipleFileAndFolder = async () => {
       const os = navigator.userAgent;
@@ -601,10 +612,6 @@ function FileUploader() {
                     const result = await getMultipleFile({
                       variables: {
                         id: [file?.fileId],
-                        // where: {
-                        //   _id: file?.fileId,
-                        //   status: "active",
-                        // },
                       },
                     });
 
@@ -851,6 +858,108 @@ function FileUploader() {
     }
   };
 
+  const handleDownloadFileGetLink = async () => {
+    if (multipleIds?.length > 0) {
+      const newModelData = multipleIds.map((value) => {
+        const newVal = dataLinkMemo?.find((file) => file._id === value);
+
+        if (newVal) {
+          return newVal;
+        }
+
+        return "";
+      });
+
+      const multipleData = newModelData.map((file) => {
+        const newPath = file.newPath || "";
+
+        return {
+          id: file._id,
+          name: file.filename,
+          newFilename: file.newFilename,
+          checkType: "file",
+          newPath,
+          createdBy: file.createdBy,
+          isPublic: linkClient?._id ? false : true,
+        };
+      });
+
+      setTotalClickCount((prevCount) => prevCount + 1);
+      setMultipleType("file");
+
+      if (totalClickCount >= getActionButton) {
+        setTotalClickCount(0);
+        manageFile.handleDownloadFile(
+          {
+            multipleData,
+          },
+          {
+            onFailed: () => {},
+            onSuccess: () => {},
+          },
+        );
+      } else {
+        if (getAdvertisemment.length) {
+          handleAdvertisementPopup();
+        } else {
+          manageFile.handleDownloadFile(
+            {
+              multipleData,
+            },
+            {
+              onFailed: () => {},
+              onSuccess: () => {},
+            },
+          );
+        }
+      }
+    }
+  };
+
+  const handleAdvertisementPopup = async () => {
+    const availableAds = getAdvertisemment.filter(
+      (ad) => !usedAds.includes(ad._id),
+    );
+    if (availableAds.length === 0) {
+      setUsedAds([]);
+      return;
+    }
+
+    const randomIndex = Math.floor(Math.random() * availableAds.length);
+    const randomAd = availableAds[randomIndex];
+    setUsedAds([...usedAds, randomAd._id]);
+    try {
+      const responseIp = await axios.get(LOAD_GET_IP_URL);
+      const _createDetailAdvertisement = await createDetailAdvertisement({
+        variables: {
+          data: {
+            ip: String(responseIp?.data),
+            advertisementsID: randomAd?._id,
+          },
+        },
+      });
+      if (_createDetailAdvertisement?.data?.createDetailadvertisements?._id) {
+        let httpData = "";
+        if (!randomAd.url.match(/^https?:\/\//i || /^http?:\/\//i)) {
+          httpData = "http://" + randomAd.url;
+        } else {
+          httpData = randomAd.url;
+        }
+
+        const newWindow = window.open(httpData, "_blank");
+        if (
+          !newWindow ||
+          newWindow.closed ||
+          typeof newWindow.closed == "undefined"
+        ) {
+          window.location.href = httpData;
+        }
+      }
+    } catch (error: any) {
+      errorMessage(error, 3000);
+    }
+  };
+
   // download multiple folder
   const handleMultipleDownloadFolder = async ({ folder, index }) => {
     setFolderDataSelect(folder);
@@ -984,6 +1093,54 @@ function FileUploader() {
       }));
       setIsMultipleSuccess((prev) => ({ ...prev, [index]: false }));
       errorMessage(error, 3000);
+    }
+  };
+
+  const handleDownloadAsZip = async () => {
+    if (dataLinkMemo?.length > 0) {
+      const multipleData = dataLinkMemo.map((file) => {
+        const newPath = file.newPath || "";
+
+        return {
+          id: file._id,
+          name: file.filename,
+          newFilename: file.newFilename,
+          checkType: "file",
+          newPath,
+          createdBy: file.createdBy,
+          isPublic: linkClient?._id ? false : true,
+        };
+      });
+
+      setTotalClickCount((prevCount) => prevCount + 1);
+      setMultipleType("file");
+
+      if (totalClickCount >= getActionButton) {
+        setTotalClickCount(0);
+        manageFile.handleDownloadFile(
+          {
+            multipleData,
+          },
+          {
+            onFailed: () => {},
+            onSuccess: () => {},
+          },
+        );
+      } else {
+        if (getAdvertisemment.length) {
+          handleAdvertisementPopup();
+        } else {
+          manageFile.handleDownloadFile(
+            {
+              multipleData,
+            },
+            {
+              onFailed: () => {},
+              onSuccess: () => {},
+            },
+          );
+        }
+      }
     }
   };
 
@@ -1536,8 +1693,6 @@ function FileUploader() {
             },
           );
         }
-      } else {
-        //
       }
     }
   };
@@ -1571,7 +1726,7 @@ function FileUploader() {
     setIsVerifyQRCode(false);
   }
 
-  const handleQRGeneration = (e, file, url) => {
+  const handleQRGeneration = (e: HTMLFormElement, file: any, url: string) => {
     e.preventDefault();
     setDataValue(file);
     setFileUrl(url);
@@ -1583,164 +1738,44 @@ function FileUploader() {
     }
   };
 
-  const columns: any = [
-    {
-      field: "no",
-      headerName: "ID",
-      width: 70,
-      headerAlign: "center",
-      align: "center",
-    },
-    {
-      field: "filename",
-      headerName: "Name",
-      flex: 1,
-      headerAlign: "center",
-    },
-    {
-      field: "size",
-      headerName: "Size",
-      width: 70,
-      headerAlign: "center",
-      align: "center",
-      renderCell: (params) => {
-        const size = params?.row?.size || 0;
-        return <span>{convertBytetoMBandGB(size)}</span>;
-      },
-    },
-    {
-      field: "status",
-      headerName: "Status",
-      headerAlign: "center",
-      width: 70,
-      align: "center",
-      renderCell: (params) => {
-        const status = params?.row?.status || "Inactive";
-        return (
-          <div style={{ color: "green" }}>
-            <Chip
-              sx={{
-                backgroundColor:
-                  status?.toLowerCase() === "active" ? "#FFEFE1" : "#dcf6e8",
-                color:
-                  status?.toLowerCase() === "active" ? "#FFA44F" : "#29c770",
-              }}
-              label={
-                status?.toLowerCase() === "active" ? "/" + "Active" : "Inactive"
-              }
-              size="small"
-            />
-          </div>
-        );
-      },
-    },
-    {
-      field: "action",
-      headerName: "Action",
-      flex: 1,
-      headerAlign: "center",
-      align: "center",
-      renderCell: (params) => {
-        const row = params?.row;
-        const status = row?.status || "Inactive";
-        console.log({row});
-        return (
-          status === "active" &&
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-          <Fragment>
-            {
-              isSuccess[index] ? 
-              (
-                <FileDownloadDoneIcon sx={{ color: "#17766B" }} />
-              ) 
-              : 
-              isHide[index] ? (
-                <CircularProgress
-                  color="success"
-                  sx={{ color: "#17766B" }}
-                  size={isMobile ? "18px" : "22px"}
-                />
-              )
-              :
-              !row?.filePassword ? (
-                <IconButton
-                  onClick={() => {
-                    _downloadFiles(
-                      index,
-                      row?._id,
-                      row?.newFilename,
-                      row?.filename,
-                      row?.filePassword,
-                      row?.newPath ?? "",
-                      row?.createdBy,
-                      row,
-                    );
-                    setIndex(index);
-                    setPassword("");
-                    setGetFilenames(row?.filename);
-                    setGetNewFileName(row?.newFilename);
-                    setCheckModal(true);
-                  }}
-                >
-                  <DownloadIcon
-                    sx={{
-                      color: "#17766B",
-                      fontSize: isMobile ? "17px" : "22px",
-                    }}
-                  />
-                </IconButton>
-              )
-              :
-              (
-                <IconButton
-                    onClick={() => {
-                      _downloadFiles(
-                        index,
-                        row?._id,
-                        row?.newFilename,
-                        row?.filename,
-                        row?.filePassword,
-                        row?.newPath || "",
-                        row?.createdBy,
-                        row,
-                      );
-                      setIndex(index);
-                      setPassword("");
-                      setGetFilenames(row?.filename);
-                      setGetNewFileName(row?.newFilename);
-                      setCheckModal(true);
-                    }}
-                  >
-                    {/* <FileDownloadOffIcon
-                      sx={{
-                        fontSize: isMobile ? "17px" : "22px",
-                      }}
-                    /> */}
-                  </IconButton>
-              )
-            }
-          </Fragment>
-          </Box>
-        )
-      },
-    },
-  ];
+  const dataLinkMemo = useMemo<any[]>(() => {
+    if (linkClient?._id) {
+      if (linkClient?.type === "multiple") {
+        const fileData = dataMultipleFile?.map((file, index) => ({
+          ...file,
+          index,
+        }));
 
+        return fileData || [];
+      } else {
+        const fileData = dataFileLink?.queryFileGetLinks?.data?.map(
+          (file, index) => ({
+            ...file,
+            index,
+          }),
+        );
+
+        return fileData || [];
+      }
+    } else {
+      const fileData = getDataRes?.map((file, index) => ({
+        ...file,
+        index,
+      }));
+
+      return fileData || [];
+    }
+  }, [linkClient, dataFileLink, dataFileAndFolderLink, getDataRes]);
 
   const isMobile = useMediaQuery("(max-width: 600px)");
-console.log({dataFileLink});
+
   return (
     <React.Fragment>
       <Helmet>
         <meta name="title" content={"seoTitle"} />
         <meta name="description" content={_description} />
       </Helmet>
+
       <MUI.ContainerHome maxWidth="xl">
         <Dialog open={open}>
           <DialogTitle
@@ -1833,9 +1868,9 @@ console.log({dataFileLink});
         </Dialog>
 
         <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem" }}>
-          <AdsContainer>
-            <AdsContent>
-              <AdsCard>
+          <MUI.AdsContainer>
+            <MUI.AdsContent>
+              <MUI.AdsCard>
                 <Typography variant="h4" component={"h4"}>
                   Mltidiscriplinary, Monthly
                 </Typography>
@@ -1855,472 +1890,37 @@ console.log({dataFileLink});
                   </Typography>
                   <Button variant="contained">Open</Button>
                 </Box>
-              </AdsCard>
-            </AdsContent>
-          </AdsContainer>
-          <MUI.DivdownloadFile>
-            <MUI.DivDownloadBox>
-              {isLoading ? (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <CircularProgress size={30} />
-                </Box>
-              ) : (
-                <Fragment>
-                  <MUI.BoxDownloadHeader>
-                    <Fragment>
-                      {linkClient?._id ? (
-                        <Fragment>
-                          {linkClient?.type === "file" && (
-                            <>
-                              {dataFileLink?.queryFileGetLinks?.total > 0 && (
-                                <Typography variant="h3">
-                                  {dataFileLink?.queryFileGetLinks?.total}&nbsp;
-                                  Files ({convertBytetoMBandGB(totalSize)})
-                                </Typography>
-                              )}
-                            </>
-                          )}
-                        </Fragment>
-                      ) : (
-                        <Typography variant="h3">
-                          {resPonData?.filesPublic?.total}&nbsp; Files (
-                          {convertBytetoMBandGB(totalSize)})
-                        </Typography>
-                      )}
-                    </Fragment>
-                  </MUI.BoxDownloadHeader>
-                  {folderType && (
-                    <MUI.DivDownloadFileBox>
-                      <FolderDownloader
-                        folderDownload={folderDownload}
-                        isSuccess={isSuccess}
-                        isHide={isHide}
-                        isMobile={isMobile}
-                        setPassword={setPassword}
-                        setFilePasswords={setFilePasswords}
-                        handleDownloadFolder={handleDownloadFolder}
-                        folderSize={folderSize}
-                        setIndex={setIndex}
-                      />
-                    </MUI.DivDownloadFileBox>
-                  )}
-                  <Fragment>
-                    {linkClient?._id ? (
-                      <Fragment>
-                        {linkClient?.type === "file" && (
-                          <Fragment>
-                            {dataFileLink?.queryFileGetLinks?.total > 0 ? (
-                              <CardFileDownloader
-                                dataFiles={
-                                  dataFileLink?.queryFileGetLinks?.data || []
-                                }
-                                isMobile={isMobile}
-                                hideDownload={hideDownload}
-                                isPublic={false}
-                                isSuccess={isSuccess}
-                                isHide={isHide}
-                                downloadFiles={_downloadFiles}
-                                downloadFilesAll={_downloadFilesAll}
-                                setIndex={setIndex}
-                                setPassword={setPassword}
-                                setGetFilenames={setGetFilenames}
-                                setGetNewFileName={setGetNewFileName}
-                                setCheckModal={setCheckModal}
-                                handleQRGeneration={handleQRGeneration}
-                                hasFileWithoutPassword={hasFileWithoutPassword}
-                                fileTotal={
-                                  dataFileLink?.queryFileGetLinks?.total || 0
-                                }
-                              />
-                            ) : (
-                              <Fragment>
-                                {!folderType && (
-                                  <MUI.DivDownloadFileBoxWrapper>
-                                    <Typography variant="h1">
-                                      No documents uploaded
-                                    </Typography>
-                                  </MUI.DivDownloadFileBoxWrapper>
-                                )}
-                              </Fragment>
-                            )}
-                          </Fragment>
-                        )}
+              </MUI.AdsCard>
+            </MUI.AdsContent>
+          </MUI.AdsContainer>
 
-                        {/* File and Folder for multiple */}
-                        {linkClient?.type === "multiple" && (
-                          <Fragment>
-                            {dataMultipleFile.length > 0 ||
-                            dataMultipleFolder.length > 0 ? (
-                              <Fragment>
-                                {dataMultipleFolder.length > 0 && (
-                                  <MUI.BoxMultipleFolder>
-                                    <Fragment>
-                                      <Typography variant="h4" sx={{ mb: 2 }}>
-                                        {dataMultipleFolder.length} Folders (
-                                        {convertBytetoMBandGB(
-                                          totalMultipleFolder,
-                                        )}
-                                        )
-                                      </Typography>
-
-                                      {dataMultipleFolder.map(
-                                        (folder, index) => {
-                                          return (
-                                            <MUI.DivDownloadFileBox
-                                              sx={{ padding: "5px 0" }}
-                                              key={index}
-                                            >
-                                              <FolderMultipleDownload
-                                                index={index}
-                                                folderName={
-                                                  folder?.folder_name ||
-                                                  "unknown"
-                                                }
-                                                folderPassword={
-                                                  folder?.access_password
-                                                }
-                                                folderSize={parseInt(
-                                                  folder?.total_size,
-                                                )}
-                                                isSuccess={isMultipleSuccess}
-                                                isHide={isMultipleHide}
-                                                isMobile={isMobile}
-                                                setPassword={setPassword}
-                                                setFilePasswords={
-                                                  setFilePasswords
-                                                }
-                                                handleDownloadFolder={() =>
-                                                  handleMultipleDownloadFolder({
-                                                    folder,
-                                                    index,
-                                                  })
-                                                }
-                                              />
-                                            </MUI.DivDownloadFileBox>
-                                          );
-                                        },
-                                      )}
-                                    </Fragment>
-                                  </MUI.BoxMultipleFolder>
-                                )}
-
-                                {dataMultipleFile.length > 0 && (
-                                  <Fragment>
-                                    <Typography variant="h4" sx={{ mb: 2 }}>
-                                      {dataMultipleFile.length} Files (
-                                      {convertBytetoMBandGB(totalMultipleFile)})
-                                    </Typography>
-
-                                    <CardFileDownloader
-                                      dataFiles={dataMultipleFile || []}
-                                      isMobile={isMobile}
-                                      hideDownload={hideDownload}
-                                      isPublic={false}
-                                      isSuccess={isSuccess}
-                                      isHide={isHide}
-                                      downloadFiles={_downloadFiles}
-                                      downloadFilesAll={_downloadFilesAll}
-                                      setIndex={setIndex}
-                                      setPassword={setPassword}
-                                      setGetFilenames={setGetFilenames}
-                                      setGetNewFileName={setGetNewFileName}
-                                      setCheckModal={setCheckModal}
-                                      handleQRGeneration={handleQRGeneration}
-                                      hasFileWithoutPassword={
-                                        hasFileWithoutPassword
-                                      }
-                                      fileTotal={
-                                        dataFileLink?.queryFileGetLinks
-                                          ?.total || 0
-                                      }
-                                    />
-                                  </Fragment>
-                                )}
-                              </Fragment>
-                            ) : (
-                              <MUI.DivDownloadFileBoxWrapper>
-                                <Typography variant="h3">
-                                  No documents uploaded
-                                </Typography>
-                              </MUI.DivDownloadFileBoxWrapper>
-                            )}
-                          </Fragment>
-                        )}
-                      </Fragment>
-                    ) : (
-                      <Fragment>
-                        {/* -public Files Public */}
-                        {!folderType && resPonData?.filesPublic?.total > 0 ? (
-                          <CardFileDownloader
-                            dataFiles={resPonData?.filesPublic?.data || []}
-                            isMobile={isMobile}
-                            hideDownload={hideDownload}
-                            isDownloadAll={isDownloadAll}
-                            isProcessing={isProcessAll}
-                            isPublic={true}
-                            isSuccess={isSuccess}
-                            isHide={isHide}
-                            downloadFiles={_downloadFiles}
-                            downloadFilesAll={_downloadFilesAll}
-                            setIndex={setIndex}
-                            setPassword={setPassword}
-                            setGetFilenames={setGetFilenames}
-                            setGetNewFileName={setGetNewFileName}
-                            setCheckModal={setCheckModal}
-                            handleQRGeneration={handleQRGeneration}
-                            hasFileWithoutPassword={hasFileWithoutPassword}
-                            fileTotal={resPonData?.filesPublic?.total || 0}
-                          />
-                        ) : (
-                          <Fragment>
-                            {!folderType && !isLoading && (
-                              <MUI.DivDownloadFileBoxWrapper>
-                                <Typography variant="h1">
-                                  No documents uploaded
-                                </Typography>
-                              </MUI.DivDownloadFileBoxWrapper>
-                            )}
-                          </Fragment>
-                        )}
-                      </Fragment>
-                    )}
-                  </Fragment>
-                </Fragment>
-              )}
-            </MUI.DivDownloadBox>
-          </MUI.DivdownloadFile>
-          {/* table  */}
-          {
-            !isLoading && (dataFileLink?.queryFileGetLinks?.data?.length > 0 || dataMultipleFile.length > 0 ||
-              dataMultipleFolder.length > 0) &&
-            <FileListContainer>
-            <Box
-              sx={{
-                width: { xs: "100%", md: "70%" },
-                overflow: "hidden",
-              }}
-            >
-                      
-              <Card sx={{
-                boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px"
-              }}>
-                <Typography variant="h4" sx={{textAlign:'start', padding:'1rem .5rem'}}>
-                  {_description}
-                </Typography>
-                <CardContent
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "100%",
-                    paddingLeft: "0 !important",
-                    paddingRight: "0 !important",
-                  }}
-                >
-                  <DataGrid
-                    sx={{
-                      borderRadius: 0,
-                      height: "100% !important",
-                      "& .MuiDataGrid-columnSeparator": {
-                        display: "none",
-                      },
-                      "& .MuiDataGrid-cell:focus": {
-                        outline: "none",
-                      },
-                    }}
-                    autoHeight
-                    getRowId={(row) => row?._id}
-                    rows={
-                      dataFileLink?.queryFileGetLinks?.data?.length >0 ?
-                      dataFileLink?.queryFileGetLinks?.data
-                      :
-                      dataMultipleFile.length < 0 ?
-                      dataMultipleFile
-                      :
-                      dataMultipleFolder.length > 0 ?
-                      dataMultipleFolder : []
-                    }
-                    columns={columns}
-                    // checkboxSelection
-                    disableSelectionOnClick
-                    disableColumnFilter
-                    disableColumnMenu
-                    hideFooter
-                    // onSelectionModelChange={(ids: any) => {
-                    //   setSelectedRow(ids);
-                    //   setMultiId(ids);
-                    // }}
-                  />
-                  {dataFileLink?.queryFileGetLinks?.data?.length > 15 && (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          padding: (theme) => theme.spacing(4),
-                        }}
-                      >
-                        Showing 1 to 10 of {100} entries
-                      </Box>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "flex-end",
-                          padding: (theme) => theme.spacing(4),
-                          flex: "1 1 0%",
-                        }}
-                      >
-                        {/* <PaginationStyled
-                    currentPage={filter.data.currentPageNumber}
-                    total={Math.ceil(
-                      manageFileDrop.total / manageFileDrop.pageLimit,
-                    )}
-                    setCurrentPage={(e) =>
-                      filter.dispatch({
-                        type: filter.ACTION_TYPE.PAGINATION,
-                        payload: e,
-                      })
-                    }
-                  /> */}
-                      </Box>
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
-              </Box>
-              <Box
-              sx={{
-                width: { xs: "100%", md: "35%" },
-                borderRadius: 1.5,
-                boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
-                overflow: "hidden",
-              }}
-            >
-              <Box sx={{ padding: "1.5rem"}}>
-                <Box sx={{display:'flex'}}>
-                  <Button
-                    variant="contained"
-                    sx={{ width: { xs: "100%", md: "80%" },mx:'auto !important' }}
-                  >
-                    Download
-                  </Button>
-                </Box>
-                <Box sx={{ textAlign: "start", padding: "1rem 0",}}>
-                  <Typography
-                    variant="h5"
-                    sx={{ color: "rgb(0,0,0,0.9)" }}
-                  >
-                    Social Share
-                  </Typography>
-                  <Typography
-                    lineHeight={1}
-                    sx={{
-                      mt: 2,
-                      fontWeight: 500,
-                      color: "rgb(0,0,0,0.7)",
-                    }}
-                  >
-                    Share this link via
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    flexWrap: "wrap",
-                    gap: 3,
-                    mt: 7,
-                  }}
-                >
-                  {arrayMedias.map((item, index) => (
-                    <Button
-                      key={index}
-                      sx={{
-                        width: "60px",
-                        height: "60px",
-                        borderRadius: "100%",
-                        background: "rgb(221, 221, 221,0.8)",
-                        fontSize: "2rem",
-                      }}
-                    >
-                      {item.icon}
-                    </Button>
-                  ))}
-                </Box>
-              </Box>
-              <Box
-                className="appbar appbar-bg-gradient-r"
-                sx={{
-                  display: "flex",
-                  flexDirection: { xs: "column", md: "row" },
-                  justifyContent: "space-between",
-                  width: "100%",
-                  paddingTop: "1.2rem",
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    color: "#fff",
-                    padding: ".8rem",
-                    textAlign: { xs: "center", md: "start" },
-                    ml: ".4rem",
-                  }}
-                >
-                  <Typography variant={"h4"} sx={{ m: 0, p: 0 }}>
-                    View on mobile phone
-                  </Typography>
-                  <Typography
-                    variant={"h6"}
-                    sx={{ my: 4, fontWeight: 400 }}
-                  >
-                    Scan to view on your mobile
-                    <br />
-                    phone for faster download
-                  </Typography>
-                  <Typography variant={"h6"} sx={{ fontWeight: 400 }}>
-                    Android users cn scan with
-                    <br />a browser, and iOS users can
-                    <br /> scan with camera
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    padding: ".9rem",
-                  }}
-                >
-                  <QRCode
-                    style={{
-                      backgroundColor: "#fff",
-                      border: "1px solid gray",
-                      padding: "7px",
-                      borderRadius: "7px",
-                    }}
-                    value={"1234567"}
-                    size={150}
-                    level="H"
-                    fgColor="#000000"
-                    bgColor="#FFFFFF"
-                  />
-                </Box>
-              </Box>
-            </Box>
-            </FileListContainer>
-          }
+          {/* Box downloader */}
+          <Fragment>
+            {dataLinkMemo && dataLinkMemo.length > 0 && (
+              <GridFileData
+                _description={_description}
+                dataLinks={dataLinkMemo}
+                multipleIds={multipleIds}
+                countAction={adAlive}
+                setMultipleIds={setMultipleIds}
+                handleQRGeneration={handleQRGeneration}
+                handleClearGridSelection={handleClearGridSelection}
+                handleDownloadAsZip={handleDownloadAsZip}
+                handleDownloadFileGetLink={handleDownloadFileGetLink}
+              />
+            )}
+          </Fragment>
         </Box>
       </MUI.ContainerHome>
+
+      <MUI.FilBoxBottomContainer>
+        <Button fullWidth={true} variant="contained" size="small">
+          Download
+        </Button>
+        <Button fullWidth={true} variant="contained" size="small">
+          Social share
+        </Button>
+      </MUI.FilBoxBottomContainer>
 
       <DialogPreviewQRcode
         data={fileUrl}

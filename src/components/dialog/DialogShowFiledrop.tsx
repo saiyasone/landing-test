@@ -271,6 +271,8 @@ export default function CustomizedDialogs(props) {
             createdBy: userId > 0 && folderId > 0 ? String(userId) : "0",
           };
 
+          // console.log({ headers });
+
           const encryptedData = encryptDownloadData(headers);
           const blob = new Blob([dataFile[i]], {
             type: dataFile[i].type,

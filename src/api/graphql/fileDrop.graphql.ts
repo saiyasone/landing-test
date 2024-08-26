@@ -34,6 +34,10 @@ export const QUERY_FILE_DROP_PUBLIC = gql`
         dropUrl
         dropStatus
         updatedAt
+        createdBy {
+          _id
+          newName
+        }
       }
     }
   }
@@ -59,6 +63,9 @@ export const QUERY_FILE_DROP_PUBLIC_URL = gql`
         title
         description
         expiredAt
+        allowDownload
+        allowMultiples
+        allowUpload
       }
     }
   }
