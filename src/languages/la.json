@@ -92,6 +92,7 @@
     "_profit": "ກໍາໄລ",
 
     "//": "card transection",
+    "_select_payent_method": "ເລືອກຊ່ອງທາງການຊໍາລະຂອງທ່ານ",
     "_transection_topic": "ຊ່ອງທາງການຊໍາລະ",
     "_transection_title": "ກໍາລັງປະມວນຜົນ",
     "_tab_lastest_payment": "ການຊໍາລະລ່າສຸດ",

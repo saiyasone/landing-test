@@ -1,5 +1,5 @@
+import { blue, green, grey, indigo, red } from "@mui/material/colors";
 import merge from "deepmerge";
-import { green, grey, indigo, red, blue } from "@mui/material/colors";
 
 export const THEMES = {
   DEFAULT: "DEFAULT",
@@ -50,7 +50,7 @@ const defaultVariant = {
     // new custom
     primaryTheme: {
       main: "#17766B",
-      brown: `rgb(75, 70, 92, 1)`,
+      brown: (alpha = 1) => `rgb(75, 70, 92, ${alpha})`,
       contrastText: "#FFF",
     },
     error: {
