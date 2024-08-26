@@ -34,7 +34,6 @@ import {
 import { QUERY_SETTING } from "api/graphql/setting.graphql";
 import { QUERY_USER } from "api/graphql/user.graphql";
 import DialogPreviewQRcode from "components/dialog/DialogPreviewQRCode";
-import DeepLink from "components/presentation/DeepLink";
 import DialogConfirmQRCode from "components/presentation/DialogConfirmQRCode";
 import { ENV_KEYS } from "constants/env.constant";
 import CryptoJS from "crypto-js";
@@ -51,8 +50,6 @@ function FileUploader() {
   const [checkConfirmPassword, setConfirmPassword] = useState(false);
   const [getDataRes, setGetDataRes] = useState<any>(null);
   const [folderDownload, setFolderDownload] = useState<any>(null);
-  const [folderSize, setFolderSize] = useState(0);
-  const [folderType, setFolderType] = useState("");
   const [open, setOpen] = useState(false);
   const [password, setPassword] = useState("");
   const [filePasswords, setFilePasswords] = useState<any>("");
@@ -165,17 +162,12 @@ function FileUploader() {
     fetchPolicy: "no-cache",
   });
 
-  let linkClient: any = { _id: "", type: "" };
-
-  // let userData: any = { userId: zard@gmail.com"", newName: "" };
+  // let linkClient: any = { _id: "", type: "" };
+  let linkClient = useMemo(() => ({ _id: "", type: "" }), []);
 
   try {
     if (urlClient) {
       const decode = handleDecryptFile(urlClient);
-      // userData = {
-      //   userId: decode?.userId,
-      //   newName: decode?.newName,
-      // };
       linkClient = {
         _id: decode?._id,
         type: decode?.type,
@@ -319,8 +311,6 @@ function FileUploader() {
                 if (folderData[0]?.folder_name) {
                   setDescription(folderData[0]?.folder_name + " Vshare.net");
                 }
-                setFolderType(folderData[0]?.folder_type);
-                setFolderSize(folderData[0]?.total_size);
               }
             }
           }
@@ -405,10 +395,6 @@ function FileUploader() {
                     const resFolder = await getMultipleFolder({
                       variables: {
                         id: folder?.folderId,
-                        // where: {
-                        //   _id: folder?.folderId,
-                        //   status: "active",
-                        // },
                       },
                     });
                     const resData = resFolder.data?.folderPublic?.data || [];
@@ -679,6 +665,16 @@ function FileUploader() {
     }
   };
 
+  const handleMobileDownloadData = () => {
+    if (dataLinkMemo?.length > 0) {
+      handleDownloadFileGetLink();
+    }
+
+    if (dataFolderLinkMemo?.length > 0) {
+      handleDownloadFolderGetLink();
+    }
+  };
+
   const handleDownloadFileGetLink = async () => {
     if (multipleIds?.length > 0) {
       const newModelData = multipleIds.map((value) => {
@@ -724,6 +720,65 @@ function FileUploader() {
           handleAdvertisementPopup();
         } else {
           manageFile.handleDownloadFile(
+            {
+              multipleData,
+            },
+            {
+              onFailed: () => {},
+              onSuccess: () => {},
+            },
+          );
+        }
+      }
+    }
+  };
+
+  const handleDownloadFolderGetLink = async () => {
+    if (multipleIds?.length > 0) {
+      const newModelData = multipleIds.map((value: any) => {
+        const newVal = dataFolderLinkMemo?.find(
+          (file: any) => file?._id === value,
+        );
+
+        if (newVal) {
+          return newVal;
+        }
+
+        return "";
+      });
+
+      const multipleData = newModelData.map((file: any) => {
+        const newPath = file.newPath || "";
+
+        return {
+          id: file._id,
+          name: file.folder_name,
+          newFilename: file.newFolder_name,
+          checkType: "folder",
+          newPath,
+          createdBy: file.createdBy,
+        };
+      });
+
+      setTotalClickCount((prevCount) => prevCount + 1);
+      setMultipleType("file");
+
+      if (totalClickCount >= getActionButton) {
+        setTotalClickCount(0);
+        manageFile.handleDownloadFolder(
+          {
+            multipleData,
+          },
+          {
+            onFailed: () => {},
+            onSuccess: () => {},
+          },
+        );
+      } else {
+        if (getAdvertisemment.length) {
+          handleAdvertisementPopup();
+        } else {
+          manageFile.handleDownloadFolder(
             {
               multipleData,
             },
@@ -804,48 +859,7 @@ function FileUploader() {
       }
     } else {
       if (getAdvertisemment.length) {
-        const availableAds = getAdvertisemment.filter(
-          (ad) => !usedAds.includes(ad._id),
-        );
-        if (availableAds.length === 0) {
-          setUsedAds([]);
-          return;
-        }
-        const randomIndex = Math.floor(Math.random() * availableAds.length);
-        const randomAd = availableAds[randomIndex];
-        setUsedAds([...usedAds, randomAd._id]);
-        try {
-          const responseIp = await axios.get(LOAD_GET_IP_URL);
-          const _createDetailAdvertisement = await createDetailAdvertisement({
-            variables: {
-              data: {
-                ip: String(responseIp?.data),
-                advertisementsID: randomAd?._id,
-              },
-            },
-          });
-          if (
-            _createDetailAdvertisement?.data?.createDetailadvertisements?._id
-          ) {
-            let httpData = "";
-            if (!randomAd.url.match(/^https?:\/\//i || /^http?:\/\//i)) {
-              httpData = "http://" + randomAd.url;
-            } else {
-              httpData = randomAd.url;
-            }
-
-            const newWindow = window.open(httpData, "_blank");
-            if (
-              !newWindow ||
-              newWindow.closed ||
-              typeof newWindow.closed == "undefined"
-            ) {
-              window.location.href = httpData;
-            }
-          }
-        } catch (error) {
-          errorMessage("Something wrong try again later!", 2000);
-        }
+        handleAdvertisementPopup();
       } else {
         try {
           if (folder?.access_password) {
@@ -983,6 +997,52 @@ function FileUploader() {
         }
       }
     }
+
+    if (dataFolderLinkMemo?.length > 0) {
+      const multipleData = dataFolderLinkMemo.map((file: any) => {
+        const newPath = file.newPath || "";
+
+        return {
+          id: file._id,
+          name: file.folder_name,
+          newFilename: file.newFolder_name,
+          checkType: "folder",
+          newPath,
+          createdBy: file.createdBy,
+        };
+      });
+
+      setTotalClickCount((prevCount) => prevCount + 1);
+      setMultipleType("folder");
+
+      if (totalClickCount >= getActionButton) {
+        setTotalClickCount(0);
+
+        manageFile.handleDownloadFolder(
+          {
+            multipleData,
+          },
+          {
+            onFailed: () => {},
+            onSuccess: () => {},
+          },
+        );
+      } else {
+        if (getAdvertisemment.length) {
+          handleAdvertisementPopup();
+        } else {
+          manageFile.handleDownloadFolder(
+            {
+              multipleData,
+            },
+            {
+              onFailed: () => {},
+              onSuccess: () => {},
+            },
+          );
+        }
+      }
+    }
   };
 
   const _downloadFiles = async (
@@ -1036,49 +1096,7 @@ function FileUploader() {
       }
     } else {
       if (getAdvertisemment.length) {
-        const availableAds = getAdvertisemment.filter(
-          (ad) => !usedAds.includes(ad._id),
-        );
-        if (availableAds.length === 0) {
-          setUsedAds([]);
-          return;
-        }
-
-        const randomIndex = Math.floor(Math.random() * availableAds.length);
-        const randomAd = availableAds[randomIndex];
-        setUsedAds([...usedAds, randomAd._id]);
-        try {
-          const responseIp = await axios.get(LOAD_GET_IP_URL);
-          const _createDetailAdvertisement = await createDetailAdvertisement({
-            variables: {
-              data: {
-                ip: String(responseIp?.data),
-                advertisementsID: randomAd?._id,
-              },
-            },
-          });
-          if (
-            _createDetailAdvertisement?.data?.createDetailadvertisements?._id
-          ) {
-            let httpData = "";
-            if (!randomAd.url.match(/^https?:\/\//i || /^http?:\/\//i)) {
-              httpData = "http://" + randomAd.url;
-            } else {
-              httpData = randomAd.url;
-            }
-
-            const newWindow = window.open(httpData, "_blank");
-            if (
-              !newWindow ||
-              newWindow.closed ||
-              typeof newWindow.closed == "undefined"
-            ) {
-              window.location.href = httpData;
-            }
-          }
-        } catch (error: any) {
-          errorMessage(error, 3000);
-        }
+        handleAdvertisementPopup();
       } else {
         const changeFilename = combineOldAndNewFileNames(filename, newFilename);
 
@@ -1197,8 +1215,6 @@ function FileUploader() {
           newPath: "",
         },
       ];
-
-      console.log({ multipleData });
 
       await manageFile.handleDownloadPublicFile(
         { multipleData },
@@ -1569,22 +1585,12 @@ function FileUploader() {
     }
   };
 
-  useEffect(() => {
-    // async function fetchData() {
-    //   const response = await axios.get<{ messages: any[] }>(
-    //     "http://192.168.100.129:3000/api/Read/Reply/Message",
-    //   );
-    //   const values = await response.data;
-    //   setMessageData(values.messages);
-    // }
-    // fetchData();
-  }, []);
-
   const dataLinkMemo = useMemo<any[]>(() => {
     if (linkClient?._id) {
       if (linkClient?.type === "multiple") {
         const fileData = dataMultipleFile?.map((file, index) => ({
           ...file,
+          isFile: true,
           index,
         }));
 
@@ -1594,6 +1600,7 @@ function FileUploader() {
           (file, index) => ({
             ...file,
             index,
+            isFile: true,
           }),
         );
 
@@ -1608,6 +1615,32 @@ function FileUploader() {
       return fileData || [];
     }
   }, [linkClient, dataFileLink, getDataRes]);
+
+  const dataFolderLinkMemo = useMemo(() => {
+    if (linkClient?._id) {
+      let folderData: any = [];
+      if (linkClient?.type === "multiple") {
+        folderData = dataMultipleFolder?.map((file, index) => ({
+          index,
+          isFile: false,
+          ...file,
+        }));
+        return folderData || [];
+      }
+
+      if (linkClient?.type === "folder") {
+        folderData = getDataRes?.map((file, index) => ({
+          index,
+          isFile: false,
+          ...file,
+        }));
+        return folderData;
+      }
+      return folderData;
+    }
+
+    return [];
+  }, [linkClient, getDataRes, dataMultipleFolder]);
 
   const isMobile = useMediaQuery("(max-width: 600px)");
 
@@ -1740,6 +1773,7 @@ function FileUploader() {
           <Fragment>
             {dataLinkMemo && dataLinkMemo.length > 0 && (
               <GridFileData
+                isFile={true}
                 _description={_description}
                 dataLinks={dataLinkMemo}
                 multipleIds={multipleIds}
@@ -1752,6 +1786,26 @@ function FileUploader() {
               />
             )}
           </Fragment>
+
+          {(linkClient?._id && linkClient?.type === "folder") ||
+          linkClient?.type === "multiple" ? (
+            <Fragment>
+              {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
+                <GridFileData
+                  isFile={false}
+                  _description={_description}
+                  dataLinks={dataFolderLinkMemo}
+                  multipleIds={multipleIds}
+                  countAction={adAlive}
+                  setMultipleIds={setMultipleIds}
+                  handleQRGeneration={handleQRGeneration}
+                  handleClearGridSelection={handleClearGridSelection}
+                  handleDownloadFolderAsZip={handleDownloadAsZip}
+                  handleDownloadFolder={handleDownloadFolderGetLink}
+                />
+              )}
+            </Fragment>
+          ) : null}
         </Box>
       </MUI.ContainerHome>
 
@@ -1760,7 +1814,8 @@ function FileUploader() {
           fullWidth={true}
           variant="contained"
           size="small"
-          onClick={handleDownloadFileGetLink}
+          disabled={multipleIds.length > 0 ? false : true}
+          onClick={handleMobileDownloadData}
         >
           Download
         </Button>

@@ -141,6 +141,8 @@ export const QUERY_FOLDER_PUBLIC_LINK = gql`
         status
         path
         newPath
+        longUrl
+        shortUrl
         pin
         createdBy {
           _id

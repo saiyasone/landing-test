@@ -7,7 +7,6 @@ import {
   Chip,
   IconButton,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import {
@@ -35,23 +34,34 @@ import {
   BoxBottomDownload,
 } from "styles/presentation/presentation.style";
 import { cutFileName } from "utils/file.util";
+import FolderNotEmptyIcon from "assets/images/folder-not-empty.svg?react";
+import FolderEmptyIcon from "assets/images/folder-empty.svg?react";
+import { styled } from "@mui/system";
+
+const IconFolderContainer = styled("div")({
+  width: "28px",
+});
 
 type Props = {
   _description?: string;
   dataLinks?: any[];
   multipleIds: any[];
   countAction: number;
+  isFile?: boolean;
 
   setMultipleIds?: (value: any[]) => void;
   handleQRGeneration?: (e: any, file: any, longUrl: string) => void;
   handleDownloadFileGetLink?: () => void;
   handleClearGridSelection?: () => void;
   handleDownloadAsZip?: () => void;
+
+  handleDownloadFolderAsZip?: () => void;
+  handleDownloadFolder?: () => void;
 };
 
 function GridFileData(props: Props) {
   const [expireDate, setExpireDate] = useState("");
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  // const isMobile = useMediaQuery("(max-width: 768px)");
 
   const currentUrl = window.location.href;
 
@@ -144,13 +154,31 @@ function GridFileData(props: Props) {
       headerAlign: "left",
       renderCell: (params) => {
         const dataFile = params?.row;
+        const filename = props.isFile
+          ? dataFile?.filename
+          : dataFile?.folder_name;
+
+        const password = props.isFile
+          ? dataFile?.filePassword
+          : dataFile?.access_password;
         return (
           <Fragment>
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              {!props.isFile && (
+                <Fragment>
+                  <IconFolderContainer>
+                    {dataFile?.total_size && dataFile.total_size > 0 ? (
+                      <FolderNotEmptyIcon />
+                    ) : (
+                      <FolderEmptyIcon />
+                    )}
+                  </IconFolderContainer>
+                </Fragment>
+              )}
               <Typography title={dataFile?.filename} component={"span"}>
-                {cutFileName(dataFile?.filename || "", 20)}
+                {cutFileName(filename || "", 20)}
               </Typography>
-              {dataFile?.filePassword && (
+              {password && (
                 <LockIcon sx={{ color: "#666", fontSize: "1.2rem" }} />
               )}
             </Box>
@@ -165,8 +193,10 @@ function GridFileData(props: Props) {
       headerAlign: "center",
       align: "center",
       renderCell: (params) => {
-        const size = params?.row?.size || 0;
-        return <span>{convertBytetoMBandGB(size)}</span>;
+        const size = props?.isFile
+          ? params?.row?.size
+          : params?.row?.total_size;
+        return <span>{convertBytetoMBandGB(size || 0)}</span>;
       },
     },
     {
@@ -201,6 +231,7 @@ function GridFileData(props: Props) {
       align: "center",
       renderCell: (params) => {
         const dataFile = params.row;
+
         return (
           <IconButton
             onClick={(e: any) => {
@@ -234,7 +265,14 @@ function GridFileData(props: Props) {
                 variant="h4"
                 sx={{ textAlign: "start", padding: "1rem .5rem" }}
               >
-                Application apply ({props?.dataLinks?.[0]?.filename})
+                Application apply (
+                {cutFileName(
+                  props?.dataLinks?.[0]?.filename ||
+                    props?.dataLinks?.[0]?.folder_name ||
+                    "",
+                  20,
+                )}
+                )
               </Typography>
             </Box>
             <CardContent
@@ -331,7 +369,13 @@ function GridFileData(props: Props) {
                         </Fragment>
                       )}
                       <NormalButton
-                        onClick={props?.handleDownloadFileGetLink}
+                        onClick={() => {
+                          if (props.isFile) {
+                            props.handleDownloadFileGetLink?.();
+                          } else {
+                            props.handleDownloadFolder?.();
+                          }
+                        }}
                         disabled={props?.multipleIds?.length > 0 ? false : true}
                         sx={{
                           padding: (theme) =>
@@ -398,7 +442,13 @@ function GridFileData(props: Props) {
                   width: { xs: "100%", md: "80%" },
                   mx: "auto !important",
                 }}
-                onClick={props?.handleDownloadAsZip}
+                onClick={() => {
+                  if (props?.isFile) {
+                    props.handleDownloadAsZip?.();
+                  } else {
+                    props.handleDownloadFolderAsZip?.();
+                  }
+                }}
               >
                 Download
               </Button>

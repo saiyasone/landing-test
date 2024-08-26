@@ -115,6 +115,7 @@ const useManageFiles = () => {
       startDownload({ baseUrl });
       onSuccess?.();
     } catch (error) {
+      console.log({ error });
       onFailed?.(error);
     }
   };
