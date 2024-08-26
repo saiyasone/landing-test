@@ -21,6 +21,7 @@ import facebookIcon from "assets/images/facebook-icon.png";
 import messagerIcon from "assets/images/messager-icon.png";
 import whatsappIcon from "assets/images/what-app-icon.png";
 import twitterIcon from "assets/images/twitter-icon.png";
+import InfoIcon from "@mui/icons-material/Info";
 import dottIcon from "assets/images/dott-icon.png";
 import QrCodeIcon from "@mui/icons-material/QrCodeOutlined";
 import LockIcon from "@mui/icons-material/Lock";
@@ -30,6 +31,7 @@ import { formatDate } from "utils/date.util";
 import {
   BoxAdsAction,
   BoxAdsContainer,
+  BoxBottomDownload,
 } from "styles/presentation/presentation.style";
 import { cutFileName } from "utils/file.util";
 
@@ -270,29 +272,43 @@ function GridFileData(props: Props) {
                 <Fragment>
                   <Box
                     sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "1.5rem",
                       padding: "0.5rem 1rem",
                       borderBottom: "1px solid #ddd",
                     }}
                   >
-                    <Typography component={"p"}>Expireation Date</Typography>
-                    <Chip
-                      label={expireDate ? formatDate(expireDate) : "Never"}
-                      size="small"
-                      sx={{ padding: "0 1rem" }}
-                    />
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1.5rem",
+                        mb: 2,
+                      }}
+                    >
+                      <Typography component={"p"}>Expiration Date</Typography>
+                      <Chip
+                        label={expireDate ? formatDate(expireDate) : "Never"}
+                        size="small"
+                        sx={{ padding: "0 1rem" }}
+                      />
+                    </Box>
+                    {expireDate && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          color: "#FF9F43",
+                        }}
+                      >
+                        <InfoIcon sx={{ fontSize: "0.9rem", mr: 1 }} />
+                        <Typography variant="h4" sx={{ fontSize: "0.8rem" }}>
+                          This link is expired. Please access the document
+                          before this date
+                        </Typography>
+                      </Box>
+                    )}
                   </Box>
 
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: "3.5rem",
-                      padding: "1rem 2rem 0.5rem 2rem",
-                    }}
-                  >
+                  <BoxBottomDownload>
                     <Box sx={{ position: "relative" }}>
                       {props.multipleIds?.length > 0 && (
                         <Fragment>
@@ -354,7 +370,7 @@ function GridFileData(props: Props) {
                     >
                       Cancel
                     </NormalButton>
-                  </Box>
+                  </BoxBottomDownload>
                 </Fragment>
               )}
             </CardContent>
@@ -362,7 +378,10 @@ function GridFileData(props: Props) {
         </FileBoxDownload>
         <FileBoxSocial className="box-social">
           <Box sx={{ padding: "1.5rem" }}>
-            <Box sx={{ display: "flex", position: "relative" }}>
+            <Box
+              className="button-ads"
+              sx={{ display: "flex", position: "relative" }}
+            >
               {props?.countAction > 0 && (
                 <BoxAdsContainer>
                   <BoxAdsAction>{props?.countAction} close ads</BoxAdsAction>

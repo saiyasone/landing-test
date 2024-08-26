@@ -9,7 +9,6 @@ import "./styles/fileUploader.style.css";
 import {
   Box,
   Button,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -35,18 +34,14 @@ import {
 import { QUERY_SETTING } from "api/graphql/setting.graphql";
 import { QUERY_USER } from "api/graphql/user.graphql";
 import DialogPreviewQRcode from "components/dialog/DialogPreviewQRCode";
-import CardFileDownloader from "components/presentation/CardFileDownloader";
 import DeepLink from "components/presentation/DeepLink";
 import DialogConfirmQRCode from "components/presentation/DialogConfirmQRCode";
-import FolderDownloader from "components/presentation/FolderDownloader";
-import FolderMultipleDownload from "components/presentation/FolderMultipleDownloader";
 import { ENV_KEYS } from "constants/env.constant";
 import CryptoJS from "crypto-js";
 import useManageSetting from "hooks/useManageSetting";
 import { errorMessage, successMessage } from "utils/alert.util";
 import Helmet from "react-helmet";
 import { combineOldAndNewFileNames, cutFileName } from "utils/file.util";
-import { convertBytetoMBandGB } from "utils/storage.util";
 import { decryptDataLink } from "utils/secure.util";
 import useManageFiles from "hooks/useManageFile";
 import GridFileData from "components/presentation/GridFileData";
@@ -107,8 +102,7 @@ function FileUploader() {
   const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
 
   // Deep linking for mobile devices
-  const androidScheme = "vshare.app://download?url=" + currentURL;
-  const iosScheme = "vshare.app://download?url=" + currentURL;
+  const appScheme = "vshare.app://download?url=" + currentURL;
 
   const [multipleIds, setMultipleIds] = useState<any[]>([]);
 
@@ -525,10 +519,6 @@ function FileUploader() {
     setOpen(false);
   };
 
-  const totalSize = getDataRes?.reduce((accumulator, current) => {
-    return accumulator + parseInt(current.size);
-  }, 0);
-
   // download folder
   const handleDownloadFolder = async ({ createdBy }) => {
     setTotalClickCount((prevCount) => prevCount + 1);
@@ -871,6 +861,26 @@ function FileUploader() {
         }
       }
     }
+  };
+
+  const handleOpenApplication = () => {
+    const timeout = setTimeout(() => {
+      if (platform === "android") {
+        window.location.href =
+          "https://play.google.com/store/apps/details?id=com.vshare.app.client";
+      }
+
+      if (platform === "ios") {
+        window.location.href =
+          "https://apps.apple.com/la/app/vshare-file-transfer-app/id6476536606";
+      }
+    }, 1500);
+
+    window.location.href = appScheme;
+
+    window.onblur = () => {
+      clearTimeout(timeout);
+    };
   };
 
   // Done
@@ -1528,16 +1538,6 @@ function FileUploader() {
     }
   };
 
-  const hasFileWithoutPassword = linkClient?._id
-    ? linkClient?.type === "file"
-      ? dataFileLink?.queryFileGetLinks?.data?.some(
-          (item) => !item.filePassword,
-        )
-      : dataFolderLink?.queryfoldersGetLinks?.data?.some(
-          (item) => !item.filePassword,
-        )
-    : resPonData?.filesPublic?.data?.some((item) => !item.filePassword);
-
   const previewHandleClose = () => {
     setPreviewOpen(false);
   };
@@ -1756,11 +1756,21 @@ function FileUploader() {
       </MUI.ContainerHome>
 
       <MUI.FilBoxBottomContainer>
-        <Button fullWidth={true} variant="contained" size="small">
+        <Button
+          fullWidth={true}
+          variant="contained"
+          size="small"
+          onClick={handleDownloadFileGetLink}
+        >
           Download
         </Button>
-        <Button fullWidth={true} variant="contained" size="small">
-          Social share
+        <Button
+          onClick={handleOpenApplication}
+          fullWidth={true}
+          variant="contained"
+          size="small"
+        >
+          Open app
         </Button>
       </MUI.FilBoxBottomContainer>
 
@@ -1770,12 +1780,12 @@ function FileUploader() {
         onClose={previewHandleClose}
       />
 
-      <DeepLink
+      {/* <DeepLink
         showBottom={showBottomDeep}
         platform={platform}
-        scriptScheme={platform === "android" ? androidScheme : iosScheme}
+        scriptScheme={appScheme}
         onClose={() => setShowBottomDeep(false)}
-      />
+      /> */}
 
       <DialogConfirmQRCode
         isOpen={isVerifyQrCode}

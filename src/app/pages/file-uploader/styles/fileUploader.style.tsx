@@ -920,6 +920,10 @@ export const FileListContainer = styled(Box)(({ theme }) => ({
   gridTemplateColumns: "1fr 1fr",
   gap: 10,
 
+  [theme.breakpoints.down("md")]: {
+    gridTemplateColumns: "1fr",
+  },
+
   [theme.breakpoints.down("sm")]: {
     flexDirection: "column",
   },
@@ -930,7 +934,7 @@ export const FileListContainer = styled(Box)(({ theme }) => ({
     },
 
     ".box-social": {
-      display: "none",
+      // display: "none",
     },
   },
 }));
@@ -946,7 +950,11 @@ export const FileBoxSocial = styled("div")({
   boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
   overflow: "hidden",
 
-  [theme.breakpoints.down(35)]: {},
+  ".button-ads": {
+    [theme.breakpoints.down("md")]: {
+      display: "none",
+    },
+  },
 });
 
 export const FilBoxBottomContainer = styled("div")({
@@ -956,6 +964,7 @@ export const FilBoxBottomContainer = styled("div")({
   bottom: 0,
   padding: "1rem",
   width: "100%",
+  zIndex: 999,
 
   // display: "flex",
   gap: "1rem",
