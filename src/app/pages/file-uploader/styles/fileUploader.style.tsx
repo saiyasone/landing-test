@@ -926,7 +926,7 @@ export const FileListContainer = styled(Box)(({ theme }) => ({
 
   [theme.breakpoints.down(997)]: {
     ".box-download": {
-      width: "100%",
+      gridColumn: "1 / -1",
     },
 
     ".box-social": {
@@ -945,7 +945,6 @@ export const FileBoxSocial = styled("div")({
   borderRadius: 1.5,
   boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
   overflow: "hidden",
-
   [theme.breakpoints.down(35)]: {},
 });
 

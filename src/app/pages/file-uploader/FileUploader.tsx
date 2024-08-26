@@ -1,7 +1,7 @@
 import { useLazyQuery, useMutation } from "@apollo/client";
 import axios from "axios";
 import React, { Fragment, useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // components
 import * as MUI from "./styles/fileUploader.style";
@@ -9,12 +9,14 @@ import "./styles/fileUploader.style.css";
 import {
   Box,
   Button,
+  Card,
   Chip,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Grid,
   IconButton,
   TextField,
   Typography,
@@ -57,6 +59,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import FileDownloadDoneIcon from "@mui/icons-material/FileDownloadDone";
 import DownloadIcon from "@mui/icons-material/Download";
 import GridFileData from "components/presentation/GridFileData";
+import VideoCardComponent from "components/VideoComponent";
 
 ////Ads
 const AdsContainer = styled(Box)(({ theme }) => ({
@@ -222,6 +225,7 @@ const arrayMedias = [
 
 function FileUploader() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [checkConfirmPassword, setConfirmPassword] = useState(false);
   const [getDataRes, setGetDataRes] = useState<any>(null);
   const [folderDownload, setFolderDownload] = useState<any>(null);
@@ -1775,7 +1779,6 @@ function FileUploader() {
         <meta name="title" content={"seoTitle"} />
         <meta name="description" content={_description} />
       </Helmet>
-
       <MUI.ContainerHome maxWidth="xl">
         <Dialog open={open}>
           <DialogTitle
@@ -1867,7 +1870,7 @@ function FileUploader() {
           </DialogActions>
         </Dialog>
 
-        <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem" }}>
+        <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem"}}>
           <MUI.AdsContainer>
             <MUI.AdsContent>
               <MUI.AdsCard>
@@ -1911,8 +1914,29 @@ function FileUploader() {
             )}
           </Fragment>
         </Box>
+         {/* Feed Admin  */}
+         <Card>
+            <Typography variant="h4" sx={{mt: 4}}>Popular</Typography>
+            <Grid container sx={{mt: 4}}>
+                {[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map((vdo, indx) => (
+                  indx < 4 &&
+                  <Grid item key={indx} xs={12} sm={6} md={4} lg={3}>
+                    <Box sx={{width:'100%'}}>
+                        <VideoCardComponent
+                            title="Lorem ipsum dolor sit amet."
+                            description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod ipsa facilis recusandae vero doloremque cumque."
+                            control={true} 
+                            autoPlay={false}
+                            muted={true}
+                            url='https://static.vecteezy.com/system/resources/previews/043/199/391/mp4/a-vibrant-city-street-illuminated-by-the-lights-of-the-night-video.mp4'
+                            onView={()=>navigate('/video_view')}
+                        />
+                    </Box>
+                </Grid>
+                ))}
+            </Grid>
+          </Card>
       </MUI.ContainerHome>
-
       <MUI.FilBoxBottomContainer>
         <Button fullWidth={true} variant="contained" size="small">
           Download

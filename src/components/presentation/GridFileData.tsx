@@ -220,6 +220,7 @@ function GridFileData(props: Props) {
           <Card
             sx={{
               boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
+              width:'100%'
             }}
           >
             <Box sx={{ display: "flex", justifyContent: "center" }}>
@@ -234,6 +235,7 @@ function GridFileData(props: Props) {
               sx={{
                 display: "flex",
                 flexDirection: "column",
+                flex: 1,
                 height: "100%",
                 paddingLeft: "0 !important",
                 paddingRight: "0 !important",

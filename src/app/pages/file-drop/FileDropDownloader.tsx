@@ -38,7 +38,6 @@ import { errorMessage, successMessage } from "utils/alert.util";
 
 import useManageFiles from "hooks/useManageFile";
 import DialogPreviewQRcode from "components/dialog/DialogPreviewQRCode";
-import NormalButton from "components/NormalButton";
 import DropGridData from "./DropGridData";
 import DeepLink from "components/presentation/DeepLink";
 
