@@ -233,13 +233,19 @@ const FileCardItem: React.FC<any> = ({
   const dispatch = useDispatch();
 
   const handleSelect = () => {
+    const name = fileType === "folder" ? item?.folder_name : item?.filename;
+    console.log({ fileType, name });
+    const newFilename =
+      fileType === "folder" ? item?.newFolder_name : item?.newFilename;
+    const checkType = fileType === "folder" ? "folder" : "file";
+
     const value = {
       id: item?._id,
-      name: item?.filename,
+      name,
       newPath: item?.newPath || "",
-      newFilename: item?.newFilename || "",
-      checkType: "file",
-      dataPassword: item?.filePassword || "",
+      newFilename,
+      checkType,
+      dataPassword: item?.filePassword || item?.access_password,
       shortLink: item?.shortUrl,
       createdBy: {
         _id: item?.createdBy?._id,

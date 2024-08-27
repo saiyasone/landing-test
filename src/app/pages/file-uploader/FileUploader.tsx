@@ -4,8 +4,8 @@ import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 // components
-import * as MUI from "./styles/fileUploader.style";
-import "./styles/fileUploader.style.css";
+import GridIcon from "@mui/icons-material/AppsOutlined";
+import ListIcon from "@mui/icons-material/FormatListBulletedOutlined";
 import { Box, Button, IconButton, useMediaQuery } from "@mui/material";
 import {
   CREATE_DETAIL_ADVERTISEMENT,
@@ -13,8 +13,8 @@ import {
   QUERY_MANAGE_LINK_DETAIL,
 } from "api/graphql/ad.graphql";
 import {
-  QUERY_FILE_PUBLIC,
   QUERY_FILE_GET_LINK,
+  QUERY_FILE_PUBLIC,
   QUERY_FILE_PUBLICV2,
 } from "api/graphql/file.graphql";
 import {
@@ -23,32 +23,33 @@ import {
 } from "api/graphql/folder.graphql";
 import { QUERY_SETTING } from "api/graphql/setting.graphql";
 import { QUERY_USER } from "api/graphql/user.graphql";
+import DialogConfirmPassword from "components/dialog/DialogConfirmPassword";
 import DialogPreviewQRcode from "components/dialog/DialogPreviewQRCode";
+import NormalButton from "components/NormalButton";
+import Advertisement from "components/presentation/Advertisement";
+import BoxSocialShare from "components/presentation/BoxSocialShare";
 import DialogConfirmQRCode from "components/presentation/DialogConfirmQRCode";
+import FileCardContainer from "components/presentation/FileCardContainer";
+import FileCardItem from "components/presentation/FileCardItem";
+import GridFileData from "components/presentation/GridFileData";
 import { ENV_KEYS } from "constants/env.constant";
 import CryptoJS from "crypto-js";
+import useManageFiles from "hooks/useManageFile";
 import useManageSetting from "hooks/useManageSetting";
-import { errorMessage, successMessage } from "utils/alert.util";
+import { Base64 } from "js-base64";
 import Helmet from "react-helmet";
+import { FaTrash } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import * as selectorAction from "stores/features/selectorSlice";
+import { errorMessage, successMessage } from "utils/alert.util";
 import {
   combineOldAndNewFileNames,
   cutFileName,
   removeFileNameOutOfPath,
 } from "utils/file.util";
 import { decryptDataLink } from "utils/secure.util";
-import useManageFiles from "hooks/useManageFile";
-import GridFileData from "components/presentation/GridFileData";
-import Advertisement from "components/presentation/Advertisement";
-import DialogConfirmPassword from "components/dialog/DialogConfirmPassword";
-import { Base64 } from "js-base64";
-import BoxSocialShare from "components/presentation/BoxSocialShare";
-import ListIcon from "@mui/icons-material/FormatListBulletedOutlined";
-import GridIcon from "@mui/icons-material/AppsOutlined";
-import FileCardContainer from "components/presentation/FileCardContainer";
-import FileCardItem from "components/presentation/FileCardItem";
-import { useSelector } from "react-redux";
-import * as selectorAction from "stores/features/selectorSlice";
-import NormalButton from "components/NormalButton";
+import * as MUI from "./styles/fileUploader.style";
+import "./styles/fileUploader.style.css";
 
 function FileUploader() {
   const location = useLocation();
@@ -63,6 +64,7 @@ function FileUploader() {
   const [toggle, setToggle] = useState(
     localStorage.getItem("toggle") ? localStorage.getItem("toggle") : "list",
   );
+
   const [checkModal, setCheckModal] = useState(false);
   const [getFilenames, setGetFilenames] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -78,8 +80,6 @@ function FileUploader() {
 
   const [isHide, setIsHide] = useState<any>(false);
   const [isSuccess, setIsSuccess] = useState<any>(false);
-  const [isProcessAll, setIsProcessAll] = useState(false);
-  const [isDownloadAll, setIsDownloadAll] = useState(false);
 
   const [isMultipleHide, setIsMultipleHide] = useState<any>(false);
   const [isMultipleSuccess, setIsMultipleSuccess] = useState<any>(false);
@@ -122,6 +122,7 @@ function FileUploader() {
   const dataSelector = useSelector(
     selectorAction.checkboxFileAndFolderSelector,
   );
+  const dispatch = useDispatch();
 
   // hooks
   const manageFile = useManageFiles();
@@ -197,7 +198,13 @@ function FileUploader() {
     setMultipleIds([]);
   }
 
+  function handleClearSelector() {
+    dispatch(selectorAction.setRemoveFileAndFolderData());
+  }
+
   function handleToggle() {
+    setMultipleIds([]);
+    handleClearSelector();
     if (toggle === "list") {
       setToggle("grid");
       localStorage.setItem("toggle", "grid");
@@ -682,7 +689,53 @@ function FileUploader() {
       });
 
       setTotalClickCount((prevCount) => prevCount + 1);
-      setMultipleType("file");
+
+      if (totalClickCount >= getActionButton) {
+        setTotalClickCount(0);
+        manageFile.handleDownloadFile(
+          {
+            multipleData,
+          },
+          {
+            onFailed: () => {},
+            onSuccess: () => {},
+          },
+        );
+      } else {
+        if (getAdvertisemment.length) {
+          handleAdvertisementPopup();
+        } else {
+          manageFile.handleDownloadFile(
+            {
+              multipleData,
+            },
+            {
+              onFailed: () => {},
+              onSuccess: () => {},
+            },
+          );
+        }
+      }
+    }
+
+    if (dataSelector?.selectionFileAndFolderData?.length > 0) {
+      const newModelData = dataSelector?.selectionFileAndFolderData || [];
+
+      const multipleData = newModelData.map((file) => {
+        const newPath = file.newPath || "";
+
+        return {
+          id: file.id,
+          name: file.name,
+          newFilename: file.newFilename,
+          checkType: "file",
+          newPath,
+          createdBy: file.createdBy,
+          isPublic: linkClient?._id ? false : true,
+        };
+      });
+
+      setTotalClickCount((prevCount) => prevCount + 1);
 
       if (totalClickCount >= getActionButton) {
         setTotalClickCount(0);
@@ -742,6 +795,52 @@ function FileUploader() {
 
       setTotalClickCount((prevCount) => prevCount + 1);
       setMultipleType("file");
+
+      if (totalClickCount >= getActionButton) {
+        setTotalClickCount(0);
+        manageFile.handleDownloadFolder(
+          {
+            multipleData,
+          },
+          {
+            onFailed: () => {},
+            onSuccess: () => {},
+          },
+        );
+      } else {
+        if (getAdvertisemment.length) {
+          handleAdvertisementPopup();
+        } else {
+          manageFile.handleDownloadFolder(
+            {
+              multipleData,
+            },
+            {
+              onFailed: () => {},
+              onSuccess: () => {},
+            },
+          );
+        }
+      }
+    }
+    if (dataSelector?.selectionFileAndFolderData?.length > 0) {
+      const newModelData = dataSelector?.selectionFileAndFolderData || [];
+
+      const multipleData = newModelData.map((file: any) => {
+        const newPath = file.newPath || "";
+
+        return {
+          id: file.id,
+          name: file.name,
+          newFilename: file.newFilename,
+          checkType: "folder",
+          newPath,
+          createdBy: file.createdBy,
+        };
+      });
+
+      setTotalClickCount((prevCount) => prevCount + 1);
+      setMultipleType("folder");
 
       if (totalClickCount >= getActionButton) {
         setTotalClickCount(0);
@@ -1234,74 +1333,6 @@ function FileUploader() {
     }
   };
 
-  const _downloadFilesAll = async (getData: any[]) => {
-    const noPasswordData = getData.filter((item) => !item.filePassword);
-    if (noPasswordData.length <= 0) {
-      errorMessage("Download failed!", 3000);
-      return;
-    }
-
-    setIsProcessAll(true);
-    setIsDownloadAll(false);
-
-    try {
-      if (linkClient?._id) {
-        const multipleData = getData.map((file: any) => {
-          return {
-            id: file._id,
-            newPath: file.newPath || "",
-            newFilename: file.newFilename,
-          };
-        });
-
-        await manageFile.handleDownloadPublicFile(
-          { multipleData },
-          {
-            onSuccess: () => {
-              successMessage("Download files successful", 3000);
-              setIsProcessAll(false);
-              setIsDownloadAll(true);
-            },
-            onFailed: (error) => {
-              errorMessage(error, 3000);
-              setIsProcessAll(false);
-              setIsDownloadAll(false);
-            },
-          },
-        );
-      } else {
-        const multipleData = getData.map((file: any) => {
-          return {
-            id: file._id,
-            newPath: "",
-            newFilename: file.newFilename,
-          };
-        });
-
-        await manageFile.handleDownloadPublicFile(
-          { multipleData },
-          {
-            onSuccess: () => {
-              setIsProcessAll(false);
-              setIsDownloadAll(true);
-            },
-            onFailed: (error) => {
-              errorMessage(error, 3000);
-              setIsProcessAll(false);
-              setIsDownloadAll(false);
-            },
-          },
-        );
-      }
-    } catch (error) {
-      errorMessage("Something wrong try again later!", 2000);
-    }
-
-    successMessage("Download successful", 3000);
-    setIsHide(false);
-    setIsSuccess(true);
-  };
-
   const _confirmPasword = async (password) => {
     if (!filePasswords) {
       const modifyPassword = CryptoJS.MD5(password).toString();
@@ -1656,15 +1687,17 @@ function FileUploader() {
 
           <MUI.FileListContainer>
             <Box>
-              {dataFolderLinkMemo?.length > 0 ||
-                (dataLinkMemo?.length > 0 && (
-                  <MUI.FileBoxToggle>
-                    {toggle === "grid" && (
+              {(dataFolderLinkMemo?.length > 0 || dataLinkMemo?.length > 0) && (
+                <MUI.FileBoxToggle>
+                  {toggle === "grid" && (
+                    <Fragment>
                       <NormalButton
                         onClick={() => {
                           if (dataLinkMemo?.length > 0) {
                             handleDownloadFileGetLink();
-                          } else {
+                          }
+
+                          if (dataFolderLinkMemo?.length > 0) {
                             handleDownloadFolderGetLink();
                           }
                         }}
@@ -1693,12 +1726,36 @@ function FileUploader() {
                       >
                         Download
                       </NormalButton>
-                    )}
-                    <IconButton size="small" onClick={handleToggle}>
-                      {toggle === "list" ? <ListIcon /> : <GridIcon />}
-                    </IconButton>
-                  </MUI.FileBoxToggle>
-                ))}
+                      <NormalButton
+                        onClick={handleClearSelector}
+                        sx={{
+                          padding: (theme) =>
+                            `${theme.spacing(1.6)} ${theme.spacing(3)}`,
+                          borderRadius: (theme) => theme.spacing(2),
+                          color: "#828282 !important",
+                          fontWeight: "bold",
+                          backgroundColor: "#fff",
+                          border: "1px solid #ddd",
+                          width: "inherit",
+                          outline: "none",
+                          verticalAlign: "middle",
+                          ":disabled": {
+                            cursor: "context-menu",
+                            backgroundColor: "#D6D6D6",
+                            color: "#ddd",
+                          },
+                        }}
+                      >
+                        <FaTrash fontSize={12} />
+                      </NormalButton>
+                    </Fragment>
+                  )}
+
+                  <IconButton size="small" onClick={handleToggle}>
+                    {toggle === "list" ? <ListIcon /> : <GridIcon />}
+                  </IconButton>
+                </MUI.FileBoxToggle>
+              )}
 
               {toggle === "list" && (
                 <Fragment>
@@ -1741,45 +1798,91 @@ function FileUploader() {
 
               {toggle === "grid" && (
                 <Fragment>
-                  {dataLinkMemo && dataLinkMemo.length > 0 && (
-                    <FileCardContainer>
-                      {dataLinkMemo.map((item, index) => {
-                        return (
-                          <Fragment key={index}>
-                            <FileCardItem
-                              id={item._id}
-                              item={item}
-                              imagePath={
-                                item?.createdBy?.newName +
-                                "-" +
-                                item?.createdBy?._id +
-                                "/" +
-                                (item.newPath
-                                  ? removeFileNameOutOfPath(item.newPath)
-                                  : "") +
-                                item.newFilename
-                              }
-                              user={item?.createdBy}
-                              path={item?.path}
-                              isCheckbox={true}
-                              filePassword={item?.filePassword}
-                              fileType={"image"}
-                              isPublic={
-                                item?.createdBy?._id === "0" ? true : false
-                              }
-                              name={item?.filename}
-                              newName={item?.newFilename}
-                              cardProps={{
-                                onDoubleClick: () => {
-                                  console.log("first");
-                                },
-                              }}
-                            />
-                          </Fragment>
-                        );
-                      })}
-                    </FileCardContainer>
-                  )}
+                  <Fragment>
+                    {dataLinkMemo && dataLinkMemo.length > 0 && (
+                      <FileCardContainer>
+                        {dataLinkMemo.map((item, index) => {
+                          return (
+                            <Fragment key={index}>
+                              <FileCardItem
+                                id={item._id}
+                                item={item}
+                                imagePath={
+                                  item?.createdBy?.newName +
+                                  "-" +
+                                  item?.createdBy?._id +
+                                  "/" +
+                                  (item.newPath
+                                    ? removeFileNameOutOfPath(item.newPath)
+                                    : "") +
+                                  item.newFilename
+                                }
+                                user={item?.createdBy}
+                                path={item?.path}
+                                isCheckbox={true}
+                                filePassword={item?.filePassword}
+                                fileType={"image"}
+                                isPublic={
+                                  item?.createdBy?._id === "0" ? true : false
+                                }
+                                name={item?.filename}
+                                newName={item?.newFilename}
+                                cardProps={{
+                                  onDoubleClick: () => {
+                                    console.log("first");
+                                  },
+                                }}
+                              />
+                            </Fragment>
+                          );
+                        })}
+                      </FileCardContainer>
+                    )}
+                  </Fragment>
+                  <Fragment>
+                    {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
+                      <FileCardContainer>
+                        {dataFolderLinkMemo.map((item, index) => {
+                          return (
+                            <Fragment key={index}>
+                              <FileCardItem
+                                id={item._id}
+                                item={item}
+                                isContainFiles={
+                                  item?.total_size > 0 ? true : false
+                                }
+                                imagePath={
+                                  item?.createdBy?.newName +
+                                  "-" +
+                                  item?.createdBy?._id +
+                                  "/" +
+                                  (item.newPath
+                                    ? removeFileNameOutOfPath(item.newPath)
+                                    : "") +
+                                  item.newFilename
+                                }
+                                user={item?.createdBy}
+                                path={item?.path}
+                                isCheckbox={true}
+                                filePassword={item?.filePassword}
+                                fileType={"folder"}
+                                isPublic={
+                                  item?.createdBy?._id === "0" ? true : false
+                                }
+                                name={item?.folder_name}
+                                newName={item?.newFolder_name}
+                                cardProps={{
+                                  onDoubleClick: () => {
+                                    console.log("first");
+                                  },
+                                }}
+                              />
+                            </Fragment>
+                          );
+                        })}
+                      </FileCardContainer>
+                    )}
+                  </Fragment>
                 </Fragment>
               )}
             </Box>
