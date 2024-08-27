@@ -6,6 +6,7 @@ import {
   CardContent,
   Chip,
   IconButton,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
@@ -17,10 +18,10 @@ import {
 import NormalButton from "components/NormalButton";
 
 // Icons
-import facebookIcon from "assets/images/facebook-icon.png";
-import messagerIcon from "assets/images/messager-icon.png";
-import whatsappIcon from "assets/images/what-app-icon.png";
-import twitterIcon from "assets/images/twitter-icon.png";
+// import facebookIcon from "assets/images/facebook-icon.png";
+// import messagerIcon from "assets/images/messager-icon.png";
+// import whatsappIcon from "assets/images/what-app-icon.png";
+// import twitterIcon from "assets/images/twitter-icon.png";
 import dottIcon from "assets/images/dott-icon.png";
 import QrCodeIcon from "@mui/icons-material/QrCodeOutlined";
 import LockIcon from "@mui/icons-material/Lock";
@@ -32,6 +33,18 @@ import {
   BoxAdsContainer,
 } from "styles/presentation/presentation.style";
 import { cutFileName } from "utils/file.util";
+import { ShareSocial } from "components/social-media";
+import {
+  FacebookIcon,
+  FacebookShareButton,
+  FacebookMessengerIcon,
+  FacebookMessengerShareButton,
+  TwitterIcon,
+  TwitterShareButton,
+  WhatsappIcon,
+  WhatsappShareButton,
+} from "react-share";
+import { ENV_KEYS } from "constants/env.constant";
 
 type Props = {
   _description?: string;
@@ -49,87 +62,7 @@ type Props = {
 function GridFileData(props: Props) {
   const currentUrl = window.location.href;
   const [expireDate, setExpireDate] = useState("");
-
-  const arrayMedias = [
-    {
-      id: 1,
-      title: "Facebook",
-      link: "",
-      icon: (
-        <img
-          src={facebookIcon}
-          alt="facebook-icon"
-          style={{
-            width: "32px",
-            objectFit: "cover",
-            height: "32px",
-          }}
-        />
-      ),
-    },
-    {
-      id: 2,
-      title: "Messager",
-      link: "",
-      icon: (
-        <img
-          src={messagerIcon}
-          alt="messager-icon"
-          style={{
-            width: "32px",
-            objectFit: "cover",
-            height: "32px",
-          }}
-        />
-      ),
-    },
-    {
-      id: 3,
-      title: "WhatsApp",
-      link: "",
-      icon: (
-        <img
-          src={whatsappIcon}
-          alt="whatsapp-icon"
-          style={{
-            width: "32px",
-            objectFit: "cover",
-            height: "32px",
-          }}
-        />
-      ),
-    },
-    {
-      id: 4,
-      title: "Twitter",
-      link: "",
-      icon: (
-        <img
-          src={twitterIcon}
-          alt="twitter-icon"
-          style={{
-            width: "32px",
-            objectFit: "cover",
-            height: "32px",
-          }}
-        />
-      ),
-    },
-    {
-      id: 99,
-      title: "...",
-      link: "",
-      icon: (
-        <img
-          src={dottIcon}
-          alt="dott-icon"
-          style={{
-            objectFit: "cover",
-          }}
-        />
-      ),
-    },
-  ];
+  const [isMore, setIsMore] = useState(false);
 
   const columns: any = [
     {
@@ -207,12 +140,16 @@ function GridFileData(props: Props) {
     },
   ];
 
+  const handleSocialNetworkClicked = (str: string) => {
+    console.log(`${str} is clicked`);
+  }
+
   useEffect(() => {
     if (props?.dataLinks?.[0]?.expired) {
       setExpireDate(props?.dataLinks?.[0]?.expired || "");
     }
   }, [props]);
-
+  
   return (
     <Fragment>
       <FileListContainer>
@@ -405,10 +342,16 @@ function GridFileData(props: Props) {
                 mt: 7,
               }}
             >
-              {arrayMedias.map((item, index) => (
-                <Button
-                  key={index}
-                  sx={{
+              <Tooltip title="Facebook" placement="top">
+                <FacebookShareButton
+                  url={props?.dataLinks?.[0]?.shortUrl || props?.dataLinks?.[0]?.longUrl}
+                  onClick={() => {
+                    handleSocialNetworkClicked('Facebook');
+                  }}
+                  style={{
+                    display:'flex',
+                    justifyContent:'center',
+                    alignItems:'center',
                     width: "60px",
                     height: "60px",
                     borderRadius: "100%",
@@ -416,10 +359,113 @@ function GridFileData(props: Props) {
                     fontSize: "2rem",
                   }}
                 >
-                  {item.icon}
+                  <FacebookIcon size={40} round/>
+                </FacebookShareButton>
+              </Tooltip>
+              <Tooltip title="Messenger" placement="top">
+                <FacebookMessengerShareButton
+                  url={props?.dataLinks?.[0]?.shortUrl || props?.dataLinks?.[0]?.longUrl}
+                  appId={ENV_KEYS.VITE_APP_FACEBOOk_APP_ID}
+                  onClick={() => {
+                    handleSocialNetworkClicked('Messenger');
+                  }}
+                  style={{
+                    display:'flex',
+                    justifyContent:'center',
+                    alignItems:'center',
+                    width: "60px",
+                    height: "60px",
+                    borderRadius: "100%",
+                    background: "rgb(221, 221, 221,0.8)",
+                    fontSize: "2rem",
+                  }}
+                >
+                  <FacebookMessengerIcon size={40} round/>
+                </FacebookMessengerShareButton>
+              </Tooltip>
+              <Tooltip title={'WhatsApp'}>
+                <WhatsappShareButton
+                  url={props?.dataLinks?.[0]?.shortUrl || props?.dataLinks?.[0]?.longUrl}
+                  onClick={() => {
+                    handleSocialNetworkClicked('WhatsApp');
+                  }}
+                  style={{
+                    display:'flex',
+                    justifyContent:'center',
+                    alignItems:'center',
+                    width: "60px",
+                    height: "60px",
+                    borderRadius: "100%",
+                    background: "rgb(221, 221, 221,0.8)",
+                    fontSize: "2rem",
+                  }}
+                >
+                  <WhatsappIcon size={40} round/>
+                </WhatsappShareButton>
+              </Tooltip>
+              <Tooltip title={'Twitter'}>
+                <TwitterShareButton
+                  url={props?.dataLinks?.[0]?.shortUrl || props?.dataLinks?.[0]?.longUrl}
+                  onClick={() => {
+                    handleSocialNetworkClicked('Twitter');
+                  }}
+                  style={{
+                    display:'flex',
+                    justifyContent:'center',
+                    alignItems:'center',
+                    width: "60px",
+                    height: "60px",
+                    borderRadius: "100%",
+                    background: "rgb(221, 221, 221,0.8)",
+                    fontSize: "2rem",
+                  }}
+                >
+                  <TwitterIcon size={40} round/>
+                </TwitterShareButton>
+              </Tooltip>
+              <Box sx={{position:'relative'}}>
+                <Button
+                  sx={{
+                    position:'relative',
+                    width: "60px",
+                    height: "60px",
+                    borderRadius: "100%",
+                    background: "rgb(221, 221, 221,0.8)",
+                    fontSize: "2rem",
+                  }}
+
+                  onClick={()=>{
+                      setIsMore(!isMore);
+                  }}
+                >
+                  <img
+                    src={dottIcon}
+                    alt="dott-icon"
+                    style={{
+                      objectFit: "cover",
+                    }}
+                  />
                 </Button>
-              ))}
+                {
+                  isMore && 
+                  <Typography component={'div'}
+                    onClick={(e)=>{
+                      e.stopPropagation();
+                      setIsMore(!isMore);
+                    }}
+                  >
+                  <ShareSocial 
+                      title="More Media" 
+                      socialTypes={['copy','facebook', 'twitter', 'line', 'linkedin', 'whatsapp', 'viber', 'telegram', 'reddit', 'instapaper', 'livejournal', 'mailru', 'ok', 'hatena','email', 'workspace']}
+                      url={props?.dataLinks?.[0]?.shortUrl || props?.dataLinks?.[0]?.longUrl}
+                      onSocialButtonClicked={(buttonName: string)=>{
+                        handleSocialNetworkClicked(buttonName);
+                      }}
+                    />
+                </Typography>
+                }
             </Box>
+          </Box>
           </Box>
           <Box
             className="appbar appbar-bg-gradient-r"

@@ -917,7 +917,7 @@ export const BoxMultipleFolder = styled("div")({
 ////display files zone
 export const FileListContainer = styled(Box)(({ theme }) => ({
   display: "grid",
-  gridTemplateColumns: "1fr 1fr",
+  gridTemplateColumns: "2fr 1fr",
   gap: 10,
 
   [theme.breakpoints.down("sm")]: {

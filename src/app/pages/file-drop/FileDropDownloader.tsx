@@ -860,9 +860,7 @@ function FileDropDownloader() {
                             isMobile={isMobile}
                             setMultiId={setMultiId}
                             handleDownloadFile={handleDownloadFile}
-                            handleMultipleDownloadFiles={
-                              handleMultipleDownloadFiles
-                            }
+                            handleMultipleDownloadFiles={handleMultipleDownloadFiles}
                             handleClearSelection={handleClearSelectDataGrid}
                             handleQrCode={(data, action) => {
                               setDataForEvent({
