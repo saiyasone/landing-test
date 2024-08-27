@@ -1,12 +1,22 @@
 import { useLazyQuery, useMutation } from "@apollo/client";
 import axios from "axios";
 import React, { Fragment, useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 // components
 import * as MUI from "./styles/fileUploader.style";
 import "./styles/fileUploader.style.css";
-import { Box, Button, IconButton, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import {
   CREATE_DETAIL_ADVERTISEMENT,
   QUERY_ADVERTISEMENT,
@@ -30,27 +40,14 @@ import CryptoJS from "crypto-js";
 import useManageSetting from "hooks/useManageSetting";
 import { errorMessage, successMessage } from "utils/alert.util";
 import Helmet from "react-helmet";
-import {
-  combineOldAndNewFileNames,
-  cutFileName,
-  removeFileNameOutOfPath,
-} from "utils/file.util";
+import { combineOldAndNewFileNames, cutFileName } from "utils/file.util";
 import { decryptDataLink } from "utils/secure.util";
 import useManageFiles from "hooks/useManageFile";
 import GridFileData from "components/presentation/GridFileData";
 import Advertisement from "components/presentation/Advertisement";
 import DialogConfirmPassword from "components/dialog/DialogConfirmPassword";
-import { Base64 } from "js-base64";
-import BoxSocialShare from "components/presentation/BoxSocialShare";
-import ListIcon from "@mui/icons-material/FormatListBulletedOutlined";
-import GridIcon from "@mui/icons-material/AppsOutlined";
-import FileCardContainer from "components/presentation/FileCardContainer";
-import FileCardItem from "components/presentation/FileCardItem";
-import { useSelector } from "react-redux";
-import * as selectorAction from "stores/features/selectorSlice";
-import NormalButton from "components/NormalButton";
 
-function FileUploader() {
+function ExtendFolderUploader() {
   const location = useLocation();
   const [checkConfirmPassword, setConfirmPassword] = useState(false);
   const [getDataRes, setGetDataRes] = useState<any>(null);
@@ -60,9 +57,6 @@ function FileUploader() {
   const [filePasswords, setFilePasswords] = useState<any>("");
   const [getNewFileName, setGetNewFileName] = useState("");
   const [fileQRCodePassword, setFileQRCodePassword] = useState("");
-  const [toggle, setToggle] = useState(
-    localStorage.getItem("toggle") ? localStorage.getItem("toggle") : "list",
-  );
   const [checkModal, setCheckModal] = useState(false);
   const [getFilenames, setGetFilenames] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -103,7 +97,6 @@ function FileUploader() {
   const urlClient = params.get("lc");
   const userqrcode = params.get("qr");
   const currentURL = window.location.href;
-  const navigate = useNavigate();
 
   const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
 
@@ -119,9 +112,7 @@ function FileUploader() {
     fetchPolicy: "cache-and-network",
   });
 
-  const dataSelector = useSelector(
-    selectorAction.checkboxFileAndFolderSelector,
-  );
+  // const [messageData, setMessageData] = useState<any[]>([]);
 
   // hooks
   const manageFile = useManageFiles();
@@ -195,16 +186,6 @@ function FileUploader() {
 
   function handleClearGridSelection() {
     setMultipleIds([]);
-  }
-
-  function handleToggle() {
-    if (toggle === "list") {
-      setToggle("grid");
-      localStorage.setItem("toggle", "grid");
-    } else {
-      setToggle("list");
-      localStorage.setItem("toggle", "list");
-    }
   }
 
   // get Download button
@@ -878,10 +859,7 @@ function FileUploader() {
   };
 
   const handleDoubleClickFolder = (value: any) => {
-    const url = value?.url;
-
-    const base64URL = Base64.encodeURI(url);
-    navigate(`/folder/${base64URL}`);
+    console.log(value);
   };
 
   // Done
@@ -1654,155 +1632,41 @@ function FileUploader() {
         <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem" }}>
           <Advertisement />
 
-          <MUI.FileListContainer>
-            <Box>
-              {dataFolderLinkMemo?.length > 0 ||
-                (dataLinkMemo?.length > 0 && (
-                  <MUI.FileBoxToggle>
-                    {toggle === "grid" && (
-                      <NormalButton
-                        onClick={() => {
-                          if (dataLinkMemo?.length > 0) {
-                            handleDownloadFileGetLink();
-                          } else {
-                            handleDownloadFolderGetLink();
-                          }
-                        }}
-                        disabled={
-                          dataSelector?.selectionFileAndFolderData?.length > 0
-                            ? false
-                            : true
-                        }
-                        sx={{
-                          padding: (theme) =>
-                            `${theme.spacing(1.6)} ${theme.spacing(5)}`,
-                          borderRadius: (theme) => theme.spacing(2),
-                          color: "#828282 !important",
-                          fontWeight: "bold",
-                          backgroundColor: "#fff",
-                          border: "1px solid #ddd",
-                          width: "inherit",
-                          outline: "none",
-                          verticalAlign: "middle",
-                          ":disabled": {
-                            cursor: "context-menu",
-                            backgroundColor: "#D6D6D6",
-                            color: "#ddd",
-                          },
-                        }}
-                      >
-                        Download
-                      </NormalButton>
-                    )}
-                    <IconButton size="small" onClick={handleToggle}>
-                      {toggle === "list" ? <ListIcon /> : <GridIcon />}
-                    </IconButton>
-                  </MUI.FileBoxToggle>
-                ))}
+          {/* Box downloader */}
+          <Fragment>
+            {dataLinkMemo && dataLinkMemo.length > 0 && (
+              <GridFileData
+                isFile={true}
+                _description={_description}
+                dataLinks={dataLinkMemo}
+                multipleIds={multipleIds}
+                countAction={adAlive}
+                setMultipleIds={setMultipleIds}
+                handleQRGeneration={handleQRGeneration}
+                handleClearGridSelection={handleClearGridSelection}
+                handleDownloadAsZip={handleDownloadAsZip}
+                handleDownloadFileGetLink={handleDownloadFileGetLink}
+              />
+            )}
+          </Fragment>
 
-              {toggle === "list" && (
-                <Fragment>
-                  {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
-                    <GridFileData
-                      isFile={false}
-                      toggle={toggle}
-                      _description={_description}
-                      dataLinks={dataFolderLinkMemo}
-                      multipleIds={multipleIds}
-                      countAction={adAlive}
-                      setMultipleIds={setMultipleIds}
-                      setToggle={handleToggle}
-                      handleQRGeneration={handleQRGeneration}
-                      handleClearGridSelection={handleClearGridSelection}
-                      handleDownloadFolderAsZip={handleDownloadAsZip}
-                      handleDownloadFolder={handleDownloadFolderGetLink}
-                      handleDoubleClick={handleDoubleClickFolder}
-                    />
-                  )}
-
-                  {dataLinkMemo && dataLinkMemo.length > 0 && (
-                    <GridFileData
-                      isFile={true}
-                      toggle={toggle}
-                      _description={_description}
-                      dataLinks={dataLinkMemo}
-                      multipleIds={multipleIds}
-                      countAction={adAlive}
-                      setMultipleIds={setMultipleIds}
-                      setToggle={handleToggle}
-                      handleQRGeneration={handleQRGeneration}
-                      handleClearGridSelection={handleClearGridSelection}
-                      handleDownloadAsZip={handleDownloadAsZip}
-                      handleDownloadFileGetLink={handleDownloadFileGetLink}
-                    />
-                  )}
-                </Fragment>
-              )}
-
-              {toggle === "grid" && (
-                <Fragment>
-                  {dataLinkMemo && dataLinkMemo.length > 0 && (
-                    <FileCardContainer>
-                      {dataLinkMemo.map((item, index) => {
-                        return (
-                          <Fragment key={index}>
-                            <FileCardItem
-                              id={item._id}
-                              item={item}
-                              imagePath={
-                                item?.createdBy?.newName +
-                                "-" +
-                                item?.createdBy?._id +
-                                "/" +
-                                (item.newPath
-                                  ? removeFileNameOutOfPath(item.newPath)
-                                  : "") +
-                                item.newFilename
-                              }
-                              user={item?.createdBy}
-                              path={item?.path}
-                              isCheckbox={true}
-                              filePassword={item?.filePassword}
-                              fileType={"image"}
-                              isPublic={
-                                item?.createdBy?._id === "0" ? true : false
-                              }
-                              name={item?.filename}
-                              newName={item?.newFilename}
-                              cardProps={{
-                                onDoubleClick: () => {
-                                  console.log("first");
-                                },
-                              }}
-                            />
-                          </Fragment>
-                        );
-                      })}
-                    </FileCardContainer>
-                  )}
-                </Fragment>
-              )}
-            </Box>
-            <Box>
-              {(dataFolderLinkMemo?.length > 0 || dataLinkMemo?.length > 0) && (
-                <BoxSocialShare
-                  isFile={false}
-                  toggle={toggle || ""}
-                  _description={_description}
-                  dataLinks={dataFolderLinkMemo}
-                  multipleIds={multipleIds}
-                  countAction={adAlive}
-                  setMultipleIds={setMultipleIds}
-                  setToggle={handleToggle}
-                  handleQRGeneration={handleQRGeneration}
-                  handleClearGridSelection={handleClearGridSelection}
-                  handleDownloadFolderAsZip={handleDownloadAsZip}
-                  handleDownloadFolder={handleDownloadFolderGetLink}
-                  handleDoubleClick={handleDoubleClickFolder}
-                />
-              )}
-            </Box>
-          </MUI.FileListContainer>
+          <Fragment>
+            {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
+              <GridFileData
+                isFile={false}
+                _description={_description}
+                dataLinks={dataFolderLinkMemo}
+                multipleIds={multipleIds}
+                countAction={adAlive}
+                setMultipleIds={setMultipleIds}
+                handleQRGeneration={handleQRGeneration}
+                handleClearGridSelection={handleClearGridSelection}
+                handleDownloadFolderAsZip={handleDownloadAsZip}
+                handleDownloadFolder={handleDownloadFolderGetLink}
+                handleDoubleClick={handleDoubleClickFolder}
+              />
+            )}
+          </Fragment>
         </Box>
       </MUI.ContainerHome>
 
@@ -1811,12 +1675,7 @@ function FileUploader() {
           fullWidth={true}
           variant="contained"
           size="small"
-          disabled={
-            multipleIds.length > 0 ||
-            dataSelector?.selectionFileAndFolderData?.length > 0
-              ? false
-              : true
-          }
+          disabled={multipleIds.length > 0 ? false : true}
           onClick={handleMobileDownloadData}
         >
           Download
@@ -1858,4 +1717,4 @@ function FileUploader() {
   );
 }
 
-export default FileUploader;
+export default ExtendFolderUploader;

@@ -14,6 +14,7 @@ import PricingCheckout from "./pages/pricing-checkout/PricingCheckout";
 import PriceSignUp from "components/priceCheckout/PriceSignUp";
 import PricePayment from "components/priceCheckout/PricePayment";
 import ConfirmPayment from "./pages/confirm-payment/ConfirmPayment";
+import { MenuDropdownProvider } from "contexts/MenuDropdownProvider";
 
 const routes: RouteObject[] = [
   {
@@ -32,7 +33,9 @@ const routes: RouteObject[] = [
         path: "df",
         element: (
           <Landing>
-            <FileUploader />
+            <MenuDropdownProvider>
+              <FileUploader />
+            </MenuDropdownProvider>
           </Landing>
         ),
       },

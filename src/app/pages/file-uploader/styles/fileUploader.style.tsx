@@ -917,8 +917,8 @@ export const BoxMultipleFolder = styled("div")({
 ////display files zone
 export const FileListContainer = styled(Box)(({ theme }) => ({
   display: "grid",
-  gridTemplateColumns: "1.5fr 1fr",
-  gap: 10,
+  gridTemplateColumns: "1.6fr 1fr",
+  gap: "1.2rem",
 
   [theme.breakpoints.down("md")]: {
     gridTemplateColumns: "1fr",
@@ -940,8 +940,15 @@ export const FileListContainer = styled(Box)(({ theme }) => ({
 }));
 
 export const FileBoxDownload = styled("div")({
-  // width: "70%",
   overflow: "hidden",
+});
+
+export const FileBoxToggle = styled("div")({
+  display: "flex",
+  justifyContent: "flex-end",
+  marginBottom: "1.2rem",
+  gap: "0.7rem",
+  alignItems: "center",
 });
 
 export const FileBoxSocial = styled("div")({
