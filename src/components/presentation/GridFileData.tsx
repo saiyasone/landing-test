@@ -42,7 +42,7 @@ import {
   TwitterIcon,
   TwitterShareButton,
   WhatsappIcon,
-  WhatsappShareButton,
+  WhatsappShareButton
 } from "react-share";
 import { ENV_KEYS } from "constants/env.constant";
 
@@ -149,6 +149,14 @@ function GridFileData(props: Props) {
       setExpireDate(props?.dataLinks?.[0]?.expired || "");
     }
   }, [props]);
+
+  useEffect(()=>{
+    if(isMore){
+      setTimeout(() => {
+        setIsMore(!isMore);
+      }, 10000);
+    }
+  },[isMore])
   
   return (
     <Fragment>

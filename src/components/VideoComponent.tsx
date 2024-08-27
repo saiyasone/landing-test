@@ -55,21 +55,21 @@ const VideoCardComponent = (props: Props) => {
             </div>
             <Box sx={{position:'absolute', right:10, top:10, color:"#fff"}}>
                 <Box sx={{display:'flex',flexDirection:'column', justifyContent:'center'}}>
-                    <Box sx={{display:'flex', flex: 1, flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
+                    <Box sx={{display:'flex', flex: 1, flexDirection:'column', justifyContent:'center', alignItems:'center', '&:hover':{cursor:'pointer'}}}>
                         <IoMdPlayCircle style={{fontSize: '2rem'}}/>
-                        <Typography className='text-xs whitespace-nowrap text-center w-full'>10</Typography>
+                        <Typography>10</Typography>
                     </Box>
-                    <Box sx={{display:'flex', flex: 1, flexDirection:'column', justifyContent:'center', alignItems:'center', mt: 5}}>
+                    <Box sx={{display:'flex', flex: 1, flexDirection:'column', justifyContent:'center', alignItems:'center', mt: 5, '&:hover':{cursor:'pointer'}}}>
                         <IoHeartCircle style={{fontSize: '2rem'}}/>
-                        <Typography className='text-xs whitespace-nowrap text-center w-full'>10</Typography>
+                        <Typography>10</Typography>
                     </Box>
-                    <Box sx={{display:'flex', flex: 1, flexDirection:'column', justifyContent:'center', alignItems:'center', mt: 5}}>
+                    <Box sx={{display:'flex', flex: 1, flexDirection:'column', justifyContent:'center', alignItems:'center', mt: 5, '&:hover':{cursor:'pointer'}}}>
                         <IoArrowRedoCircleSharp style={{fontSize: '2rem'}}/>
-                        <Typography className='text-xs whitespace-nowrap text-center w-full'>5</Typography>
+                        <Typography>5</Typography>
                     </Box>
-                    <Box sx={{display:'flex', flex: 1, flexDirection:'column', justifyContent:'center', alignItems:'center', mt: 5}}>
+                    <Box sx={{display:'flex', flex: 1, flexDirection:'column', justifyContent:'center', alignItems:'center', mt: 5, '&:hover':{cursor:'pointer'}}}>
                         <FaCircleDown style={{fontSize: '1.5rem'}}/>
-                        <Typography className='text-xs whitespace-nowrap text-center w-full'>5</Typography>
+                        <Typography>5</Typography>
                     </Box>
                 </Box>
             </Box>
