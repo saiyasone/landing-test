@@ -31,12 +31,11 @@ import BoxSocialShare from "components/presentation/BoxSocialShare";
 import DialogConfirmQRCode from "components/presentation/DialogConfirmQRCode";
 import FileCardContainer from "components/presentation/FileCardContainer";
 import FileCardItem from "components/presentation/FileCardItem";
-import GridFileData from "components/presentation/GridFileData";
+import ListFileData from "components/presentation/ListFileData";
 import { ENV_KEYS } from "constants/env.constant";
 import CryptoJS from "crypto-js";
 import useManageFiles from "hooks/useManageFile";
 import useManageSetting from "hooks/useManageSetting";
-import { Base64 } from "js-base64";
 import Helmet from "react-helmet";
 import { FaTrash } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
@@ -50,9 +49,12 @@ import {
 import { decryptDataLink, encryptDataLink } from "utils/secure.util";
 import * as MUI from "./styles/fileUploader.style";
 import "./styles/fileUploader.style.css";
+import ListFolderData from "components/presentation/ListFolderData";
+import BaseNormalButton from "components/BaseNormalButton";
 
 function FileUploader() {
   const location = useLocation();
+  const isMobile = useMediaQuery("(max-width: 600px)");
   const [checkConfirmPassword, setConfirmPassword] = useState(false);
   const [getDataRes, setGetDataRes] = useState<any>(null);
   const [folderDownload, setFolderDownload] = useState<any>(null);
@@ -92,9 +94,6 @@ function FileUploader() {
   const [multipleType, setMultipleType] = useState("");
   const [fileDataSelect, setFileDataSelect] = useState<any>(null);
   const [folderDataSelect, setFolderDataSelect] = useState<any>(null);
-
-  const [totalMultipleFolder, setTotalMultipleFolder] = useState(0);
-  const [totalMultipleFile, setTotalMultipleFile] = useState(0);
   const [dataMultipleFile, setDataMultipleFile] = useState<any[]>([]);
   const [dataMultipleFolder, setDataMultipleFolder] = useState<any[]>([]);
 
@@ -111,6 +110,7 @@ function FileUploader() {
   const appScheme = "vshare.app://download?url=" + currentURL;
 
   const [multipleIds, setMultipleIds] = useState<any[]>([]);
+  const [multipleFolderIds, setMultipleFolderIds] = useState<any[]>([]);
 
   // const [qrcodeUser, setQrcodeUser] = useState([]);
   const [index, setIndex] = useState<any>(null);
@@ -433,14 +433,6 @@ function FileUploader() {
                 );
 
                 const dataFoldersFlat = resultFolders.flat();
-
-                const folderMapSize = dataFoldersFlat.map((file) =>
-                  parseInt(file.total_size || 0),
-                );
-                const totalFolders = folderMapSize.reduce(
-                  (prev, current) => prev + current,
-                );
-                setTotalMultipleFolder(totalFolders);
                 setDataMultipleFolder(dataFoldersFlat);
               }
 
@@ -463,13 +455,6 @@ function FileUploader() {
                 );
 
                 const dataFilesFlat = resultFiles.flat();
-                const filesMapSize = dataFilesFlat.map((file) =>
-                  parseInt(file.size),
-                );
-                const totalFiles = filesMapSize.reduce(
-                  (prev, current) => prev + current,
-                );
-                setTotalMultipleFile(totalFiles);
                 setDataMultipleFile(dataFilesFlat);
               }
             }
@@ -530,125 +515,6 @@ function FileUploader() {
 
   const handleClose = () => {
     setOpen(false);
-  };
-
-  // download folder
-  const handleDownloadFolder = async ({ createdBy }) => {
-    setTotalClickCount((prevCount) => prevCount + 1);
-    if (totalClickCount >= getActionButton) {
-      setTotalClickCount(0);
-
-      const folder_name = `${folderDownload[0]?.folder_name}.zip`;
-
-      try {
-        if (folderDownload[0]?.access_password) {
-          handleClickOpen();
-        } else {
-          setIsHide((prev) => ({
-            ...prev,
-            [1]: true,
-          }));
-
-          const multipleData = [
-            {
-              id: folderDownload?.[0]?._id,
-              name: folder_name,
-              newFilename: folderDownload?.[0].newFolder_name,
-              checkType: "folder",
-              newPath: folderDownload?.[0].newPath || "",
-              createdBy,
-            },
-          ];
-
-          await manageFile.handleDownloadFolder(
-            { multipleData },
-            {
-              onSuccess: () => {
-                setIsHide((prev) => ({
-                  ...prev,
-                  [1]: false,
-                }));
-                setIsSuccess((prev) => ({
-                  ...prev,
-                  [1]: true,
-                }));
-              },
-              onFailed: (error) => {
-                errorMessage(error, 3000);
-                setIsHide((prev) => ({
-                  ...prev,
-                  [1]: false,
-                }));
-                setIsSuccess((prev) => ({
-                  ...prev,
-                  [1]: false,
-                }));
-              },
-            },
-          );
-        }
-      } catch (error) {
-        errorMessage("Something wrong try again later!", 2000);
-      }
-    } else {
-      if (getAdvertisemment?.length) {
-        handleAdvertisementPopup();
-      } else {
-        const folder_name = `${folderDownload[0]?.folder_name}.zip`;
-
-        try {
-          if (folderDownload[0]?.access_password) {
-            handleClickOpen();
-          } else {
-            setIsHide((prev) => ({
-              ...prev,
-              [1]: true,
-            }));
-
-            const multipleData = [
-              {
-                id: folderDownload?.[0]?._id,
-                name: folder_name,
-                newFilename: folderDownload?.[0].newFolder_name,
-                checkType: "folder",
-                newPath: folderDownload?.[0].newPath || "",
-                createdBy,
-              },
-            ];
-
-            await manageFile.handleDownloadFolder(
-              { multipleData },
-              {
-                onSuccess: () => {
-                  successMessage("Successfully downloaded", 3000);
-                  setIsHide((prev) => ({
-                    ...prev,
-                    [1]: false,
-                  }));
-                  setIsSuccess((prev) => ({
-                    ...prev,
-                    [1]: true,
-                  }));
-                },
-                onFailed: (error) => {
-                  errorMessage(error, 3000);
-                  setIsHide((prev) => ({
-                    ...prev,
-                    [1]: false,
-                  }));
-                  setIsSuccess((prev) => ({
-                    ...prev,
-                    [1]: false,
-                  }));
-                },
-              },
-            );
-          }
-        } catch (error: any) {
-          errorMessage(error, 2000);
-        }
-      }
-    }
   };
 
   const handleMobileDownloadData = () => {
@@ -766,8 +632,8 @@ function FileUploader() {
   };
 
   const handleDownloadFolderGetLink = async () => {
-    if (multipleIds?.length > 0) {
-      const newModelData = multipleIds.map((value: any) => {
+    if (multipleFolderIds?.length > 0) {
+      const newModelData = multipleFolderIds.map((value: any) => {
         const newVal = dataFolderLinkMemo?.find(
           (file: any) => file?._id === value,
         );
@@ -914,47 +780,6 @@ function FileUploader() {
     }
   };
 
-  // download multiple folder
-  const handleMultipleDownloadFolder = async ({ folder, index }) => {
-    setFolderDataSelect(folder);
-    setMultipleType("folder");
-
-    setTotalClickCount((prevCount) => prevCount + 1);
-    if (totalClickCount >= getActionButton) {
-      setTotalClickCount(0);
-
-      try {
-        if (folder?.access_password) {
-          handleClickOpen();
-        } else {
-          handleDoneFolderDownload({
-            folder,
-            index,
-          });
-        }
-      } catch (error) {
-        errorMessage("Something wrong try again later!", 2000);
-      }
-    } else {
-      if (getAdvertisemment.length) {
-        handleAdvertisementPopup();
-      } else {
-        try {
-          if (folder?.access_password) {
-            handleClickOpen();
-          } else {
-            handleDoneFolderDownload({
-              folder,
-              index,
-            });
-          }
-        } catch (error: any) {
-          errorMessage(error, 2000);
-        }
-      }
-    }
-  };
-
   const handleOpenApplication = () => {
     const timeout = setTimeout(() => {
       if (platform === "android") {
@@ -977,60 +802,6 @@ function FileUploader() {
 
   const handleDoubleClickFolder = (value: any) => {
     console.log({ value });
-  };
-
-  // Done
-  const handleDoneFolderDownload = async ({ folder, index }) => {
-    try {
-      setIsMultipleHide((prev) => ({
-        ...prev,
-        [index]: true,
-      }));
-      setIsMultipleSuccess((prev) => ({ ...prev, [index]: false }));
-
-      const path = folder?.newPath || "";
-      const folder_name = `${folder?.folder_name}.zip`;
-
-      const multipleData = [
-        {
-          id: folder._id,
-          name: folder_name,
-          newFilename: folder?.newFolder_name,
-          checkType: "folder",
-          newPath: path,
-          createdBy: folder?.createdBy,
-        },
-      ];
-
-      await manageFile.handleDownloadFolder(
-        { multipleData },
-        {
-          onFailed: (error) => {
-            setIsMultipleHide((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-            setIsMultipleSuccess((prev) => ({ ...prev, [index]: false }));
-            errorMessage(error, 3000);
-          },
-          onSuccess: () => {
-            successMessage("Successfully downloaded", 3000);
-            setIsMultipleHide((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-            setIsMultipleSuccess((prev) => ({ ...prev, [index]: true }));
-          },
-        },
-      );
-    } catch (error: any) {
-      setIsMultipleHide((prev) => ({
-        ...prev,
-        [index]: false,
-      }));
-      setIsMultipleSuccess((prev) => ({ ...prev, [index]: false }));
-      errorMessage(error, 3000);
-    }
   };
 
   const handleDownloadAsZip = async () => {
@@ -1666,8 +1437,6 @@ function FileUploader() {
     return [];
   }, [linkClient, getDataRes, dataMultipleFolder]);
 
-  const isMobile = useMediaQuery("(max-width: 600px)");
-
   return (
     <React.Fragment>
       <Helmet>
@@ -1697,8 +1466,14 @@ function FileUploader() {
                 <MUI.FileBoxToggle>
                   {toggle === "grid" && (
                     <Fragment>
-                      <NormalButton
-                        onClick={() => {
+                      <BaseNormalButton
+                        title="Download"
+                        disabled={
+                          dataSelector?.selectionFileAndFolderData?.length > 0
+                            ? false
+                            : true
+                        }
+                        handleClick={() => {
                           if (dataLinkMemo?.length > 0) {
                             handleDownloadFileGetLink();
                           }
@@ -1707,31 +1482,7 @@ function FileUploader() {
                             handleDownloadFolderGetLink();
                           }
                         }}
-                        disabled={
-                          dataSelector?.selectionFileAndFolderData?.length > 0
-                            ? false
-                            : true
-                        }
-                        sx={{
-                          padding: (theme) =>
-                            `${theme.spacing(1.6)} ${theme.spacing(5)}`,
-                          borderRadius: (theme) => theme.spacing(2),
-                          color: "#828282 !important",
-                          fontWeight: "bold",
-                          backgroundColor: "#fff",
-                          border: "1px solid #ddd",
-                          width: "inherit",
-                          outline: "none",
-                          verticalAlign: "middle",
-                          ":disabled": {
-                            cursor: "context-menu",
-                            backgroundColor: "#D6D6D6",
-                            color: "#ddd",
-                          },
-                        }}
-                      >
-                        Download
-                      </NormalButton>
+                      />
                       <NormalButton
                         onClick={handleClearSelector}
                         sx={{
@@ -1766,14 +1517,14 @@ function FileUploader() {
               {toggle === "list" && (
                 <Fragment>
                   {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
-                    <GridFileData
+                    <ListFolderData
                       isFile={false}
                       toggle={toggle}
                       _description={_description}
                       dataLinks={dataFolderLinkMemo}
-                      multipleIds={multipleIds}
+                      multipleIds={multipleFolderIds}
                       countAction={adAlive}
-                      setMultipleIds={setMultipleIds}
+                      setMultipleIds={setMultipleFolderIds}
                       setToggle={handleToggle}
                       handleQRGeneration={handleQRGeneration}
                       handleClearGridSelection={handleClearGridSelection}
@@ -1783,8 +1534,10 @@ function FileUploader() {
                     />
                   )}
 
+                  <br />
+
                   {dataLinkMemo && dataLinkMemo.length > 0 && (
-                    <GridFileData
+                    <ListFileData
                       isFile={true}
                       toggle={toggle}
                       _description={_description}
@@ -1917,9 +1670,9 @@ function FileUploader() {
 
       <MUI.FilBoxBottomContainer>
         <Button
+          sx={{ padding: "0.66rem", borderRadius: "30px" }}
           fullWidth={true}
           variant="contained"
-          size="small"
           disabled={
             multipleIds.length > 0 ||
             dataSelector?.selectionFileAndFolderData?.length > 0
@@ -1930,14 +1683,16 @@ function FileUploader() {
         >
           Download
         </Button>
-        <Button
-          onClick={handleOpenApplication}
-          fullWidth={true}
-          variant="contained"
-          size="small"
-        >
-          Open app
-        </Button>
+        {(platform === "android" || platform === "ios") && (
+          <Button
+            sx={{ padding: "0.66rem", borderRadius: "30px" }}
+            onClick={handleOpenApplication}
+            fullWidth={true}
+            variant="contained"
+          >
+            Open app
+          </Button>
+        )}
       </MUI.FilBoxBottomContainer>
 
       <DialogPreviewQRcode
@@ -1955,7 +1710,6 @@ function FileUploader() {
 
       <DialogConfirmQRCode
         isOpen={isVerifyQrCode}
-        f
         dataValue={dataValue}
         filename={dataValue?.filename}
         newFilename={dataValue?.newFilename}

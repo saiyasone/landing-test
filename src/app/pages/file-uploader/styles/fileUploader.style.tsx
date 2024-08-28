@@ -967,13 +967,15 @@ export const FileBoxSocial = styled("div")({
 export const FilBoxBottomContainer = styled("div")({
   display: "none",
   position: "fixed",
-  left: 0,
+  // left: 0,
   bottom: 0,
-  padding: "1rem",
+  padding: "1.2rem 1rem",
   width: "100%",
   zIndex: 999,
+  borderRadius: "30px",
 
-  // display: "flex",
+
+  marginRight: "2rem",
   gap: "1rem",
   justifyContent: "center",
   backgroundColor: "#fff",

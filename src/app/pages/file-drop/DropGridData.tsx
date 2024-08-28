@@ -201,6 +201,9 @@ function DropGridData(props: Props) {
           "& .MuiDataGrid-cell:focus": {
             outline: "none",
           },
+          "& .MuiDataGrid-virtualScroller": {
+            overflowX: "scroll",
+          },
         }}
         autoHeight
         getRowId={(row) => row?._id}

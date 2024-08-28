@@ -132,8 +132,6 @@ export const QUERY_FOLDER_PUBLIC_LINK = gql`
         pin
         createdBy {
           _id
-          email
-          username
           newName
         }
         updatedAt

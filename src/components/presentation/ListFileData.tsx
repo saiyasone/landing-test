@@ -53,7 +53,7 @@ type Props = {
   handleDoubleClick?: (data: any) => void;
 };
 
-function GridFileData(props: Props) {
+function ListFileData(props: Props) {
   const [expireDate, setExpireDate] = useState("");
 
   const columns: any = [
@@ -348,4 +348,4 @@ function GridFileData(props: Props) {
   );
 }
 
-export default GridFileData;
+export default ListFileData;

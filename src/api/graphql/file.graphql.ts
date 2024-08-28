@@ -19,14 +19,8 @@ export const UPDATE_FILE_PUBLIC = gql`
 `;
 
 export const QUERY_FILE = gql`
-  query GetFile(
-    $where: FilesWhereInput
-    $noLimit: Boolean
-  ) {
-    files(
-      where: $where
-      noLimit: $noLimit
-    ) {
+  query GetFile($where: FilesWhereInput, $noLimit: Boolean) {
+    files(where: $where, noLimit: $noLimit) {
       data {
         _id
         filename
@@ -170,7 +164,6 @@ export const QUERY_FILE_GET_LINK = gql`
         filename
         filePassword
         newFilename
-        passwordUrlAll
         checkFile
         expired
         size
