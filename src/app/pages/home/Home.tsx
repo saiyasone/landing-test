@@ -346,7 +346,7 @@ function Home() {
                   },
                 }}
               >
-                AA Start Sharing, Uploading It’s
+                Start Sharing, Uploading It’s
               </Typography>
               &nbsp;&nbsp;
               <TypeAnimation
