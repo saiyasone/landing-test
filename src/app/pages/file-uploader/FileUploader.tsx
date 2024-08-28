@@ -195,7 +195,17 @@ function FileUploader() {
 
   function handleClearGridSelection() {
     setMultipleIds([]);
+    setMultipleFolderIds([]);
   }
+
+  const handleEscKey = (event: KeyboardEvent): void => {
+    if (event.key === "Escape") {
+      handleClearSelector();
+    }
+  };
+
+  const handleKeyDown = (event: Event) =>
+    handleEscKey(event as unknown as KeyboardEvent);
 
   function handleClearSelector() {
     dispatch(selectorAction.setRemoveFileAndFolderData());
@@ -237,6 +247,14 @@ function FileUploader() {
         },
       },
     });
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   useEffect(() => {
@@ -798,10 +816,6 @@ function FileUploader() {
     window.onblur = () => {
       clearTimeout(timeout);
     };
-  };
-
-  const handleDoubleClickFolder = (value: any) => {
-    console.log({ value });
   };
 
   const handleDownloadAsZip = async () => {
@@ -1483,28 +1497,12 @@ function FileUploader() {
                           }
                         }}
                       />
-                      <NormalButton
-                        onClick={handleClearSelector}
-                        sx={{
-                          padding: (theme) =>
-                            `${theme.spacing(1.6)} ${theme.spacing(3)}`,
-                          borderRadius: (theme) => theme.spacing(2),
-                          color: "#828282 !important",
-                          fontWeight: "bold",
-                          backgroundColor: "#fff",
-                          border: "1px solid #ddd",
-                          width: "inherit",
-                          outline: "none",
-                          verticalAlign: "middle",
-                          ":disabled": {
-                            cursor: "context-menu",
-                            backgroundColor: "#D6D6D6",
-                            color: "#ddd",
-                          },
-                        }}
+                      <BaseNormalButton
+                        handleClick={handleClearSelector}
+                        title=""
                       >
                         <FaTrash fontSize={12} />
-                      </NormalButton>
+                      </BaseNormalButton>
                     </Fragment>
                   )}
 
@@ -1649,18 +1647,9 @@ function FileUploader() {
               {(dataFolderLinkMemo?.length > 0 || dataLinkMemo?.length > 0) && (
                 <BoxSocialShare
                   isFile={false}
-                  toggle={toggle || ""}
                   _description={_description}
-                  dataLinks={dataFolderLinkMemo}
-                  multipleIds={multipleIds}
                   countAction={adAlive}
-                  setMultipleIds={setMultipleIds}
-                  setToggle={handleToggle}
-                  handleQRGeneration={handleQRGeneration}
-                  handleClearGridSelection={handleClearGridSelection}
                   handleDownloadFolderAsZip={handleDownloadAsZip}
-                  handleDownloadFolder={handleDownloadFolderGetLink}
-                  handleDoubleClick={handleDoubleClickFolder}
                 />
               )}
             </Box>

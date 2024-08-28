@@ -1,4 +1,3 @@
-import { Fragment, useEffect, useState } from "react";
 import {
   Box,
   Card,
@@ -10,24 +9,25 @@ import {
 import { DataGrid } from "@mui/x-data-grid";
 import { FileBoxDownload } from "app/pages/file-uploader/styles/fileUploader.style";
 import NormalButton from "components/NormalButton";
+import { Fragment, useEffect, useState } from "react";
 
 // Icons
 import InfoIcon from "@mui/icons-material/Info";
 
-import QrCodeIcon from "@mui/icons-material/QrCodeOutlined";
 import LockIcon from "@mui/icons-material/Lock";
+import QrCodeIcon from "@mui/icons-material/QrCodeOutlined";
 import { convertBytetoMBandGB } from "utils/storage.util";
 
-import { formatDate } from "utils/date.util";
+import { styled } from "@mui/system";
+import FolderEmptyIcon from "assets/images/folder-empty.svg?react";
+import FolderNotEmptyIcon from "assets/images/folder-not-empty.svg?react";
 import {
   BoxAdsAction,
   BoxAdsContainer,
   BoxBottomDownload,
 } from "styles/presentation/presentation.style";
+import { formatDate } from "utils/date.util";
 import { cutFileName } from "utils/file.util";
-import FolderNotEmptyIcon from "assets/images/folder-not-empty.svg?react";
-import FolderEmptyIcon from "assets/images/folder-empty.svg?react";
-import { styled } from "@mui/system";
 
 const IconFolderContainer = styled("div")({
   width: "28px",

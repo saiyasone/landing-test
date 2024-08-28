@@ -1,15 +1,20 @@
+import React from "react";
 import NormalButton from "./NormalButton";
 
 type Props = {
   title?: string;
   disabled?: boolean;
+  children?: React.ReactNode;
+
   handleClick?: () => void;
 };
 
 function BaseNormalButton(props: Props) {
   return (
     <NormalButton
-      onClick={() => props.handleClick}
+      onClick={() => {
+        props.handleClick?.();
+      }}
       disabled={props.disabled}
       sx={{
         padding: (theme) => `${theme.spacing(1.6)} ${theme.spacing(5)}`,
@@ -30,6 +35,7 @@ function BaseNormalButton(props: Props) {
       }}
     >
       {props.title}
+      {props?.children}
     </NormalButton>
   );
 }

@@ -16,22 +16,11 @@ import {
 
 type Props = {
   _description?: string;
-  dataLinks?: any[];
-  multipleIds: any[];
   countAction: number;
   isFile?: boolean;
-  toggle?: string;
 
-  setToggle?: () => void;
-  setMultipleIds?: (value: any[]) => void;
-  handleQRGeneration?: (e: any, file: any, longUrl: string) => void;
-  handleDownloadFileGetLink?: () => void;
-  handleClearGridSelection?: () => void;
   handleDownloadAsZip?: () => void;
-
   handleDownloadFolderAsZip?: () => void;
-  handleDownloadFolder?: () => void;
-  handleDoubleClick?: (data: any) => void;
 };
 
 function BoxSocialShare(props: Props) {
@@ -138,11 +127,7 @@ function BoxSocialShare(props: Props) {
                 mx: "auto !important",
               }}
               onClick={() => {
-                if (props?.isFile) {
-                  props.handleDownloadAsZip?.();
-                } else {
-                  props.handleDownloadFolderAsZip?.();
-                }
+                props.handleDownloadFolderAsZip?.();
               }}
             >
               Download

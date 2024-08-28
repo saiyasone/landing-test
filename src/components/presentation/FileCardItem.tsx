@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
 
 //mui component and style
+import CheckBoxOutlineBlankRoundedIcon from "@mui/icons-material/CheckBoxOutlineBlankRounded";
 import { Box, Checkbox, IconButton, Tooltip } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
@@ -8,7 +9,6 @@ import { styled } from "@mui/material/styles";
 import { styled as muiStyled } from "@mui/system";
 import FolderEmptyIcon from "assets/images/folder-empty.svg?react";
 import FolderNotEmptyIcon from "assets/images/folder-not-empty.svg?react";
-import CheckBoxOutlineBlankRoundedIcon from "@mui/icons-material/CheckBoxOutlineBlankRounded";
 
 import lockIcon from "assets/images/lock-icon.png";
 import useHover from "hooks/useHover";
@@ -18,12 +18,12 @@ import { FileIcon, defaultStyles } from "react-file-icon";
 import { BsPinAngleFill } from "react-icons/bs";
 import { FiDownload } from "react-icons/fi";
 import * as MdIcon from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
+import * as selectorAction from "stores/features/selectorSlice";
 import { getFileType } from "utils/file.util";
 import { cutStringWithEllipsis } from "utils/string.util";
 import Loader from "./Loader";
 import MenuDropdown from "./MenuDropdown";
-import { useDispatch, useSelector } from "react-redux";
-import * as selectorAction from "stores/features/selectorSlice";
 
 export const SelectionContainer = styled("div")({
   position: "absolute",
@@ -263,6 +263,12 @@ const FileCardItem: React.FC<any> = ({
     setIsDropdownOpen(isOpen);
   };
 
+  const handleItemClick = () => {
+    if (props?.isCheckbox) {
+      handleSelect();
+    }
+  };
+
   useEffect(() => {
     setIsOpenMenu(isFileCardItemHover);
   }, [isFileCardItemHover]);
@@ -291,6 +297,7 @@ const FileCardItem: React.FC<any> = ({
       <Item
         ref={itemRef}
         className="card-item"
+        onClick={handleItemClick}
         {...{
           ...(styleSelectedCard && {
             isstyledselectedcard: styleSelectedCard,
@@ -339,7 +346,6 @@ const FileCardItem: React.FC<any> = ({
                 />
               }
               aria-label={"checkbox" + props?.id}
-              onClick={() => handleSelect()}
             />
           </SelectionContainer>
         )}
