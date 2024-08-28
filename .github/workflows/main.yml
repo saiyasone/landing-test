@@ -60,6 +60,7 @@ jobs:
             git fetch
             git checkout ${{ env.BRANCH }}
             git pull
-            docker network create share-container-network || true
-            npm run build:${{ env.VERSION }}
+            yarn install
+            # docker network create share-container-network || true
+            yarn run build:${{ env.VERSION }}
           EOF
