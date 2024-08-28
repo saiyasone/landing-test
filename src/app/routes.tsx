@@ -1,6 +1,6 @@
 import Landing from "components/presentation/Landing";
 import PresentationLayout from "components/presentation/PresentationLayout";
-import { RouteObject } from "react-router-dom";
+import { Navigate, RouteObject } from "react-router-dom";
 import ContactUs from "./pages/contact-us/ContactUs";
 import Feedback from "./pages/feedback/FeedBack";
 import FileDrop from "./pages/file-drop/FileDrop";
@@ -15,6 +15,7 @@ import PriceSignUp from "components/priceCheckout/PriceSignUp";
 import PricePayment from "components/priceCheckout/PricePayment";
 import ConfirmPayment from "./pages/confirm-payment/ConfirmPayment";
 import { MenuDropdownProvider } from "contexts/MenuDropdownProvider";
+import ExtendFolder from "./pages/extend-folder/ExtendFolder";
 
 const routes: RouteObject[] = [
   {
@@ -35,6 +36,17 @@ const routes: RouteObject[] = [
           <Landing>
             <MenuDropdownProvider>
               <FileUploader />
+            </MenuDropdownProvider>
+          </Landing>
+        ),
+      },
+
+      {
+        path: "df/extend",
+        element: (
+          <Landing>
+            <MenuDropdownProvider>
+              <ExtendFolder />
             </MenuDropdownProvider>
           </Landing>
         ),
@@ -115,10 +127,10 @@ const routes: RouteObject[] = [
           </Landing>
         ),
       },
-      // {
-      //   path: "*",
-      //   element: <Navigate to="/" />,
-      // },
+      {
+        path: "*",
+        element: <Navigate to="/" />,
+      },
     ],
   },
 ];

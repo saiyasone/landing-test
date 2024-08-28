@@ -47,7 +47,7 @@ import {
   cutFileName,
   removeFileNameOutOfPath,
 } from "utils/file.util";
-import { decryptDataLink } from "utils/secure.util";
+import { decryptDataLink, encryptDataLink } from "utils/secure.util";
 import * as MUI from "./styles/fileUploader.style";
 import "./styles/fileUploader.style.css";
 
@@ -174,7 +174,6 @@ function FileUploader() {
     fetchPolicy: "no-cache",
   });
 
-  // let linkClient: any = { _id: "", type: "" };
   let linkClient = useMemo(() => ({ _id: "", type: "" }), []);
 
   try {
@@ -977,10 +976,7 @@ function FileUploader() {
   };
 
   const handleDoubleClickFolder = (value: any) => {
-    const url = value?.url;
-
-    const base64URL = Base64.encodeURI(url);
-    navigate(`/folder/${base64URL}`);
+    console.log({ value });
   };
 
   // Done
@@ -1572,6 +1568,16 @@ function FileUploader() {
     }
   };
 
+  const handleOpenFolder = (folder) => {
+    const baseUrl = {
+      _id: folder._id,
+      type: "folder",
+    };
+
+    const encodeUrl = encryptDataLink(baseUrl);
+    navigate(`/df/extend?lc=${encodeUrl}`);
+  };
+
   const previewHandleClose = () => {
     setPreviewOpen(false);
   };
@@ -1773,7 +1779,7 @@ function FileUploader() {
                       handleClearGridSelection={handleClearGridSelection}
                       handleDownloadFolderAsZip={handleDownloadAsZip}
                       handleDownloadFolder={handleDownloadFolderGetLink}
-                      handleDoubleClick={handleDoubleClickFolder}
+                      handleDoubleClick={handleOpenFolder}
                     />
                   )}
 
@@ -1829,7 +1835,7 @@ function FileUploader() {
                                 newName={item?.newFilename}
                                 cardProps={{
                                   onDoubleClick: () => {
-                                    console.log("first");
+                                    // console.log("first");
                                   },
                                 }}
                               />
@@ -1873,7 +1879,7 @@ function FileUploader() {
                                 newName={item?.newFolder_name}
                                 cardProps={{
                                   onDoubleClick: () => {
-                                    console.log("first");
+                                    handleOpenFolder(item);
                                   },
                                 }}
                               />

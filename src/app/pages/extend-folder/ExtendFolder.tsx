@@ -1,53 +1,49 @@
 import { useLazyQuery, useMutation } from "@apollo/client";
 import axios from "axios";
 import React, { Fragment, useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // components
-import * as MUI from "./styles/fileUploader.style";
-import "./styles/fileUploader.style.css";
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import GridIcon from "@mui/icons-material/AppsOutlined";
+import ListIcon from "@mui/icons-material/FormatListBulletedOutlined";
+import { Box, IconButton, useMediaQuery } from "@mui/material";
 import {
   CREATE_DETAIL_ADVERTISEMENT,
   QUERY_ADVERTISEMENT,
-  QUERY_MANAGE_LINK_DETAIL,
 } from "api/graphql/ad.graphql";
 import {
-  QUERY_FILE_PUBLIC,
+  QUERY_FILE,
   QUERY_FILE_GET_LINK,
-  QUERY_FILE_PUBLICV2,
+  QUERY_FILE_PUBLIC,
 } from "api/graphql/file.graphql";
-import {
-  QUERY_FOLDER_PUBLIC_LINK,
-  QUERY_FOLDER_PUBLICV1,
-} from "api/graphql/folder.graphql";
+import { QUERY_FOLDER_PUBLICV1 } from "api/graphql/folder.graphql";
 import { QUERY_SETTING } from "api/graphql/setting.graphql";
 import { QUERY_USER } from "api/graphql/user.graphql";
+import DialogConfirmPassword from "components/dialog/DialogConfirmPassword";
 import DialogPreviewQRcode from "components/dialog/DialogPreviewQRCode";
+import NormalButton from "components/NormalButton";
+import Advertisement from "components/presentation/Advertisement";
+import BoxSocialShare from "components/presentation/BoxSocialShare";
 import DialogConfirmQRCode from "components/presentation/DialogConfirmQRCode";
+import FileCardContainer from "components/presentation/FileCardContainer";
+import FileCardItem from "components/presentation/FileCardItem";
+import GridFileData from "components/presentation/GridFileData";
 import { ENV_KEYS } from "constants/env.constant";
 import CryptoJS from "crypto-js";
-import useManageSetting from "hooks/useManageSetting";
-import { errorMessage, successMessage } from "utils/alert.util";
-import Helmet from "react-helmet";
-import { combineOldAndNewFileNames, cutFileName } from "utils/file.util";
-import { decryptDataLink } from "utils/secure.util";
 import useManageFiles from "hooks/useManageFile";
-import GridFileData from "components/presentation/GridFileData";
-import Advertisement from "components/presentation/Advertisement";
-import DialogConfirmPassword from "components/dialog/DialogConfirmPassword";
+import useManageSetting from "hooks/useManageSetting";
+import { Base64 } from "js-base64";
+import Helmet from "react-helmet";
+import { FaTrash } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import * as selectorAction from "stores/features/selectorSlice";
+import { errorMessage, successMessage } from "utils/alert.util";
+import { removeFileNameOutOfPath } from "utils/file.util";
+import { decryptDataLink, encryptDataLink } from "utils/secure.util";
+import * as MUI from "../file-uploader/styles/fileUploader.style";
+import "../file-uploader/styles/fileUploader.style.css";
 
-function ExtendFolderUploader() {
+function ExtendFolder() {
   const location = useLocation();
   const [checkConfirmPassword, setConfirmPassword] = useState(false);
   const [getDataRes, setGetDataRes] = useState<any>(null);
@@ -57,6 +53,10 @@ function ExtendFolderUploader() {
   const [filePasswords, setFilePasswords] = useState<any>("");
   const [getNewFileName, setGetNewFileName] = useState("");
   const [fileQRCodePassword, setFileQRCodePassword] = useState("");
+  const [toggle, setToggle] = useState(
+    localStorage.getItem("toggle") ? localStorage.getItem("toggle") : "list",
+  );
+
   const [checkModal, setCheckModal] = useState(false);
   const [getFilenames, setGetFilenames] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -66,14 +66,11 @@ function ExtendFolderUploader() {
   const [getAdvertisemment, setGetAvertisement] = useState<any>([]);
 
   const [usedAds, setUsedAds] = useState<any[]>([]);
-  const [lastClickedButton, setLastClickedButton] = useState<any>([]);
   const [totalClickCount, setTotalClickCount] = useState(0);
   const [adAlive, setAdAlive] = useState(0);
 
   const [isHide, setIsHide] = useState<any>(false);
   const [isSuccess, setIsSuccess] = useState<any>(false);
-  const [isProcessAll, setIsProcessAll] = useState(false);
-  const [isDownloadAll, setIsDownloadAll] = useState(false);
 
   const [isMultipleHide, setIsMultipleHide] = useState<any>(false);
   const [isMultipleSuccess, setIsMultipleSuccess] = useState<any>(false);
@@ -87,8 +84,6 @@ function ExtendFolderUploader() {
   const [fileDataSelect, setFileDataSelect] = useState<any>(null);
   const [folderDataSelect, setFolderDataSelect] = useState<any>(null);
 
-  const [totalMultipleFolder, setTotalMultipleFolder] = useState(0);
-  const [totalMultipleFile, setTotalMultipleFile] = useState(0);
   const [dataMultipleFile, setDataMultipleFile] = useState<any[]>([]);
   const [dataMultipleFolder, setDataMultipleFolder] = useState<any[]>([]);
 
@@ -96,12 +91,9 @@ function ExtendFolderUploader() {
   const linkValue = params.get("l");
   const urlClient = params.get("lc");
   const userqrcode = params.get("qr");
-  const currentURL = window.location.href;
+  const navigate = useNavigate();
 
   const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
-
-  // Deep linking for mobile devices
-  const appScheme = "vshare.app://download?url=" + currentURL;
 
   const [multipleIds, setMultipleIds] = useState<any[]>([]);
 
@@ -112,35 +104,20 @@ function ExtendFolderUploader() {
     fetchPolicy: "cache-and-network",
   });
 
-  // const [messageData, setMessageData] = useState<any[]>([]);
+  const dataSelector = useSelector(
+    selectorAction.checkboxFileAndFolderSelector,
+  );
+  const dispatch = useDispatch();
 
   // hooks
   const manageFile = useManageFiles();
 
-  const [getFileLink, { data: dataFileLink }] = useLazyQuery(
-    QUERY_FILE_GET_LINK,
-    {
-      fetchPolicy: "cache-and-network",
-    },
-  );
-
-  const [getMultipleFile] = useLazyQuery(QUERY_FILE_PUBLICV2, {
+  const [getFileLink, { data: dataFileLink }] = useLazyQuery(QUERY_FILE, {
     fetchPolicy: "cache-and-network",
   });
-
-  const [getMultipleFolder] = useLazyQuery(QUERY_FOLDER_PUBLICV1, {
-    fetchPolicy: "cache-and-network",
-  });
-
-  const [getManageLinkDetail, { data: dataFileAndFolderLink }] = useLazyQuery(
-    QUERY_MANAGE_LINK_DETAIL,
-    {
-      fetchPolicy: "cache-and-network",
-    },
-  );
 
   const [getFolderLink, { data: dataFolderLink }] = useLazyQuery(
-    QUERY_FOLDER_PUBLIC_LINK,
+    QUERY_FOLDER_PUBLICV1,
   );
 
   const [getDataButtonDownload, { data: getDataButtonDL }] = useLazyQuery(
@@ -186,6 +163,22 @@ function ExtendFolderUploader() {
 
   function handleClearGridSelection() {
     setMultipleIds([]);
+  }
+
+  function handleClearSelector() {
+    dispatch(selectorAction.setRemoveFileAndFolderData());
+  }
+
+  function handleToggle() {
+    setMultipleIds([]);
+    handleClearSelector();
+    if (toggle === "list") {
+      setToggle("grid");
+      localStorage.setItem("toggle", "grid");
+    } else {
+      setToggle("list");
+      localStorage.setItem("toggle", "list");
+    }
   }
 
   // get Download button
@@ -258,90 +251,26 @@ function ExtendFolderUploader() {
     const getLinkData = async () => {
       try {
         if (linkClient?._id) {
-          if (linkClient?.type === "file") {
-            setIsLoading(true);
-
-            await getFileLink({
-              variables: {
-                where: {
-                  _id: linkClient?._id,
-                },
-              },
-            });
-
-            setTimeout(() => {
-              setIsLoading(false);
-            }, 500);
-
-            if (dataFileLink?.queryFileGetLinks?.data) {
-              document.title =
-                dataFileLink?.queryFileGetLinks?.data?.[0]?.filename ??
-                "Vshare download file";
-
-              if (dataFileLink?.queryFileGetLinks?.data?.[0]) {
-                setDescription(
-                  dataFileLink?.queryFileGetLinks?.data?.[0]?.filename +
-                    " Vshare.net",
-                );
-              }
-              setGetDataRes(dataFileLink?.queryFileGetLinks?.data || []);
-            }
-          }
-
-          if (linkClient?.type === "folder") {
-            setIsLoading(true);
-            await getFolderLink({
-              variables: {
-                where: {
-                  _id: linkClient?._id,
-                },
-              },
-            });
-            setTimeout(() => {
-              setIsLoading(false);
-            }, 500);
-
-            const folderData = dataFolderLink?.queryfoldersGetLinks?.data || [];
-
-            if (folderData?.[0]?.status === "active") {
-              setGetDataRes(folderData || []);
-              setFolderDownload(folderData || []);
-
-              document.title =
-                folderData?.[0]?.folder_name || "Vshare download folder";
-              if (folderData && folderData?.[0]?.folder_type) {
-                if (folderData[0]?.folder_name) {
-                  setDescription(folderData[0]?.folder_name + " Vshare.net");
-                }
-              }
-            }
-          }
-        } else {
           setIsLoading(true);
-          getData({
+          const fileResponse = await getFileLink({
             variables: {
               where: {
-                urlAll: linkValue ? String(linkValue) : null,
+                folder_id: "9",
               },
             },
           });
 
+          console.log({ fileResponse });
+          // await getFolderLink({
+          //   variables: {
+          //     where: {
+          //       _id: linkClient?._id,
+          //     },
+          //   },
+          // });
           setTimeout(() => {
             setIsLoading(false);
           }, 500);
-          if (resPonData) {
-            const fileData = resPonData?.filesPublic?.data?.[0];
-            const title = cutFileName(
-              combineOldAndNewFileNames(
-                fileData?.filename,
-                fileData?.newFilename,
-              ) as string,
-              10,
-            );
-            setDescription(`${title} Vshare.net`);
-            document.title = title;
-            setGetDataRes(resPonData?.filesPublic?.data);
-          }
         }
       } catch (error: any) {
         setIsLoading(false);
@@ -350,117 +279,7 @@ function ExtendFolderUploader() {
     };
 
     getLinkData();
-
-    // return () => {
-    //   document.title = "Download folder and file"; // Reset the title when the component unmounts
-    // };
-  }, [linkValue, urlClient, dataFileLink, dataFolderLink, resPonData]);
-
-  useEffect(() => {
-    const getMultipleFileAndFolder = async () => {
-      const os = navigator.userAgent;
-
-      try {
-        if (linkClient?._id)
-          if (linkClient?.type === "multiple") {
-            setIsLoading(true);
-
-            await getManageLinkDetail({
-              variables: {
-                where: { _id: linkClient?._id },
-              },
-            });
-
-            const mainData =
-              dataFileAndFolderLink?.getManageLinkDetails?.data || [];
-
-            if (mainData?.length > 0) {
-              if (os.match(/iPhone|iPad|iPod/i)) {
-                setPlatform("ios");
-                setTimeout(() => {
-                  setShowBottomDeep(true);
-                }, 1000);
-              } else if (os.match(/Android/i)) {
-                setPlatform("android");
-                setTimeout(() => {
-                  setShowBottomDeep(true);
-                }, 1000);
-              }
-              const fileData = mainData?.filter((file) => file.type === "file");
-              const folderData = mainData?.filter(
-                (folder) => folder.type === "folder",
-              );
-
-              if (folderData?.length > 0) {
-                const resultFolders = await Promise.all(
-                  folderData.map(async (folder) => {
-                    const resFolder = await getMultipleFolder({
-                      variables: {
-                        id: folder?.folderId,
-                      },
-                    });
-                    const resData = resFolder.data?.folderPublic?.data || [];
-                    if (resData?.length) {
-                      return resData;
-                    }
-                    return [];
-                  }),
-                );
-
-                const dataFoldersFlat = resultFolders.flat();
-
-                const folderMapSize = dataFoldersFlat.map((file) =>
-                  parseInt(file.total_size || 0),
-                );
-                const totalFolders = folderMapSize.reduce(
-                  (prev, current) => prev + current,
-                );
-                setTotalMultipleFolder(totalFolders);
-                setDataMultipleFolder(dataFoldersFlat);
-              }
-
-              if (fileData?.length > 0) {
-                const resultFiles = await Promise.all(
-                  await fileData.map(async (file) => {
-                    const result = await getMultipleFile({
-                      variables: {
-                        id: [file?.fileId],
-                      },
-                    });
-
-                    const resData = result.data?.filePublic?.data || [];
-
-                    if (resData?.length) {
-                      return resData;
-                    }
-                    return [];
-                  }),
-                );
-
-                const dataFilesFlat = resultFiles.flat();
-                const filesMapSize = dataFilesFlat.map((file) =>
-                  parseInt(file.size),
-                );
-                const totalFiles = filesMapSize.reduce(
-                  (prev, current) => prev + current,
-                );
-                setTotalMultipleFile(totalFiles);
-                setDataMultipleFile(dataFilesFlat);
-              }
-            }
-
-            setIsLoading(false);
-            document.title = "Multiple File and folder";
-            setDescription("Multiple File and folder on vshare.net");
-          }
-      } catch (error) {
-        document.title = "No documents found";
-        setDescription("No documents found on vshare.net");
-        setIsLoading(false);
-      }
-    };
-    getMultipleFileAndFolder();
-  }, [dataFileAndFolderLink]);
+  }, []);
 
   useEffect(() => {
     function handleDetectPlatform() {
@@ -488,8 +307,8 @@ function ExtendFolderUploader() {
       }
     }
 
-    handleDetectPlatform();
-  }, [dataFileLink, dataFolderLink]);
+    // handleDetectPlatform();
+  }, []);
 
   useEffect(() => {
     if (getDataRes) {
@@ -505,135 +324,6 @@ function ExtendFolderUploader() {
 
   const handleClose = () => {
     setOpen(false);
-  };
-
-  // download folder
-  const handleDownloadFolder = async ({ createdBy }) => {
-    setTotalClickCount((prevCount) => prevCount + 1);
-    if (totalClickCount >= getActionButton) {
-      setTotalClickCount(0);
-
-      const folder_name = `${folderDownload[0]?.folder_name}.zip`;
-
-      try {
-        if (folderDownload[0]?.access_password) {
-          handleClickOpen();
-        } else {
-          setIsHide((prev) => ({
-            ...prev,
-            [1]: true,
-          }));
-
-          const multipleData = [
-            {
-              id: folderDownload?.[0]?._id,
-              name: folder_name,
-              newFilename: folderDownload?.[0].newFolder_name,
-              checkType: "folder",
-              newPath: folderDownload?.[0].newPath || "",
-              createdBy,
-            },
-          ];
-
-          await manageFile.handleDownloadFolder(
-            { multipleData },
-            {
-              onSuccess: () => {
-                setIsHide((prev) => ({
-                  ...prev,
-                  [1]: false,
-                }));
-                setIsSuccess((prev) => ({
-                  ...prev,
-                  [1]: true,
-                }));
-              },
-              onFailed: (error) => {
-                errorMessage(error, 3000);
-                setIsHide((prev) => ({
-                  ...prev,
-                  [1]: false,
-                }));
-                setIsSuccess((prev) => ({
-                  ...prev,
-                  [1]: false,
-                }));
-              },
-            },
-          );
-        }
-      } catch (error) {
-        errorMessage("Something wrong try again later!", 2000);
-      }
-    } else {
-      if (getAdvertisemment?.length) {
-        handleAdvertisementPopup();
-      } else {
-        const folder_name = `${folderDownload[0]?.folder_name}.zip`;
-
-        try {
-          if (folderDownload[0]?.access_password) {
-            handleClickOpen();
-          } else {
-            setIsHide((prev) => ({
-              ...prev,
-              [1]: true,
-            }));
-
-            const multipleData = [
-              {
-                id: folderDownload?.[0]?._id,
-                name: folder_name,
-                newFilename: folderDownload?.[0].newFolder_name,
-                checkType: "folder",
-                newPath: folderDownload?.[0].newPath || "",
-                createdBy,
-              },
-            ];
-
-            await manageFile.handleDownloadFolder(
-              { multipleData },
-              {
-                onSuccess: () => {
-                  successMessage("Successfully downloaded", 3000);
-                  setIsHide((prev) => ({
-                    ...prev,
-                    [1]: false,
-                  }));
-                  setIsSuccess((prev) => ({
-                    ...prev,
-                    [1]: true,
-                  }));
-                },
-                onFailed: (error) => {
-                  errorMessage(error, 3000);
-                  setIsHide((prev) => ({
-                    ...prev,
-                    [1]: false,
-                  }));
-                  setIsSuccess((prev) => ({
-                    ...prev,
-                    [1]: false,
-                  }));
-                },
-              },
-            );
-          }
-        } catch (error: any) {
-          errorMessage(error, 2000);
-        }
-      }
-    }
-  };
-
-  const handleMobileDownloadData = () => {
-    if (dataLinkMemo?.length > 0) {
-      handleDownloadFileGetLink();
-    }
-
-    if (dataFolderLinkMemo?.length > 0) {
-      handleDownloadFolderGetLink();
-    }
   };
 
   const handleDownloadFileGetLink = async () => {
@@ -663,7 +353,53 @@ function ExtendFolderUploader() {
       });
 
       setTotalClickCount((prevCount) => prevCount + 1);
-      setMultipleType("file");
+
+      if (totalClickCount >= getActionButton) {
+        setTotalClickCount(0);
+        manageFile.handleDownloadFile(
+          {
+            multipleData,
+          },
+          {
+            onFailed: () => {},
+            onSuccess: () => {},
+          },
+        );
+      } else {
+        if (getAdvertisemment.length) {
+          handleAdvertisementPopup();
+        } else {
+          manageFile.handleDownloadFile(
+            {
+              multipleData,
+            },
+            {
+              onFailed: () => {},
+              onSuccess: () => {},
+            },
+          );
+        }
+      }
+    }
+
+    if (dataSelector?.selectionFileAndFolderData?.length > 0) {
+      const newModelData = dataSelector?.selectionFileAndFolderData || [];
+
+      const multipleData = newModelData.map((file) => {
+        const newPath = file.newPath || "";
+
+        return {
+          id: file.id,
+          name: file.name,
+          newFilename: file.newFilename,
+          checkType: "file",
+          newPath,
+          createdBy: file.createdBy,
+          isPublic: linkClient?._id ? false : true,
+        };
+      });
+
+      setTotalClickCount((prevCount) => prevCount + 1);
 
       if (totalClickCount >= getActionButton) {
         setTotalClickCount(0);
@@ -751,6 +487,52 @@ function ExtendFolderUploader() {
         }
       }
     }
+    if (dataSelector?.selectionFileAndFolderData?.length > 0) {
+      const newModelData = dataSelector?.selectionFileAndFolderData || [];
+
+      const multipleData = newModelData.map((file: any) => {
+        const newPath = file.newPath || "";
+
+        return {
+          id: file.id,
+          name: file.name,
+          newFilename: file.newFilename,
+          checkType: "folder",
+          newPath,
+          createdBy: file.createdBy,
+        };
+      });
+
+      setTotalClickCount((prevCount) => prevCount + 1);
+      setMultipleType("folder");
+
+      if (totalClickCount >= getActionButton) {
+        setTotalClickCount(0);
+        manageFile.handleDownloadFolder(
+          {
+            multipleData,
+          },
+          {
+            onFailed: () => {},
+            onSuccess: () => {},
+          },
+        );
+      } else {
+        if (getAdvertisemment.length) {
+          handleAdvertisementPopup();
+        } else {
+          manageFile.handleDownloadFolder(
+            {
+              multipleData,
+            },
+            {
+              onFailed: () => {},
+              onSuccess: () => {},
+            },
+          );
+        }
+      }
+    }
   };
 
   const handleAdvertisementPopup = async () => {
@@ -797,123 +579,11 @@ function ExtendFolderUploader() {
     }
   };
 
-  // download multiple folder
-  const handleMultipleDownloadFolder = async ({ folder, index }) => {
-    setFolderDataSelect(folder);
-    setMultipleType("folder");
-
-    setTotalClickCount((prevCount) => prevCount + 1);
-    if (totalClickCount >= getActionButton) {
-      setTotalClickCount(0);
-
-      try {
-        if (folder?.access_password) {
-          handleClickOpen();
-        } else {
-          handleDoneFolderDownload({
-            folder,
-            index,
-          });
-        }
-      } catch (error) {
-        errorMessage("Something wrong try again later!", 2000);
-      }
-    } else {
-      if (getAdvertisemment.length) {
-        handleAdvertisementPopup();
-      } else {
-        try {
-          if (folder?.access_password) {
-            handleClickOpen();
-          } else {
-            handleDoneFolderDownload({
-              folder,
-              index,
-            });
-          }
-        } catch (error: any) {
-          errorMessage(error, 2000);
-        }
-      }
-    }
-  };
-
-  const handleOpenApplication = () => {
-    const timeout = setTimeout(() => {
-      if (platform === "android") {
-        window.location.href =
-          "https://play.google.com/store/apps/details?id=com.vshare.app.client";
-      }
-
-      if (platform === "ios") {
-        window.location.href =
-          "https://apps.apple.com/la/app/vshare-file-transfer-app/id6476536606";
-      }
-    }, 1500);
-
-    window.location.href = appScheme;
-
-    window.onblur = () => {
-      clearTimeout(timeout);
-    };
-  };
-
   const handleDoubleClickFolder = (value: any) => {
-    console.log(value);
-  };
+    const url = value?.url;
 
-  // Done
-  const handleDoneFolderDownload = async ({ folder, index }) => {
-    try {
-      setIsMultipleHide((prev) => ({
-        ...prev,
-        [index]: true,
-      }));
-      setIsMultipleSuccess((prev) => ({ ...prev, [index]: false }));
-
-      const path = folder?.newPath || "";
-      const folder_name = `${folder?.folder_name}.zip`;
-
-      const multipleData = [
-        {
-          id: folder._id,
-          name: folder_name,
-          newFilename: folder?.newFolder_name,
-          checkType: "folder",
-          newPath: path,
-          createdBy: folder?.createdBy,
-        },
-      ];
-
-      await manageFile.handleDownloadFolder(
-        { multipleData },
-        {
-          onFailed: (error) => {
-            setIsMultipleHide((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-            setIsMultipleSuccess((prev) => ({ ...prev, [index]: false }));
-            errorMessage(error, 3000);
-          },
-          onSuccess: () => {
-            successMessage("Successfully downloaded", 3000);
-            setIsMultipleHide((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-            setIsMultipleSuccess((prev) => ({ ...prev, [index]: true }));
-          },
-        },
-      );
-    } catch (error: any) {
-      setIsMultipleHide((prev) => ({
-        ...prev,
-        [index]: false,
-      }));
-      setIsMultipleSuccess((prev) => ({ ...prev, [index]: false }));
-      errorMessage(error, 3000);
-    }
+    const base64URL = Base64.encodeURI(url);
+    navigate(`/folder/${base64URL}`);
   };
 
   const handleDownloadAsZip = async () => {
@@ -1008,276 +678,6 @@ function ExtendFolderUploader() {
         }
       }
     }
-  };
-
-  const _downloadFiles = async (
-    index,
-    fileId,
-    newFilename,
-    filename,
-    filePassword,
-    newPath,
-    createdBy,
-    dataFile,
-  ) => {
-    setTotalClickCount((prevCount) => prevCount + 1);
-    setFileDataSelect({ ...dataFile, newPath, createdBy });
-    setMultipleType("file");
-
-    if (totalClickCount >= getActionButton) {
-      setLastClickedButton([...lastClickedButton, fileId]);
-      setTotalClickCount(0);
-      const changeFilename = combineOldAndNewFileNames(filename, newFilename);
-
-      try {
-        setFilePasswords(filePassword);
-        setGetNewFileName(newFilename);
-        if (linkClient?._id) {
-          if (filePassword) {
-            handleClickOpen();
-          } else {
-            handleDoneDownloadFiles({
-              index,
-              filename,
-              newFilename,
-              createdBy,
-              dataFile,
-            });
-          }
-        } else {
-          if (filePassword) {
-            handleClickOpen();
-          } else {
-            handleDoneDownloadFilesOnPublic({
-              index,
-              changeFilename,
-              newFilename: dataFile?.newFilename,
-              dataFile,
-            });
-          }
-        }
-      } catch (error: any) {
-        errorMessage(error, 2000);
-      }
-    } else {
-      if (getAdvertisemment.length) {
-        handleAdvertisementPopup();
-      } else {
-        const changeFilename = combineOldAndNewFileNames(filename, newFilename);
-
-        try {
-          setFilePasswords(filePassword);
-          setGetNewFileName(newFilename);
-
-          if (filePassword) {
-            handleClickOpen();
-          } else {
-            if (linkClient?._id) {
-              handleDoneDownloadFiles({
-                index,
-                filename,
-                newFilename,
-                createdBy,
-                dataFile,
-              });
-            } else {
-              handleDoneDownloadFilesOnPublic({
-                index,
-                changeFilename,
-                newFilename,
-                dataFile,
-              });
-            }
-          }
-        } catch (error) {
-          errorMessage("Something wrong try again later!", 2000);
-        }
-      }
-    }
-  };
-
-  const handleDoneDownloadFiles = async ({
-    index,
-    filename,
-    newFilename,
-    createdBy,
-    dataFile,
-  }) => {
-    try {
-      setIsHide((prev) => ({
-        ...prev,
-        [index]: true,
-      }));
-      setIsSuccess((prev) => ({
-        ...prev,
-        [index]: false,
-      }));
-
-      const multipleData = [
-        {
-          id: dataFile._id,
-          name: filename,
-          newFilename: newFilename,
-          checkType: "file",
-          newPath: dataFile.newPath || "",
-          createdBy: createdBy,
-        },
-      ];
-
-      await manageFile.handleDownloadFile(
-        { multipleData },
-        {
-          onSuccess: () => {
-            setIsHide((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-            setIsSuccess((prev) => ({
-              ...prev,
-              [index]: true,
-            }));
-          },
-          onFailed: (error) => {
-            errorMessage(error, 3000);
-            setIsHide((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-            setIsSuccess((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-          },
-        },
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleDoneDownloadFilesOnPublic = async ({
-    index,
-    newFilename,
-    changeFilename,
-    dataFile,
-  }) => {
-    try {
-      setIsHide((prev) => ({
-        ...prev,
-        [index]: true,
-      }));
-      setIsSuccess((prev) => ({
-        ...prev,
-        [index]: false,
-      }));
-
-      const multipleData = [
-        {
-          id: dataFile._id,
-          name: changeFilename,
-          newFilename: newFilename,
-          checkType: "file",
-          newPath: "",
-        },
-      ];
-
-      await manageFile.handleDownloadPublicFile(
-        { multipleData },
-        {
-          onSuccess: () => {
-            setIsHide((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-            setIsSuccess((prev) => ({
-              ...prev,
-              [index]: true,
-            }));
-          },
-          onFailed: (error) => {
-            errorMessage(error, 3000);
-            setIsHide((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-            setIsSuccess((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-          },
-        },
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const _downloadFilesAll = async (getData: any[]) => {
-    const noPasswordData = getData.filter((item) => !item.filePassword);
-    if (noPasswordData.length <= 0) {
-      errorMessage("Download failed!", 3000);
-      return;
-    }
-
-    setIsProcessAll(true);
-    setIsDownloadAll(false);
-
-    try {
-      if (linkClient?._id) {
-        const multipleData = getData.map((file: any) => {
-          return {
-            id: file._id,
-            newPath: file.newPath || "",
-            newFilename: file.newFilename,
-          };
-        });
-
-        await manageFile.handleDownloadPublicFile(
-          { multipleData },
-          {
-            onSuccess: () => {
-              successMessage("Download files successful", 3000);
-              setIsProcessAll(false);
-              setIsDownloadAll(true);
-            },
-            onFailed: (error) => {
-              errorMessage(error, 3000);
-              setIsProcessAll(false);
-              setIsDownloadAll(false);
-            },
-          },
-        );
-      } else {
-        const multipleData = getData.map((file: any) => {
-          return {
-            id: file._id,
-            newPath: "",
-            newFilename: file.newFilename,
-          };
-        });
-
-        await manageFile.handleDownloadPublicFile(
-          { multipleData },
-          {
-            onSuccess: () => {
-              setIsProcessAll(false);
-              setIsDownloadAll(true);
-            },
-            onFailed: (error) => {
-              errorMessage(error, 3000);
-              setIsProcessAll(false);
-              setIsDownloadAll(false);
-            },
-          },
-        );
-      }
-    } catch (error) {
-      errorMessage("Something wrong try again later!", 2000);
-    }
-
-    successMessage("Download successful", 3000);
-    setIsHide(false);
-    setIsSuccess(true);
   };
 
   const _confirmPasword = async (password) => {
@@ -1519,6 +919,17 @@ function ExtendFolderUploader() {
     }
   };
 
+  const handleOpenFolder = (folder) => {
+    const baseUrl = {
+      _id: folder._id,
+      type: "folder",
+    };
+
+    const encodeUrl = encryptDataLink(baseUrl);
+    // console.log({ baseUrl, encodeUrl });
+    navigate(`/df?lc=${encodeUrl}`);
+  };
+
   const previewHandleClose = () => {
     setPreviewOpen(false);
   };
@@ -1632,50 +1043,241 @@ function ExtendFolderUploader() {
         <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem" }}>
           <Advertisement />
 
-          {/* Box downloader */}
-          <Fragment>
-            {dataLinkMemo && dataLinkMemo.length > 0 && (
-              <GridFileData
-                isFile={true}
-                _description={_description}
-                dataLinks={dataLinkMemo}
-                multipleIds={multipleIds}
-                countAction={adAlive}
-                setMultipleIds={setMultipleIds}
-                handleQRGeneration={handleQRGeneration}
-                handleClearGridSelection={handleClearGridSelection}
-                handleDownloadAsZip={handleDownloadAsZip}
-                handleDownloadFileGetLink={handleDownloadFileGetLink}
-              />
-            )}
-          </Fragment>
+          <MUI.FileListContainer>
+            <Box>
+              {(dataFolderLinkMemo?.length > 0 || dataLinkMemo?.length > 0) && (
+                <MUI.FileBoxToggle>
+                  {toggle === "grid" && (
+                    <Fragment>
+                      <NormalButton
+                        onClick={() => {
+                          if (dataLinkMemo?.length > 0) {
+                            handleDownloadFileGetLink();
+                          }
 
-          <Fragment>
-            {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
-              <GridFileData
-                isFile={false}
-                _description={_description}
-                dataLinks={dataFolderLinkMemo}
-                multipleIds={multipleIds}
-                countAction={adAlive}
-                setMultipleIds={setMultipleIds}
-                handleQRGeneration={handleQRGeneration}
-                handleClearGridSelection={handleClearGridSelection}
-                handleDownloadFolderAsZip={handleDownloadAsZip}
-                handleDownloadFolder={handleDownloadFolderGetLink}
-                handleDoubleClick={handleDoubleClickFolder}
-              />
-            )}
-          </Fragment>
+                          if (dataFolderLinkMemo?.length > 0) {
+                            handleDownloadFolderGetLink();
+                          }
+                        }}
+                        disabled={
+                          dataSelector?.selectionFileAndFolderData?.length > 0
+                            ? false
+                            : true
+                        }
+                        sx={{
+                          padding: (theme) =>
+                            `${theme.spacing(1.6)} ${theme.spacing(5)}`,
+                          borderRadius: (theme) => theme.spacing(2),
+                          color: "#828282 !important",
+                          fontWeight: "bold",
+                          backgroundColor: "#fff",
+                          border: "1px solid #ddd",
+                          width: "inherit",
+                          outline: "none",
+                          verticalAlign: "middle",
+                          ":disabled": {
+                            cursor: "context-menu",
+                            backgroundColor: "#D6D6D6",
+                            color: "#ddd",
+                          },
+                        }}
+                      >
+                        Download
+                      </NormalButton>
+                      <NormalButton
+                        onClick={handleClearSelector}
+                        sx={{
+                          padding: (theme) =>
+                            `${theme.spacing(1.6)} ${theme.spacing(3)}`,
+                          borderRadius: (theme) => theme.spacing(2),
+                          color: "#828282 !important",
+                          fontWeight: "bold",
+                          backgroundColor: "#fff",
+                          border: "1px solid #ddd",
+                          width: "inherit",
+                          outline: "none",
+                          verticalAlign: "middle",
+                          ":disabled": {
+                            cursor: "context-menu",
+                            backgroundColor: "#D6D6D6",
+                            color: "#ddd",
+                          },
+                        }}
+                      >
+                        <FaTrash fontSize={12} />
+                      </NormalButton>
+                    </Fragment>
+                  )}
+
+                  <IconButton size="small" onClick={handleToggle}>
+                    {toggle === "list" ? <ListIcon /> : <GridIcon />}
+                  </IconButton>
+                </MUI.FileBoxToggle>
+              )}
+
+              {toggle === "list" && (
+                <Fragment>
+                  {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
+                    <GridFileData
+                      isFile={false}
+                      toggle={toggle}
+                      _description={_description}
+                      dataLinks={dataFolderLinkMemo}
+                      multipleIds={multipleIds}
+                      countAction={adAlive}
+                      setMultipleIds={setMultipleIds}
+                      setToggle={handleToggle}
+                      handleQRGeneration={handleQRGeneration}
+                      handleClearGridSelection={handleClearGridSelection}
+                      handleDownloadFolderAsZip={handleDownloadAsZip}
+                      handleDownloadFolder={handleDownloadFolderGetLink}
+                      handleDoubleClick={handleDoubleClickFolder}
+                    />
+                  )}
+
+                  {dataLinkMemo && dataLinkMemo.length > 0 && (
+                    <GridFileData
+                      isFile={true}
+                      toggle={toggle}
+                      _description={_description}
+                      dataLinks={dataLinkMemo}
+                      multipleIds={multipleIds}
+                      countAction={adAlive}
+                      setMultipleIds={setMultipleIds}
+                      setToggle={handleToggle}
+                      handleQRGeneration={handleQRGeneration}
+                      handleClearGridSelection={handleClearGridSelection}
+                      handleDownloadAsZip={handleDownloadAsZip}
+                      handleDownloadFileGetLink={handleDownloadFileGetLink}
+                    />
+                  )}
+                </Fragment>
+              )}
+
+              {toggle === "grid" && (
+                <Fragment>
+                  <Fragment>
+                    {dataLinkMemo && dataLinkMemo.length > 0 && (
+                      <FileCardContainer>
+                        {dataLinkMemo.map((item, index) => {
+                          return (
+                            <Fragment key={index}>
+                              <FileCardItem
+                                id={item._id}
+                                item={item}
+                                imagePath={
+                                  item?.createdBy?.newName +
+                                  "-" +
+                                  item?.createdBy?._id +
+                                  "/" +
+                                  (item.newPath
+                                    ? removeFileNameOutOfPath(item.newPath)
+                                    : "") +
+                                  item.newFilename
+                                }
+                                user={item?.createdBy}
+                                path={item?.path}
+                                isCheckbox={true}
+                                filePassword={item?.filePassword}
+                                fileType={"image"}
+                                isPublic={
+                                  item?.createdBy?._id === "0" ? true : false
+                                }
+                                name={item?.filename}
+                                newName={item?.newFilename}
+                                cardProps={{
+                                  onDoubleClick: () => {
+                                    console.log("first");
+                                  },
+                                }}
+                              />
+                            </Fragment>
+                          );
+                        })}
+                      </FileCardContainer>
+                    )}
+                  </Fragment>
+                  <Fragment>
+                    {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
+                      <FileCardContainer>
+                        {dataFolderLinkMemo.map((item, index) => {
+                          return (
+                            <Fragment key={index}>
+                              <FileCardItem
+                                id={item._id}
+                                item={item}
+                                isContainFiles={
+                                  item?.total_size > 0 ? true : false
+                                }
+                                imagePath={
+                                  item?.createdBy?.newName +
+                                  "-" +
+                                  item?.createdBy?._id +
+                                  "/" +
+                                  (item.newPath
+                                    ? removeFileNameOutOfPath(item.newPath)
+                                    : "") +
+                                  item.newFilename
+                                }
+                                user={item?.createdBy}
+                                path={item?.path}
+                                isCheckbox={true}
+                                filePassword={item?.filePassword}
+                                fileType={"folder"}
+                                isPublic={
+                                  item?.createdBy?._id === "0" ? true : false
+                                }
+                                name={item?.folder_name}
+                                newName={item?.newFolder_name}
+                                cardProps={{
+                                  onDoubleClick: () => {
+                                    handleOpenFolder(item);
+                                  },
+                                }}
+                              />
+                            </Fragment>
+                          );
+                        })}
+                      </FileCardContainer>
+                    )}
+                  </Fragment>
+                </Fragment>
+              )}
+            </Box>
+            <Box>
+              {(dataFolderLinkMemo?.length > 0 || dataLinkMemo?.length > 0) && (
+                <BoxSocialShare
+                  isFile={false}
+                  toggle={toggle || ""}
+                  _description={_description}
+                  dataLinks={dataFolderLinkMemo}
+                  multipleIds={multipleIds}
+                  countAction={adAlive}
+                  setMultipleIds={setMultipleIds}
+                  setToggle={handleToggle}
+                  handleQRGeneration={handleQRGeneration}
+                  handleClearGridSelection={handleClearGridSelection}
+                  handleDownloadFolderAsZip={handleDownloadAsZip}
+                  handleDownloadFolder={handleDownloadFolderGetLink}
+                  handleDoubleClick={handleDoubleClickFolder}
+                />
+              )}
+            </Box>
+          </MUI.FileListContainer>
         </Box>
       </MUI.ContainerHome>
 
-      <MUI.FilBoxBottomContainer>
+      {/* <MUI.FilBoxBottomContainer>
         <Button
           fullWidth={true}
           variant="contained"
           size="small"
-          disabled={multipleIds.length > 0 ? false : true}
+          disabled={
+            multipleIds.length > 0 ||
+            dataSelector?.selectionFileAndFolderData?.length > 0
+              ? false
+              : true
+          }
           onClick={handleMobileDownloadData}
         >
           Download
@@ -1688,20 +1290,13 @@ function ExtendFolderUploader() {
         >
           Open app
         </Button>
-      </MUI.FilBoxBottomContainer>
+      </MUI.FilBoxBottomContainer> */}
 
       <DialogPreviewQRcode
         data={fileUrl}
         isOpen={previewOpen}
         onClose={previewHandleClose}
       />
-
-      {/* <DeepLink
-        showBottom={showBottomDeep}
-        platform={platform}
-        scriptScheme={appScheme}
-        onClose={() => setShowBottomDeep(false)}
-      /> */}
 
       <DialogConfirmQRCode
         isOpen={isVerifyQrCode}
@@ -1717,4 +1312,4 @@ function ExtendFolderUploader() {
   );
 }
 
-export default ExtendFolderUploader;
+export default ExtendFolder;

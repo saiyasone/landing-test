@@ -6,7 +6,6 @@ const MenuDropdownItem: React.FC<any> = ({
   icon,
   title,
   isFavorite,
-
   isPassword,
   ...props
 }) => {

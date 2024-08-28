@@ -234,7 +234,6 @@ const FileCardItem: React.FC<any> = ({
 
   const handleSelect = () => {
     const name = fileType === "folder" ? item?.folder_name : item?.filename;
-    console.log({ fileType, name });
     const newFilename =
       fileType === "folder" ? item?.newFolder_name : item?.newFilename;
     const checkType = fileType === "folder" ? "folder" : "file";
