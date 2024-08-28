@@ -888,7 +888,7 @@ function FileDropDownloader() {
       {showQrCode && (
         <DialogPreviewQRcode
           isOpen={showQrCode}
-          data={dataForEvent.data?.dropUrl || ""}
+          data={dataForEvent.data?.longUrl || ""}
           onClose={handleClosePreviewQR}
         />
       )}
