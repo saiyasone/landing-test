@@ -26,13 +26,13 @@ jobs:
             'refs/heads/deploy-production')
               echo "BRANCH=deploy-production" >> $GITHUB_ENV
               echo "VERSION=production" >> $GITHUB_ENV
-              echo "DEPLOY_PATH=/var/www/vshare.net/frontend-client" >> $GITHUB_ENV
+              echo "DEPLOY_PATH=/var/www/vshare.net/frontend-landing" >> $GITHUB_ENV
               echo "IP_ADDRESS=root@${{ secrets.PRODUCTION_IP_ADDRESS }}" >> $GITHUB_ENV
               ;;
             'refs/heads/deploy-staging')
               echo "BRANCH=deploy-staging" >> $GITHUB_ENV
               echo "VERSION=staging" >> $GITHUB_ENV
-              echo "DEPLOY_PATH=/var/www/staging.vshare.net/frontend-client" >> $GITHUB_ENV
+              echo "DEPLOY_PATH=/var/www/staging.vshare.net/frontend-landing" >> $GITHUB_ENV
               echo "IP_ADDRESS=root@${{ secrets.STAGING_IP_ADDRESS }}" >> $GITHUB_ENV
               ;;
             *)
