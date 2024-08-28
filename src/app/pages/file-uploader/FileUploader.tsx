@@ -1101,6 +1101,7 @@ function FileUploader() {
   };
 
   const handleDownloadAsZip = async () => {
+
     if (dataLinkMemo?.length > 0) {
       const multipleData = dataLinkMemo.map((file) => {
         const newPath = file.newPath || "";
@@ -1360,8 +1361,6 @@ function FileUploader() {
           newPath: "",
         },
       ];
-
-      console.log({ multipleData });
 
       await manageFile.handleDownloadPublicFile(
         { multipleData },
