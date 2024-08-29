@@ -157,7 +157,7 @@ function GridFileData(props: Props) {
       }, 10000);
     }
   },[isMore])
-  
+
   return (
     <Fragment>
       <FileListContainer>

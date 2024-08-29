@@ -994,6 +994,7 @@ function FileUploader() {
           setUsedAds([]);
           return;
         }
+        
         const randomIndex = Math.floor(Math.random() * availableAds.length);
         const randomAd = availableAds[randomIndex];
         setUsedAds([...usedAds, randomAd._id]);
