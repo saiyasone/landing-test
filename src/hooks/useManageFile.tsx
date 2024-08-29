@@ -32,7 +32,7 @@ const useManageFiles = () => {
 
         return {
           path,
-          isFolder: false,
+          isFolder: file.checkType === "folder" ? true : false,
           _id: file.id,
           createdBy: file.createdBy?._id,
         };
@@ -43,8 +43,6 @@ const useManageFiles = () => {
         lists: newMoldelData,
         createdBy: multipleData?.[0].createdBy?._id,
       };
-
-      console.log({ headers });
 
       const encryptedData = encryptDownloadData(headers);
       const baseUrl = `${ENV_KEYS.VITE_APP_LOAD_URL}downloader/file/download-multifolders-and-files?download=${encryptedData}`;

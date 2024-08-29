@@ -1,6 +1,6 @@
 import { useLazyQuery, useMutation } from "@apollo/client";
 import axios from "axios";
-import React, { Fragment, useEffect, useMemo, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 // components
@@ -1620,11 +1620,8 @@ function FileUploader() {
                                 user={item?.createdBy}
                                 path={item?.path}
                                 isCheckbox={true}
-                                filePassword={item?.filePassword}
+                                filePassword={item?.access_password}
                                 fileType={"folder"}
-                                isPublic={
-                                  item?.createdBy?._id === "0" ? true : false
-                                }
                                 name={item?.folder_name}
                                 newName={item?.newFolder_name}
                                 cardProps={{
