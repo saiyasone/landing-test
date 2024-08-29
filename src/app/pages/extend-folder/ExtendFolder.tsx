@@ -182,6 +182,7 @@ function ExtendFolder() {
         _id: decode?._id,
         type: decode?.type,
       };
+      console.log({ linkClient });
     }
   } catch (error) {
     console.error(error);
