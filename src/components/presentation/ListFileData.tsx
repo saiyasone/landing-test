@@ -145,7 +145,8 @@ function ListFileData(props: Props) {
         return (
           <IconButton
             onClick={(e: any) => {
-              props.handleQRGeneration?.(e, dataFile, dataFile?.longUrl);
+              const url = dataFile?.longUrl || "";
+              props.handleQRGeneration?.(e, dataFile, url);
             }}
           >
             <QrCodeIcon />

@@ -89,22 +89,16 @@ export const QUERY_FOLDER_PUBLICV1 = gql`
         newPath
         is_public
         checkFolder
-        restore
         access_password
-        show_download_link
         status
         path
         url
-        expired
+        shortUrl
+        longUrl
         createdBy {
           _id
           newName
         }
-        permissionSharePublic
-        aproveDownloadPublic
-        pin
-        createdAt
-        updatedAt
       }
       total
     }
@@ -117,6 +111,7 @@ export const QUERY_FOLDER_PUBLIC_LINK = gql`
       total
       data {
         _id
+        # uid
         folder_name
         total_size
         access_password

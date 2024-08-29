@@ -25,7 +25,6 @@ import { QUERY_SETTING } from "api/graphql/setting.graphql";
 import { QUERY_USER } from "api/graphql/user.graphql";
 import DialogConfirmPassword from "components/dialog/DialogConfirmPassword";
 import DialogPreviewQRcode from "components/dialog/DialogPreviewQRCode";
-import NormalButton from "components/NormalButton";
 import Advertisement from "components/presentation/Advertisement";
 import BoxSocialShare from "components/presentation/BoxSocialShare";
 import DialogConfirmQRCode from "components/presentation/DialogConfirmQRCode";
@@ -318,7 +317,7 @@ function FileUploader() {
 
             if (dataFileLink?.queryFileGetLinks?.data) {
               document.title =
-                dataFileLink?.queryFileGetLinks?.data?.[0]?.filename ??
+                dataFileLink?.queryFileGetLinks?.data?.[0]?.filename ||
                 "Vshare download file";
 
               if (dataFileLink?.queryFileGetLinks?.data?.[0]) {
@@ -1659,7 +1658,7 @@ function FileUploader() {
 
       <MUI.FilBoxBottomContainer>
         <Button
-          sx={{ padding: "0.66rem", borderRadius: "30px" }}
+          sx={{ padding: "0.6rem", borderRadius: "30px" }}
           fullWidth={true}
           variant="contained"
           disabled={
@@ -1674,7 +1673,7 @@ function FileUploader() {
         </Button>
         {(platform === "android" || platform === "ios") && (
           <Button
-            sx={{ padding: "0.66rem", borderRadius: "30px" }}
+            sx={{ padding: "0.6rem", borderRadius: "30px" }}
             onClick={handleOpenApplication}
             fullWidth={true}
             variant="contained"

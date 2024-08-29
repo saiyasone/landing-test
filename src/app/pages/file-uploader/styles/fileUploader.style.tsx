@@ -969,7 +969,7 @@ export const FilBoxBottomContainer = styled("div")({
   position: "fixed",
   // left: 0,
   bottom: 0,
-  padding: "1.2rem 1rem",
+  padding: "1rem",
   width: "100%",
   zIndex: 999,
   borderRadius: "30px",
