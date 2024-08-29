@@ -1471,7 +1471,7 @@ function FileUploader() {
         />
 
         <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem" }}>
-          <Advertisement />
+          {/* <Advertisement /> */}
 
           <MUI.FileListContainer>
             <Box>
