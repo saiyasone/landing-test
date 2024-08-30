@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 // components
 import GridIcon from "@mui/icons-material/AppsOutlined";
 import ListIcon from "@mui/icons-material/FormatListBulletedOutlined";
-import { Box, Button, Card, Grid, IconButton, Typography, useMediaQuery } from "@mui/material";
+import { Box, Button, IconButton, useMediaQuery } from "@mui/material";
 import {
   CREATE_DETAIL_ADVERTISEMENT,
   QUERY_ADVERTISEMENT,
@@ -46,13 +46,12 @@ import {
   removeFileNameOutOfPath,
 } from "utils/file.util";
 import { decryptDataLink, encryptDataLink } from "utils/secure.util";
-import * as MUI from "./styles/fileUploader.style";
-import "./styles/fileUploader.style.css";
+import * as MUI from "../file-uploader/styles/fileUploader.style";
+import "../file-uploader/styles/fileUploader.style.css";
 import ListFolderData from "components/presentation/ListFolderData";
 import BaseNormalButton from "components/BaseNormalButton";
-import VideoCardComponent from "components/VideoComponent";
 
-function FileUploader() {
+function ExtendFolder() {
   const location = useLocation();
   const isMobile = useMediaQuery("(max-width: 600px)");
   const [checkConfirmPassword, setConfirmPassword] = useState(false);
@@ -819,7 +818,6 @@ function FileUploader() {
   };
 
   const handleDownloadAsZip = async () => {
-
     if (dataLinkMemo?.length > 0) {
       const multipleData = dataLinkMemo.map((file) => {
         const newPath = file.newPath || "";
@@ -1458,6 +1456,7 @@ function FileUploader() {
         <meta name="title" content={"seoTitle"} />
         <meta name="description" content={_description} />
       </Helmet>
+
       <MUI.ContainerHome maxWidth="xl">
         <DialogConfirmPassword
           open={open}
@@ -1471,32 +1470,8 @@ function FileUploader() {
           _confirmPasword={_confirmPasword}
         />
 
-        <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem"}}>
-          <MUI.AdsContainer>
-            <MUI.AdsContent>
-              <MUI.AdsCard>
-                <Typography variant="h4" component={"h4"}>
-                  Mltidiscriplinary, Monthly
-                </Typography>
-                <Typography component={"p"}>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Error, molestias.
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center !important",
-                  }}
-                >
-                  <Typography component={"div"} sx={{ opacity: 0.7 }}>
-                    TIJER Research Journal
-                  </Typography>
-                  <Button variant="contained">Open</Button>
-                </Box>
-              </MUI.AdsCard>
-            </MUI.AdsContent>
-          </MUI.AdsContainer>
+        <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem" }}>
+          <Advertisement />
 
           <MUI.FileListContainer>
             <Box>
@@ -1679,33 +1654,13 @@ function FileUploader() {
             </Box>
           </MUI.FileListContainer>
         </Box>
-         {/* Feed Admin  */}
-         <Card>
-            <Typography variant="h4" sx={{mt: 4}}>Popular</Typography>
-            <Grid container sx={{mt: 4}}>
-                {[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map((vdo, indx) => (
-                  indx < 4 &&
-                  <Grid item key={indx} xs={12} sm={6} md={4} lg={3}>
-                    <Box sx={{width:'100%'}}>
-                        <VideoCardComponent
-                            title="Lorem ipsum dolor sit amet."
-                            description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod ipsa facilis recusandae vero doloremque cumque."
-                            control={true} 
-                            autoPlay={false}
-                            muted={true}
-                            url='https://static.vecteezy.com/system/resources/previews/043/199/391/mp4/a-vibrant-city-street-illuminated-by-the-lights-of-the-night-video.mp4'
-                            onView={()=>navigate('/video_view')}
-                        />
-                    </Box>
-                </Grid>
-                ))}
-            </Grid>
-          </Card>
       </MUI.ContainerHome>
+
       <MUI.FilBoxBottomContainer>
         <Button
           sx={{ padding: "0.6rem", borderRadius: "30px" }}
           fullWidth={true}
+          size="small"
           variant="contained"
           disabled={
             multipleIds.length > 0 ||
@@ -1722,6 +1677,7 @@ function FileUploader() {
             sx={{ padding: "0.6rem", borderRadius: "30px" }}
             onClick={handleOpenApplication}
             fullWidth={true}
+            size="small"
             variant="contained"
           >
             Open app
@@ -1734,13 +1690,6 @@ function FileUploader() {
         isOpen={previewOpen}
         onClose={previewHandleClose}
       />
-
-      {/* <DeepLink
-        showBottom={showBottomDeep}
-        platform={platform}
-        scriptScheme={appScheme}
-        onClose={() => setShowBottomDeep(false)}
-      /> */}
 
       <DialogConfirmQRCode
         isOpen={isVerifyQrCode}
@@ -1755,4 +1704,4 @@ function FileUploader() {
   );
 }
 
-export default FileUploader;
+export default ExtendFolder;

@@ -117,7 +117,6 @@ function FileDropDownloader() {
   const [newPath, setNewPath] = useState("");
   const [folderNewName, setFolderNewName] = useState("");
   const [status, setStatus] = useState("");
-  const [isUploadMultiples, setIsUploadMultiples] = useState(false);
   const [getActionButton, setGetActionButton] = useState<any>();
   const [getAdvertisemment, setGetAvertisement] = useState<any>([]);
   const [usedAds, setUsedAds] = useState<any[]>([]);
@@ -141,6 +140,7 @@ function FileDropDownloader() {
   const [timeLeft, setTimeLeft] = useState("");
   const [multiId, setMultiId] = useState<any>([]);
   const [platform, setPlatform] = useState("");
+  const [isMultiple, setIsMultiple] = useState(false);
   // const [selectedRow, setSelectedRow] = React.useState([]);
   const [getDataButtonDownload, { data: getDataButtonDL }] = useLazyQuery(
     QUERY_SETTING,
@@ -170,7 +170,6 @@ function FileDropDownloader() {
   );
 
   const [currentUrl, setCurrentUrl] = useState("");
-  // const currentUrl = window.location.href;
   const [updateFileStatus] = useMutation(UPDATE_FILE_PUBLIC);
   const data: any = [];
   const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
@@ -456,10 +455,7 @@ function FileDropDownloader() {
         if(!item?.allowUpload){
           setStatus('locked');
         }
-
-        if(item?.allowMultiples){
-          setIsUploadMultiples(item?.allowMultiples);
-        }
+        
 
       },
     });
@@ -626,7 +622,7 @@ function FileDropDownloader() {
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    multiple: isUploadMultiples
+    multiple: isMultiple,
   });
 
   useEffect(() => {
@@ -658,6 +654,9 @@ function FileDropDownloader() {
 
   useEffect(() => {
     if (dataFromUrl) {
+      if (dataFromUrl?.allowMultiples) {
+        setIsMultiple(true);
+      }
       const operation = navigator.userAgent;
 
       if (operation.match(/iPhone|iPad|iPod/i)) {
@@ -897,7 +896,7 @@ function FileDropDownloader() {
       {showQrCode && (
         <DialogPreviewQRcode
           isOpen={showQrCode}
-          data={dataForEvent.data?.dropUrl || ""}
+          data={dataForEvent.data?.longUrl || ""}
           onClose={handleClosePreviewQR}
         />
       )}

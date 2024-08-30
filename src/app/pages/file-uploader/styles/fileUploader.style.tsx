@@ -917,8 +917,12 @@ export const BoxMultipleFolder = styled("div")({
 ////display files zone
 export const FileListContainer = styled(Box)(({ theme }) => ({
   display: "grid",
-  gridTemplateColumns: "2fr 1fr",
-  gap: 10,
+  gridTemplateColumns: "1.6fr 1fr",
+  gap: "1.2rem",
+
+  [theme.breakpoints.down("md")]: {
+    gridTemplateColumns: "1fr",
+  },
 
   [theme.breakpoints.down("sm")]: {
     flexDirection: "column",
@@ -930,14 +934,21 @@ export const FileListContainer = styled(Box)(({ theme }) => ({
     },
 
     ".box-social": {
-      display: "none",
+      // display: "none",
     },
   },
 }));
 
 export const FileBoxDownload = styled("div")({
-  // width: "70%",
   overflow: "hidden",
+});
+
+export const FileBoxToggle = styled("div")({
+  display: "flex",
+  justifyContent: "flex-end",
+  marginBottom: "1.2rem",
+  gap: "0.7rem",
+  alignItems: "center",
 });
 
 export const FileBoxSocial = styled("div")({
@@ -945,18 +956,26 @@ export const FileBoxSocial = styled("div")({
   borderRadius: 1.5,
   boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
   overflow: "hidden",
-  [theme.breakpoints.down(35)]: {},
+
+  ".button-ads": {
+    [theme.breakpoints.down("md")]: {
+      display: "none",
+    },
+  },
 });
 
 export const FilBoxBottomContainer = styled("div")({
   display: "none",
   position: "fixed",
-  left: 0,
+  // left: 0,
   bottom: 0,
   padding: "1rem",
   width: "100%",
+  zIndex: 999,
+  borderRadius: "30px",
 
-  // display: "flex",
+
+  marginRight: "2rem",
   gap: "1rem",
   justifyContent: "center",
   backgroundColor: "#fff",

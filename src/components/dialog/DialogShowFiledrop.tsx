@@ -362,7 +362,7 @@ export default function CustomizedDialogs(props) {
         setUploadSpeed(0);
         setOverallProgress(0);
         setIsUploading(false);
-        errorMessage("Something Wrong Please Try Again Later!", 3000);
+        errorMessage(cutError, 3000);
       }
     }
   };

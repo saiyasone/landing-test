@@ -18,6 +18,40 @@ export const UPDATE_FILE_PUBLIC = gql`
   }
 `;
 
+export const QUERY_FILE = gql`
+  query GetFile($where: FilesWhereInput, $noLimit: Boolean) {
+    files(where: $where, noLimit: $noLimit) {
+      data {
+        _id
+        filename
+        newFilename
+        filePassword
+        fileType
+        size
+        status
+        isPublic
+        checkFile
+        path
+        newPath
+        urlAll
+        url
+        dropUrl
+        actionStatus
+        actionDate
+        createdBy {
+          _id
+          newName
+          lastName
+        }
+        getLinkBy
+        shortUrl
+        longUrl
+      }
+      total
+    }
+  }
+`;
+
 export const QUERY_FILE_PUBLIC = gql`
   query FilesPublic(
     $where: FilesWhereInput
@@ -64,6 +98,7 @@ export const QUERY_FILE_PUBLIC = gql`
           newName
         }
         shortUrl
+        longUrl
         favorite
         actionStatus
         expired
@@ -74,6 +109,7 @@ export const QUERY_FILE_PUBLIC = gql`
     }
   }
 `;
+
 export const QUERY_FILE_PUBLICV2 = gql`
   query FilePublic($id: [ID!]!) {
     filePublic(ID: $id) {
@@ -128,7 +164,6 @@ export const QUERY_FILE_GET_LINK = gql`
         filename
         filePassword
         newFilename
-        passwordUrlAll
         checkFile
         expired
         size

@@ -8,11 +8,11 @@
     "start:test": "Set VITE_APP_ENV=test&& vite",
     "start:dev": "Set VITE_APP_ENV=development&& vite",
     "start:staging": "Set VITE_APP_ENV=staging&& vite",
-    "start:prod": "Set VITE_APP_ENV=production&& vite",
+    "start:production": "Set VITE_APP_ENV=production&& vite",
     "build": "tsc && vite build",
     "build:dev": "tsc && vite build --mode development",
     "build:staging": "tsc && vite build --mode staging",
-    "build:prod": "tsc && vite build --mode production",
+    "build:production": "tsc && vite build --mode production",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
