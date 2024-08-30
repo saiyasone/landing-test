@@ -1,6 +1,6 @@
 import { useLazyQuery, useMutation } from "@apollo/client";
 import axios from "axios";
-import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 // components
@@ -192,8 +192,11 @@ function FileUploader() {
     return decryptedData;
   }
 
-  function handleClearGridSelection() {
+  function handleClearFileSelection() {
     setMultipleIds([]);
+  }
+
+  function handleClearFolderSelection() {
     setMultipleFolderIds([]);
   }
 
@@ -247,6 +250,10 @@ function FileUploader() {
       },
     });
   }, []);
+
+  useEffect(() => {
+    handleClearSelector();
+  }, [navigate, dispatch]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
@@ -535,12 +542,65 @@ function FileUploader() {
   };
 
   const handleMobileDownloadData = () => {
-    if (dataLinkMemo?.length > 0) {
-      handleDownloadFileGetLink();
+    if (toggle === "list") {
+      if (dataLinkMemo?.length > 0) {
+        handleDownloadFileGetLink();
+      }
+
+      if (dataFolderLinkMemo?.length > 0) {
+        handleDownloadFolderGetLink();
+      }
     }
 
-    if (dataFolderLinkMemo?.length > 0) {
-      handleDownloadFolderGetLink();
+    if (toggle === "grid") {
+      handleDownloadGridFileAndFolder();
+    }
+  };
+
+  const handleDownloadGridFileAndFolder = async () => {
+    if (dataSelector?.selectionFileAndFolderData?.length > 0) {
+      const newModelData = dataSelector?.selectionFileAndFolderData || [];
+      const multipleData = newModelData.map((file: any) => {
+        const newPath = file.newPath || "";
+
+        return {
+          id: file.id,
+          name: file.name,
+          newFilename: file.newFilename,
+          checkType: file?.checkType || "file",
+          newPath,
+          createdBy: file.createdBy,
+        };
+      });
+
+      setTotalClickCount((prevCount) => prevCount + 1);
+
+      if (totalClickCount >= getActionButton) {
+        setTotalClickCount(0);
+        manageFile.handleDownloadFile(
+          {
+            multipleData,
+          },
+          {
+            onFailed: () => {},
+            onSuccess: () => {},
+          },
+        );
+      } else {
+        if (getAdvertisemment.length) {
+          handleAdvertisementPopup();
+        } else {
+          manageFile.handleDownloadFile(
+            {
+              multipleData,
+            },
+            {
+              onFailed: () => {},
+              onSuccess: () => {},
+            },
+          );
+        }
+      }
     }
   };
 
@@ -1524,7 +1584,7 @@ function FileUploader() {
                       setMultipleIds={setMultipleFolderIds}
                       setToggle={handleToggle}
                       handleQRGeneration={handleQRGeneration}
-                      handleClearGridSelection={handleClearGridSelection}
+                      handleClearGridSelection={handleClearFolderSelection}
                       handleDownloadFolderAsZip={handleDownloadAsZip}
                       handleDownloadFolder={handleDownloadFolderGetLink}
                       handleDoubleClick={handleOpenFolder}
@@ -1544,7 +1604,7 @@ function FileUploader() {
                       setMultipleIds={setMultipleIds}
                       setToggle={handleToggle}
                       handleQRGeneration={handleQRGeneration}
-                      handleClearGridSelection={handleClearGridSelection}
+                      handleClearFileSelection={handleClearFileSelection}
                       handleDownloadAsZip={handleDownloadAsZip}
                       handleDownloadFileGetLink={handleDownloadFileGetLink}
                     />
@@ -1554,88 +1614,85 @@ function FileUploader() {
 
               {toggle === "grid" && (
                 <Fragment>
-                  <Fragment>
-                    {dataLinkMemo && dataLinkMemo.length > 0 && (
-                      <FileCardContainer>
-                        {dataLinkMemo.map((item, index) => {
-                          return (
-                            <Fragment key={index}>
-                              <FileCardItem
-                                id={item._id}
-                                item={item}
-                                imagePath={
-                                  item?.createdBy?.newName +
-                                  "-" +
-                                  item?.createdBy?._id +
-                                  "/" +
-                                  (item.newPath
-                                    ? removeFileNameOutOfPath(item.newPath)
-                                    : "") +
-                                  item.newFilename
-                                }
-                                user={item?.createdBy}
-                                path={item?.path}
-                                isCheckbox={true}
-                                filePassword={item?.filePassword}
-                                fileType={"image"}
-                                isPublic={
-                                  item?.createdBy?._id === "0" ? true : false
-                                }
-                                name={item?.filename}
-                                newName={item?.newFilename}
-                                cardProps={{
-                                  onDoubleClick: () => {
-                                    // console.log("first");
-                                  },
-                                }}
-                              />
-                            </Fragment>
-                          );
-                        })}
-                      </FileCardContainer>
-                    )}
-                  </Fragment>
-                  <Fragment>
-                    {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
-                      <FileCardContainer>
-                        {dataFolderLinkMemo.map((item, index) => {
-                          return (
-                            <Fragment key={index}>
-                              <FileCardItem
-                                id={item._id}
-                                item={item}
-                                isContainFiles={
-                                  item?.total_size > 0 ? true : false
-                                }
-                                imagePath={
-                                  item?.createdBy?.newName +
-                                  "-" +
-                                  item?.createdBy?._id +
-                                  "/" +
-                                  (item.newPath
-                                    ? removeFileNameOutOfPath(item.newPath)
-                                    : "") +
-                                  item.newFilename
-                                }
-                                user={item?.createdBy}
-                                path={item?.path}
-                                isCheckbox={true}
-                                filePassword={item?.access_password}
-                                fileType={"folder"}
-                                name={item?.folder_name}
-                                newName={item?.newFolder_name}
-                                cardProps={{
-                                  onDoubleClick: () => {
-                                    handleOpenFolder(item);
-                                  },
-                                }}
-                              />
-                            </Fragment>
-                          );
-                        })}
-                      </FileCardContainer>
-                    )}
-                  </Fragment>
+                  {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
+                    <FileCardContainer style={{ marginBottom: "1rem" }}>
+                      {dataFolderLinkMemo.map((item, index) => {
+                        return (
+                          <Fragment key={index}>
+                            <FileCardItem
+                              id={item._id}
+                              item={item}
+                              isContainFiles={
+                                item?.total_size > 0 ? true : false
+                              }
+                              imagePath={
+                                item?.createdBy?.newName +
+                                "-" +
+                                item?.createdBy?._id +
+                                "/" +
+                                (item.newPath
+                                  ? removeFileNameOutOfPath(item.newPath)
+                                  : "") +
+                                item.newFilename
+                              }
+                              user={item?.createdBy}
+                              path={item?.path}
+                              isCheckbox={true}
+                              filePassword={item?.access_password}
+                              fileType={"folder"}
+                              name={item?.folder_name}
+                              newName={item?.newFolder_name}
+                              cardProps={{
+                                onDoubleClick: () => {
+                                  handleOpenFolder(item);
+                                },
+                              }}
+                            />
+                          </Fragment>
+                        );
+                      })}
+                    </FileCardContainer>
+                  )}
+
+                  {dataLinkMemo && dataLinkMemo.length > 0 && (
+                    <FileCardContainer>
+                      {dataLinkMemo.map((item, index) => {
+                        return (
+                          <Fragment key={index}>
+                            <FileCardItem
+                              id={item._id}
+                              item={item}
+                              imagePath={
+                                item?.createdBy?.newName +
+                                "-" +
+                                item?.createdBy?._id +
+                                "/" +
+                                (item.newPath
+                                  ? removeFileNameOutOfPath(item.newPath)
+                                  : "") +
+                                item.newFilename
+                              }
+                              user={item?.createdBy}
+                              path={item?.path}
+                              isCheckbox={true}
+                              filePassword={item?.filePassword}
+                              fileType={"image"}
+                              isPublic={
+                                item?.createdBy?._id === "0" ? true : false
+                              }
+                              name={item?.filename}
+                              newName={item?.newFilename}
+                              cardProps={{
+                                onDoubleClick: () => {
+                                  // console.log("first");
+                                },
+                              }}
+                            />
+                          </Fragment>
+                        );
+                      })}
+                    </FileCardContainer>
+                  )}
                 </Fragment>
               )}
             </Box>

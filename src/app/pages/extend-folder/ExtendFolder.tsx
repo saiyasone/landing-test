@@ -11,7 +11,7 @@ import {
   CREATE_DETAIL_ADVERTISEMENT,
   QUERY_ADVERTISEMENT,
 } from "api/graphql/ad.graphql";
-import { QUERY_FILE_PUBLIC, QUERY_SUB_FILE } from "api/graphql/file.graphql";
+import { QUERY_SUB_FILE } from "api/graphql/file.graphql";
 import { QUERY_SUB_FOLDER } from "api/graphql/folder.graphql";
 import { QUERY_SETTING } from "api/graphql/setting.graphql";
 import DialogConfirmPassword from "components/dialog/DialogConfirmPassword";
@@ -101,12 +101,8 @@ function ExtendFolder() {
   const [multipleIds, setMultipleIds] = useState<any[]>([]);
   const [multipleFolderIds, setMultipleFolderIds] = useState<any[]>([]);
 
-  // const [qrcodeUser, setQrcodeUser] = useState([]);
   const [index, setIndex] = useState<any>(null);
   const [hideDownload, seHideDownload] = useState(true);
-  const [getData, { data: resPonData }] = useLazyQuery(QUERY_FILE_PUBLIC, {
-    fetchPolicy: "cache-and-network",
-  });
 
   const dataSelector = useSelector(
     selectorAction.checkboxFileAndFolderSelector,
@@ -161,6 +157,9 @@ function ExtendFolder() {
 
   function handleClearGridSelection() {
     setMultipleIds([]);
+  }
+
+  function handleClearFolderSelection() {
     setMultipleFolderIds([]);
   }
 
@@ -1270,7 +1269,7 @@ function ExtendFolder() {
                       setMultipleIds={setMultipleFolderIds}
                       setToggle={handleToggle}
                       handleQRGeneration={handleQRGeneration}
-                      handleClearGridSelection={handleClearGridSelection}
+                      handleClearGridSelection={handleClearFolderSelection}
                       handleDownloadFolderAsZip={handleDownloadAsZip}
                       handleDownloadFolder={handleDownloadFolderGetLink}
                       handleDoubleClick={handleOpenFolder}
@@ -1290,7 +1289,7 @@ function ExtendFolder() {
                       setMultipleIds={setMultipleIds}
                       setToggle={handleToggle}
                       handleQRGeneration={handleQRGeneration}
-                      handleClearGridSelection={handleClearGridSelection}
+                      handleClearFileSelection={handleClearGridSelection}
                       handleDownloadAsZip={handleDownloadAsZip}
                       handleDownloadFileGetLink={handleDownloadFileGetLink}
                     />
