@@ -282,7 +282,8 @@ const FileCardItem: React.FC<any> = ({
       item
       xs={6}
       sm={6}
-      lg={4}
+      md={4}
+      lg={3}
       sx={{
         width: "100%",
         height: "100%",

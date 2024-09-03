@@ -47,6 +47,7 @@ import { errorMessage, successMessage } from "utils/alert.util";
 import {
   combineOldAndNewFileNames,
   cutFileName,
+  getFileTypeName,
   removeFileNameOutOfPath,
 } from "utils/file.util";
 import { decryptDataLink, encryptDataLink } from "utils/secure.util";
@@ -652,7 +653,7 @@ function FileUploader() {
           checkType: "file",
           newPath,
           createdBy: file.createdBy,
-          isPublic: linkClient?._id ? false : true,
+          isPublic: file.createdBy?._id === "0" ? true : false,
         };
       });
 
@@ -868,9 +869,11 @@ function FileUploader() {
           checkType: "file",
           newPath,
           createdBy: file.createdBy,
-          isPublic: linkClient?._id ? false : true,
+          isPublic: file?.createdBy?._id === "0" ? true : false,
         };
       });
+
+      console.log({ multipleData });
 
       setTotalClickCount((prevCount) => prevCount + 1);
       setMultipleType("file");
@@ -1495,6 +1498,7 @@ function FileUploader() {
                       {dataFolderLinkMemo.map((item, index) => {
                         return (
                           <Fragment key={index}>
+
                             <FileCardItem
                               id={item._id}
                               item={item}
@@ -1515,7 +1519,7 @@ function FileUploader() {
                               path={item?.path}
                               isCheckbox={true}
                               filePassword={item?.access_password}
-                              fileType={"folder"}
+                              fileType={getFileTypeName(item?.folder_type)}
                               name={item?.folder_name}
                               newName={item?.newFolder_name}
                               cardProps={{
@@ -1552,7 +1556,7 @@ function FileUploader() {
                               path={item?.path}
                               isCheckbox={true}
                               filePassword={item?.filePassword}
-                              fileType={"image"}
+                              fileType={getFileTypeName(item?.fileType)}
                               isPublic={
                                 item?.createdBy?._id === "0" ? true : false
                               }

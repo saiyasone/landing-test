@@ -16,7 +16,6 @@ import { QUERY_SUB_FOLDER } from "api/graphql/folder.graphql";
 import { QUERY_SETTING } from "api/graphql/setting.graphql";
 import DialogConfirmPassword from "components/dialog/DialogConfirmPassword";
 import DialogPreviewQRcode from "components/dialog/DialogPreviewQRCode";
-import Advertisement from "components/presentation/Advertisement";
 import BoxSocialShare from "components/presentation/BoxSocialShare";
 import DialogConfirmQRCode from "components/presentation/DialogConfirmQRCode";
 import FileCardContainer from "components/presentation/FileCardContainer";
@@ -33,6 +32,7 @@ import * as selectorAction from "stores/features/selectorSlice";
 import { errorMessage, successMessage } from "utils/alert.util";
 import {
   combineOldAndNewFileNames,
+  getFileTypeName,
   removeFileNameOutOfPath,
 } from "utils/file.util";
 import { decryptDataLink, encryptDataLink } from "utils/secure.util";
@@ -1212,50 +1212,48 @@ function ExtendFolder() {
         />
 
         <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem" }}>
-          <Advertisement />
+          {/* <Advertisement /> */}
+
+          {(dataFolderLinkMemo?.length > 0 || dataLinkMemo?.length > 0) && (
+            <MUI.FileBoxToggle>
+              {!isMobileGrid && (
+                <Fragment>
+                  {toggle === "grid" && (
+                    <Fragment>
+                      <BaseNormalButton
+                        title="Download"
+                        disabled={
+                          dataSelector?.selectionFileAndFolderData?.length > 0
+                            ? false
+                            : true
+                        }
+                        handleClick={() => {
+                          if (
+                            dataSelector?.selectionFileAndFolderData?.length > 0
+                          ) {
+                            handleDownloadGridFileAndFolder();
+                          }
+                        }}
+                      />
+                      <BaseNormalButton
+                        handleClick={handleClearSelector}
+                        title=""
+                      >
+                        <FaTrash fontSize={12} />
+                      </BaseNormalButton>
+                    </Fragment>
+                  )}
+                </Fragment>
+              )}
+
+              <IconButton size="small" onClick={handleToggle}>
+                {toggle === "list" ? <ListIcon /> : <GridIcon />}
+              </IconButton>
+            </MUI.FileBoxToggle>
+          )}
 
           <MUI.FileListContainer>
             <Box>
-              {(dataFolderLinkMemo?.length > 0 || dataLinkMemo?.length > 0) && (
-                <MUI.FileBoxToggle>
-                  {!isMobileGrid && (
-                    <Fragment>
-                      {toggle === "grid" && (
-                        <Fragment>
-                          <BaseNormalButton
-                            title="Download"
-                            disabled={
-                              dataSelector?.selectionFileAndFolderData?.length >
-                              0
-                                ? false
-                                : true
-                            }
-                            handleClick={() => {
-                              if (
-                                dataSelector?.selectionFileAndFolderData
-                                  ?.length > 0
-                              ) {
-                                handleDownloadGridFileAndFolder();
-                              }
-                            }}
-                          />
-                          <BaseNormalButton
-                            handleClick={handleClearSelector}
-                            title=""
-                          >
-                            <FaTrash fontSize={12} />
-                          </BaseNormalButton>
-                        </Fragment>
-                      )}
-                    </Fragment>
-                  )}
-
-                  <IconButton size="small" onClick={handleToggle}>
-                    {toggle === "list" ? <ListIcon /> : <GridIcon />}
-                  </IconButton>
-                </MUI.FileBoxToggle>
-              )}
-
               {toggle === "list" && (
                 <Fragment>
                   {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
@@ -1275,8 +1273,6 @@ function ExtendFolder() {
                       handleDoubleClick={handleOpenFolder}
                     />
                   )}
-
-                  <br />
 
                   {dataLinkMemo && dataLinkMemo.length > 0 && (
                     <ListFileData
@@ -1314,7 +1310,7 @@ function ExtendFolder() {
                               path={item?.path}
                               isCheckbox={true}
                               filePassword={item?.access_password}
-                              fileType={"folder"}
+                              fileType={getFileTypeName(item?.folder_type)}
                               name={item?.folder_name}
                               newName={item?.newFolder_name}
                               cardProps={{
@@ -1351,7 +1347,7 @@ function ExtendFolder() {
                               path={item?.path}
                               isCheckbox={true}
                               filePassword={item?.filePassword}
-                              fileType={"image"}
+                              fileType={getFileTypeName(item?.fileType)}
                               isPublic={
                                 item?.createdBy?._id === "0" ? true : false
                               }

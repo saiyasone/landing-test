@@ -142,6 +142,7 @@ export const QUERY_FILE_GET_LINK = gql`
         newFilename
         checkFile
         expired
+        fileType
         size
         status
         path
