@@ -29,46 +29,6 @@ export const QUERY_FOLDER = gql`
   }
 `;
 
-export const QUERY_FOLDER_PUBLIC = gql`
-  query QueryFolderPublic($where: FoldersWhereInput) {
-    queryFolderPublic(where: $where) {
-      total
-      data {
-        _id
-        folder_type
-        folder_name
-        newFolder_name
-        total_size
-        newPath
-        is_public
-        checkFolder
-        restore
-        access_password
-        show_download_link
-        status
-        path
-        url
-        expired
-        createdBy {
-          _id
-          newName
-        }
-        file_id {
-          _id
-          filename
-          size
-        }
-        permissionSharePublic
-        aproveDownloadPublic
-        pin
-        createdAt
-        updatedAt
-      }
-      total
-    }
-  }
-`;
-
 export const QUERY_FOLDER_PUBLICV1 = gql`
   query FolderPublic($id: ID!) {
     folderPublic(ID: $id) {

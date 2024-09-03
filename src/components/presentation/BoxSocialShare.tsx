@@ -27,6 +27,7 @@ type Props = {
   countAction: number;
   isFile?: boolean;
   longUrl?: string;
+  isHide?: boolean;
 
   handleDownloadAsZip?: () => void;
   handleDownloadFolderAsZip?: () => void;
@@ -40,28 +41,30 @@ function BoxSocialShare(props: Props) {
     <Fragment>
       <FileBoxSocial className="box-social">
         <Box sx={{ padding: "1.5rem" }}>
-          <Box
-            className="button-ads"
-            sx={{ display: "flex", position: "relative" }}
-          >
-            {props?.countAction > 0 && (
-              <BoxAdsContainer>
-                <BoxAdsAction>{props?.countAction} close ads</BoxAdsAction>
-              </BoxAdsContainer>
-            )}
-            <Button
-              variant="contained"
-              sx={{
-                width: { xs: "100%", md: "80%" },
-                mx: "auto !important",
-              }}
-              onClick={() => {
-                props.handleDownloadFolderAsZip?.();
-              }}
+          {!props?.isHide && (
+            <Box
+              className="button-ads"
+              sx={{ display: "flex", position: "relative" }}
             >
-              Download
-            </Button>
-          </Box>
+              {props?.countAction > 0 && (
+                <BoxAdsContainer>
+                  <BoxAdsAction>{props?.countAction} close ads</BoxAdsAction>
+                </BoxAdsContainer>
+              )}
+              <Button
+                variant="contained"
+                sx={{
+                  width: { xs: "100%", md: "80%" },
+                  mx: "auto !important",
+                }}
+                onClick={() => {
+                  props.handleDownloadFolderAsZip?.();
+                }}
+              >
+                Download
+              </Button>
+            </Box>
+          )}
           <Box sx={{ textAlign: "start", padding: "1rem 0" }}>
             <Typography variant="h5" sx={{ color: "rgb(0,0,0,0.9)" }}>
               Social Share
@@ -93,6 +96,7 @@ function BoxSocialShare(props: Props) {
                 flexWrap: "wrap",
                 gap: 3,
                 mt: 7,
+                width: "100%",
               }}
             >
               <Tooltip title="Facebook" placement="top">

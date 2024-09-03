@@ -64,13 +64,9 @@ function ListFolderData(props: Props) {
       headerAlign: "left",
       renderCell: (params) => {
         const dataFile = params?.row;
-        const filename = props.isFile
-          ? dataFile?.filename
-          : dataFile?.folder_name;
+        const filename = dataFile?.folder_name;
 
-        const password = props.isFile
-          ? dataFile?.filePassword
-          : dataFile?.access_password;
+        const password = dataFile?.access_password;
         return (
           <Fragment>
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -103,9 +99,7 @@ function ListFolderData(props: Props) {
       headerAlign: "center",
       align: "center",
       renderCell: (params) => {
-        const size = props?.isFile
-          ? params?.row?.size
-          : params?.row?.total_size;
+        const size = params?.row?.total_size;
         return <span>{convertBytetoMBandGB(size || 0)}</span>;
       },
     },
@@ -162,7 +156,7 @@ function ListFolderData(props: Props) {
   }, [props]);
 
   return (
-    <FileBoxDownload className="box-download">
+    <FileBoxDownload className="box-download" sx={{ mb: 2 }}>
       <Card
         sx={{
           boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
@@ -181,13 +175,7 @@ function ListFolderData(props: Props) {
             sx={{ textAlign: "start", padding: "1rem .5rem" }}
           >
             Application apply (
-            {cutFileName(
-              props?.dataLinks?.[0]?.filename ||
-                props?.dataLinks?.[0]?.folder_name ||
-                "",
-              20,
-            )}
-            )
+            {cutFileName(props?.dataLinks?.[0]?.folder_name || "", 20)})
           </Typography>
         </Box>
 

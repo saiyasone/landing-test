@@ -109,17 +109,12 @@ export const QUERY_FILE_PUBLICV2 = gql`
         fileType
         size
         newPath
-        totalDownload
         status
         isPublic
         checkFile
         path
-        detail
         urlAll
         url
-        permissionSharePublic
-        aproveDownloadPublic
-        ip
         folder_id {
           _id
           path
@@ -131,12 +126,7 @@ export const QUERY_FILE_PUBLICV2 = gql`
         }
         shortUrl
         longUrl
-        favorite
-        actionStatus
         expired
-        createdAt
-        updatedAt
-        actionDate
       }
     }
   }

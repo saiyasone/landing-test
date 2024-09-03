@@ -945,7 +945,7 @@ export const FileBoxDownload = styled("div")({
 
 export const FileBoxToggle = styled("div")({
   display: "flex",
-  justifyContent: "flex-end",
+  justifyContent: "flex-start",
   marginBottom: "1.2rem",
   gap: "0.7rem",
   alignItems: "center",
