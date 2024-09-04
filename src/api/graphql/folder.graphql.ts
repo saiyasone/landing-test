@@ -88,8 +88,13 @@ export const QUERY_FOLDER_PUBLIC_LINK = gql`
 `;
 
 export const QUERY_SUB_FOLDER = gql`
-  query GetFolderByUID($where: FoldersWhereInput, $noLimit: Boolean) {
-    foldersByUID(where: $where, noLimit: $noLimit) {
+  query GetFolderByUID(
+    $where: FoldersWhereInput
+    $noLimit: Boolean
+    $skip: Int
+    $limit: Int
+  ) {
+    foldersByUID(where: $where, noLimit: $noLimit, skip: $skip, limit: $limit) {
       total
       data {
         _id

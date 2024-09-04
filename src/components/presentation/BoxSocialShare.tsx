@@ -1,6 +1,9 @@
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { Box, Button, Tooltip, Typography } from "@mui/material";
-import { FileBoxSocial } from "app/pages/file-uploader/styles/fileUploader.style";
+import {
+  FileBoxPopup,
+  FileBoxSocial,
+} from "app/pages/file-uploader/styles/fileUploader.style";
 
 // Icons
 import {
@@ -38,7 +41,7 @@ function BoxSocialShare(props: Props) {
   const [isMore, setIsMore] = useState(false);
 
   return (
-    <Fragment>
+    <FileBoxPopup>
       <FileBoxSocial className="box-social">
         <Box sx={{ padding: "1.5rem" }}>
           {!props?.isHide && (
@@ -284,7 +287,7 @@ function BoxSocialShare(props: Props) {
           </Box>
         </Box>
       </FileBoxSocial>
-    </Fragment>
+    </FileBoxPopup>
   );
 }
 

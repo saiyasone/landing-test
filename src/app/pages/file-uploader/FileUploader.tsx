@@ -395,9 +395,9 @@ function FileUploader() {
 
     getLinkData();
 
-    // return () => {
-    //   document.title = "Download folder and file"; // Reset the title when the component unmounts
-    // };
+    return () => {
+      document.title = "Download folder and file"; // Reset the title when the component unmounts
+    };
   }, [linkValue, urlClient, dataFileLink, dataFolderLink, resPonData]);
 
   useEffect(() => {
@@ -1498,7 +1498,6 @@ function FileUploader() {
                       {dataFolderLinkMemo.map((item, index) => {
                         return (
                           <Fragment key={index}>
-
                             <FileCardItem
                               id={item._id}
                               item={item}

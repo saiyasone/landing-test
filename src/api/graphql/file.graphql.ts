@@ -165,11 +165,10 @@ export const QUERY_SUB_FILE = gql`
   query GetFileByUID(
     $where: FilesWhereInput
     $noLimit: Boolean
+    $limit: Int
+    $skip: Int
   ) {
-    filesByUID(
-      where: $where
-      noLimit: $noLimit
-    ) {
+    filesByUID(where: $where, noLimit: $noLimit, limit: $limit, skip: $skip) {
       data {
         _id
         filename

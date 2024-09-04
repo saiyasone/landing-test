@@ -2,7 +2,13 @@ import React, { Fragment, useEffect, useRef, useState } from "react";
 
 //mui component and style
 import CheckBoxOutlineBlankRoundedIcon from "@mui/icons-material/CheckBoxOutlineBlankRounded";
-import { Box, Checkbox, IconButton, Tooltip } from "@mui/material";
+import {
+  Box,
+  Checkbox,
+  IconButton,
+  Tooltip,
+  useMediaQuery,
+} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import { styled } from "@mui/material/styles";
@@ -40,7 +46,7 @@ const CustomCheckbox = styled(Checkbox)({
 
 const Item = styled(Paper)(({ theme, ...props }: any) => ({
   boxShadow: "rgb(0 0 0 / 9%) 0px 2px 8px",
-  borderRadius: "10px",
+  borderRadius: "6px",
   overflow: "hidden",
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "white",
   ...theme.typography.body2,
@@ -220,6 +226,10 @@ const FileCardItem: React.FC<any> = ({
   const itemRef = useRef(null);
   const isFileCardItemHover = useHover(itemRef);
   const isFileCardOuterClicked = useOuterClick(itemRef);
+
+  const isTablet = useMediaQuery("(max-width: 992px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
   const {
     isNormalCard,
     sx,
@@ -408,13 +418,21 @@ const FileCardItem: React.FC<any> = ({
                     {isContainFiles ? (
                       <FolderNotEmptyIcon
                         style={{
-                          width: "150px",
+                          width: isTablet
+                            ? "130px"
+                            : isMobile
+                            ? "50px"
+                            : "150px",
                         }}
                       />
                     ) : (
                       <FolderEmptyIcon
                         style={{
-                          width: "150px",
+                          width: isTablet
+                            ? "130px"
+                            : isMobile
+                            ? "50px"
+                            : "150px",
                         }}
                       />
                     )}
