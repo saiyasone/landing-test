@@ -340,25 +340,27 @@ function FileUploader() {
                   _id: linkClient?._id,
                 },
               },
+              onCompleted: (data) => {
+                const folderData = data?.queryfoldersGetLinks?.data || [];
+                if (folderData?.[0]?.status === "active") {
+                  setGetDataRes(folderData || []);
+                  setFolderDownload(folderData || []);
+
+                  document.title =
+                    folderData?.[0]?.folder_name || "Vshare download folder";
+                  if (folderData && folderData?.[0]?.folder_type) {
+                    if (folderData[0]?.folder_name) {
+                      setDescription(
+                        folderData[0]?.folder_name + " Vshare.net",
+                      );
+                    }
+                  }
+                }
+              },
             });
             setTimeout(() => {
               setIsLoading(false);
             }, 500);
-
-            const folderData = dataFolderLink?.queryfoldersGetLinks?.data || [];
-
-            if (folderData?.[0]?.status === "active") {
-              setGetDataRes(folderData || []);
-              setFolderDownload(folderData || []);
-
-              document.title =
-                folderData?.[0]?.folder_name || "Vshare download folder";
-              if (folderData && folderData?.[0]?.folder_type) {
-                if (folderData[0]?.folder_name) {
-                  setDescription(folderData[0]?.folder_name + " Vshare.net");
-                }
-              }
-            }
           }
         } else {
           setIsLoading(true);
@@ -375,15 +377,8 @@ function FileUploader() {
           }, 500);
           if (resPonData) {
             const fileData = resPonData?.filesPublic?.data?.[0];
-            const title = cutFileName(
-              combineOldAndNewFileNames(
-                fileData?.filename,
-                fileData?.newFilename,
-              ) as string,
-              10,
-            );
-            setDescription(`${title} Vshare.net`);
-            document.title = title;
+            setDescription(`${fileData?.filename} Vshare.net`);
+            document.title = fileData?.filename;
             setGetDataRes(resPonData?.filesPublic?.data);
           }
         }
@@ -396,9 +391,9 @@ function FileUploader() {
     getLinkData();
 
     return () => {
-      document.title = "Download folder and file"; // Reset the title when the component unmounts
+      // document.title = "Download folder and file"; // Reset the title when the component unmounts
     };
-  }, [linkValue, urlClient, dataFileLink, dataFolderLink, resPonData]);
+  }, [linkValue, urlClient, dataFileLink, resPonData]);
 
   useEffect(() => {
     const getMultipleFileAndFolder = async () => {
@@ -473,7 +468,7 @@ function FileUploader() {
         setIsLoading(false);
       }
     };
-    getMultipleFileAndFolder();
+    // getMultipleFileAndFolder();
   }, []);
 
   useEffect(() => {
@@ -1373,6 +1368,7 @@ function FileUploader() {
           isFile: false,
           ...file,
         }));
+
         return folderData;
       }
       return folderData;
@@ -1384,7 +1380,6 @@ function FileUploader() {
   return (
     <React.Fragment>
       <Helmet>
-        <meta name="title" content={"seoTitle"} />
         <meta name="description" content={_description} />
       </Helmet>
       <MUI.ContainerHome maxWidth="xl">
