@@ -22,6 +22,7 @@ import {} from "graphql";
 import App from "./App.tsx";
 import { createClient } from "graphql-ws";
 import { getMainDefinition } from "@apollo/client/utilities";
+import { consoleText } from "utils/console.text.ts";
 // import { paymentState } from "stores/features/paymentSlice.ts";
 
 const authLink = setContext((_, { headers }) => {
@@ -108,8 +109,11 @@ const client = new ApolloClient({
   connectToDevTools: false,
 });
 
+// demo 
+consoleText();
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <Provider store={store}>
       <ApolloProvider client={client}>
         <ThemeProvider>
@@ -119,5 +123,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </ThemeProvider>
       </ApolloProvider>
     </Provider>
-  </React.StrictMode>,
+  // </React.StrictMode>,
 );

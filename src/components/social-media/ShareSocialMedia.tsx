@@ -33,16 +33,16 @@ import {
   TelegramShareButton,
   TelegramIcon,
   WorkplaceShareButton,
-  WorkplaceIcon
+  WorkplaceIcon,
 } from "react-share";
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 import { IndexPropsType } from "./type";
 
 const useStyles = makeStyles({
   container: {
     position: "relative",
-    background: 'rgb(23, 118, 107,0.8)',
+    background: "rgb(23, 118, 107,0.8)",
     color: "#000",
     // maxWidth: "568px",
     maxWidth: "auto",
@@ -50,38 +50,38 @@ const useStyles = makeStyles({
     padding: "10px",
     outline: "none",
     minWidth: "250px",
-    borderRadius: '5px',
+    borderRadius: "5px",
     // overflow:'hidden',
-    boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px;'
+    boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px;",
   },
   arrowUp: {
-    position:'absolute',
+    position: "absolute",
     top: -16,
     left: 15,
     width: 0,
-    height:0,
-    borderLeft: '1rem solid transparent',
-    borderRight: '1rem solid transparent',
-    borderBottom: '1rem solid rgba(23, 118, 107, 0.8)',
-    '@media (max-width: 600px)': {
-      left: '50%',
+    height: 0,
+    borderLeft: "1rem solid transparent",
+    borderRight: "1rem solid transparent",
+    borderBottom: "1rem solid rgba(23, 118, 107, 0.8)",
+    "@media (max-width: 600px)": {
+      left: "50%",
     },
   },
   title: {
-    color:'#fff',
+    color: "#fff",
     textAlign: "left",
     fontFamily: "Apple SD Gothic Neo",
     fontStyle: "normal",
     fontWeight: 800,
     fontSize: "20px",
     lineHeight: "24px",
-    textDecoration:'underline',
-    textDecorationColor:'rgb(255,255,255,0.6)',
-    textDecorationThickness:'1px',
-    textUnderlineOffset:'.5rem',
+    textDecoration: "underline",
+    textDecorationColor: "rgb(255,255,255,0.6)",
+    textDecorationThickness: "1px",
+    textUnderlineOffset: ".5rem",
     "&:hover": {
       cursor: "none",
-    }
+    },
   },
   iconContainer: {
     paddingTop: "20px",
@@ -232,8 +232,8 @@ const components: any = {
   },
   copy: {
     Button: ContentCopyIcon,
-    Icon: ContentCopyIcon
-  }
+    Icon: ContentCopyIcon,
+  },
 };
 
 function ShareSocial(props: IndexPropsType) {
@@ -258,8 +258,8 @@ function ShareSocial(props: IndexPropsType) {
         });
   };
 
-  useEffect(()=>{
-    if(isCopied){
+  useEffect(() => {
+    if (isCopied) {
       setTimeout(() => {
         setIsCopied(false);
       }, 5000);
@@ -268,30 +268,34 @@ function ShareSocial(props: IndexPropsType) {
 
   function getComponent(type: string) {
     const { Button, Icon } = components[type];
-    return (
-        type && type === 'copy' ?
-          <Tooltip title={'Copy to clipboard'}>
-            <Button
-              url={url}
-              quote={title}
-              onClick={() => copyToClipboard(url)}
-              sx={{fontSize:'2.5rem', border:1, borderRadius: '30%', padding:'.4rem'}}
-              className={classes.copyIcon}
-              style={style?.copyIcon}
-            >
-              <Icon size={40} round/>
-            </Button>
-          </Tooltip>
-          :
-          <Tooltip title={type || ""} placement="top">
-            <Button
-              url={url}
-              quote={title}
-              onClick={() => onSocialButtonClicked(type)}
-            >
-              <Icon size={40} round />
-            </Button>
-          </Tooltip>
+    return type && type === "copy" ? (
+      <Tooltip title={"Copy to clipboard"}>
+        <Button
+          url={url}
+          quote={title}
+          onClick={() => copyToClipboard(url)}
+          sx={{
+            fontSize: "2.5rem",
+            border: 1,
+            borderRadius: "30%",
+            padding: ".4rem",
+          }}
+          className={classes.copyIcon}
+          style={style?.copyIcon}
+        >
+          <Icon size={40} round />
+        </Button>
+      </Tooltip>
+    ) : (
+      <Tooltip title={type || ""} placement="top">
+        <Button
+          url={url}
+          quote={title}
+          onClick={() => onSocialButtonClicked(type)}
+        >
+          <Icon size={40} round />
+        </Button>
+      </Tooltip>
     );
   }
 
@@ -304,15 +308,15 @@ function ShareSocial(props: IndexPropsType) {
         </h1>
       )}
       <div className={classes.iconContainer} style={style?.iconContainer}>
-          {Array.isArray(socialTypes) &&
-            socialTypes.map((type, idx) => (
-              <React.Fragment key={"social_item_" + idx}>
-                {getComponent(type)}
-              </React.Fragment>
-            ))}
+        {Array.isArray(socialTypes) &&
+          socialTypes.map((type, idx) => (
+            <React.Fragment key={"social_item_" + idx}>
+              {getComponent(type)}
+            </React.Fragment>
+          ))}
       </div>
     </div>
   );
 }
 
-export {ShareSocial};
+export { ShareSocial };

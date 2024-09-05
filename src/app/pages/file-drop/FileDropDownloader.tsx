@@ -140,7 +140,7 @@ function FileDropDownloader() {
   const [timeLeft, setTimeLeft] = useState("");
   const [multiId, setMultiId] = useState<any>([]);
   const [platform, setPlatform] = useState("");
-  const [isMultiple, setIsMultiple] = useState(false);
+  const [isUploadMultiples, setIsUploadMultiples] = useState(false);
   // const [selectedRow, setSelectedRow] = React.useState([]);
   const [getDataButtonDownload, { data: getDataButtonDL }] = useLazyQuery(
     QUERY_SETTING,
@@ -456,6 +456,9 @@ function FileDropDownloader() {
           setStatus('locked');
         }
         
+        if(item?.allowMultiples){
+          setIsUploadMultiples(true);
+        }
 
       },
     });
@@ -622,7 +625,7 @@ function FileDropDownloader() {
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    multiple: isMultiple,
+    multiple: isUploadMultiples
   });
 
   useEffect(() => {
@@ -654,9 +657,6 @@ function FileDropDownloader() {
 
   useEffect(() => {
     if (dataFromUrl) {
-      if (dataFromUrl?.allowMultiples) {
-        setIsMultiple(true);
-      }
       const operation = navigator.userAgent;
 
       if (operation.match(/iPhone|iPad|iPod/i)) {

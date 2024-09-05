@@ -6,7 +6,15 @@ import { useLocation, useNavigate } from "react-router-dom";
 // components
 import GridIcon from "@mui/icons-material/AppsOutlined";
 import ListIcon from "@mui/icons-material/FormatListBulletedOutlined";
-import { Box, Button, Card, Grid, IconButton, Typography, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  Grid,
+  IconButton,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import {
   CREATE_DETAIL_ADVERTISEMENT,
   QUERY_ADVERTISEMENT,
@@ -25,7 +33,7 @@ import { QUERY_SETTING } from "api/graphql/setting.graphql";
 import { QUERY_USER } from "api/graphql/user.graphql";
 import DialogConfirmPassword from "components/dialog/DialogConfirmPassword";
 import DialogPreviewQRcode from "components/dialog/DialogPreviewQRCode";
-import Advertisement from "components/presentation/Advertisement";
+// import Advertisement from "components/presentation/Advertisement";
 import BoxSocialShare from "components/presentation/BoxSocialShare";
 import DialogConfirmQRCode from "components/presentation/DialogConfirmQRCode";
 import FileCardContainer from "components/presentation/FileCardContainer";
@@ -193,8 +201,11 @@ function FileUploader() {
     return decryptedData;
   }
 
-  function handleClearGridSelection() {
+  function handleClearFileSelection() {
     setMultipleIds([]);
+  }
+
+  function handleClearFolderSelection() {
     setMultipleFolderIds([]);
   }
 
@@ -213,6 +224,7 @@ function FileUploader() {
 
   function handleToggle() {
     setMultipleIds([]);
+    setMultipleFolderIds([]);
     handleClearSelector();
     if (toggle === "list") {
       setToggle("grid");
@@ -248,6 +260,10 @@ function FileUploader() {
       },
     });
   }, []);
+
+  useEffect(() => {
+    handleClearSelector();
+  }, [navigate, dispatch]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
@@ -536,12 +552,65 @@ function FileUploader() {
   };
 
   const handleMobileDownloadData = () => {
-    if (dataLinkMemo?.length > 0) {
-      handleDownloadFileGetLink();
+    if (toggle === "list") {
+      if (dataLinkMemo?.length > 0) {
+        handleDownloadFileGetLink();
+      }
+
+      if (dataFolderLinkMemo?.length > 0) {
+        handleDownloadFolderGetLink();
+      }
     }
 
-    if (dataFolderLinkMemo?.length > 0) {
-      handleDownloadFolderGetLink();
+    if (toggle === "grid") {
+      handleDownloadGridFileAndFolder();
+    }
+  };
+
+  const handleDownloadGridFileAndFolder = async () => {
+    if (dataSelector?.selectionFileAndFolderData?.length > 0) {
+      const newModelData = dataSelector?.selectionFileAndFolderData || [];
+      const multipleData = newModelData.map((file: any) => {
+        const newPath = file.newPath || "";
+
+        return {
+          id: file.id,
+          name: file.name,
+          newFilename: file.newFilename,
+          checkType: file?.checkType || "file",
+          newPath,
+          createdBy: file.createdBy,
+        };
+      });
+
+      setTotalClickCount((prevCount) => prevCount + 1);
+
+      if (totalClickCount >= getActionButton) {
+        setTotalClickCount(0);
+        manageFile.handleDownloadFile(
+          {
+            multipleData,
+          },
+          {
+            onFailed: () => {},
+            onSuccess: () => {},
+          },
+        );
+      } else {
+        if (getAdvertisemment.length) {
+          handleAdvertisementPopup();
+        } else {
+          manageFile.handleDownloadFile(
+            {
+              multipleData,
+            },
+            {
+              onFailed: () => {},
+              onSuccess: () => {},
+            },
+          );
+        }
+      }
     }
   };
 
@@ -819,7 +888,6 @@ function FileUploader() {
   };
 
   const handleDownloadAsZip = async () => {
-
     if (dataLinkMemo?.length > 0) {
       const multipleData = dataLinkMemo.map((file) => {
         const newPath = file.newPath || "";
@@ -1471,32 +1539,8 @@ function FileUploader() {
           _confirmPasword={_confirmPasword}
         />
 
-        <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem"}}>
-          <MUI.AdsContainer>
-            <MUI.AdsContent>
-              <MUI.AdsCard>
-                <Typography variant="h4" component={"h4"}>
-                  Mltidiscriplinary, Monthly
-                </Typography>
-                <Typography component={"p"}>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Error, molestias.
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center !important",
-                  }}
-                >
-                  <Typography component={"div"} sx={{ opacity: 0.7 }}>
-                    TIJER Research Journal
-                  </Typography>
-                  <Button variant="contained">Open</Button>
-                </Box>
-              </MUI.AdsCard>
-            </MUI.AdsContent>
-          </MUI.AdsContainer>
+        <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem" }}>
+          {/* <Advertisement /> */}
 
           <MUI.FileListContainer>
             <Box>
@@ -1549,7 +1593,7 @@ function FileUploader() {
                       setMultipleIds={setMultipleFolderIds}
                       setToggle={handleToggle}
                       handleQRGeneration={handleQRGeneration}
-                      handleClearGridSelection={handleClearGridSelection}
+                      handleClearGridSelection={handleClearFolderSelection}
                       handleDownloadFolderAsZip={handleDownloadAsZip}
                       handleDownloadFolder={handleDownloadFolderGetLink}
                       handleDoubleClick={handleOpenFolder}
@@ -1569,7 +1613,7 @@ function FileUploader() {
                       setMultipleIds={setMultipleIds}
                       setToggle={handleToggle}
                       handleQRGeneration={handleQRGeneration}
-                      handleClearGridSelection={handleClearGridSelection}
+                      handleClearFileSelection={handleClearFileSelection}
                       handleDownloadAsZip={handleDownloadAsZip}
                       handleDownloadFileGetLink={handleDownloadFileGetLink}
                     />
@@ -1579,91 +1623,85 @@ function FileUploader() {
 
               {toggle === "grid" && (
                 <Fragment>
-                  <Fragment>
-                    {dataLinkMemo && dataLinkMemo.length > 0 && (
-                      <FileCardContainer>
-                        {dataLinkMemo.map((item, index) => {
-                          return (
-                            <Fragment key={index}>
-                              <FileCardItem
-                                id={item._id}
-                                item={item}
-                                imagePath={
-                                  item?.createdBy?.newName +
-                                  "-" +
-                                  item?.createdBy?._id +
-                                  "/" +
-                                  (item.newPath
-                                    ? removeFileNameOutOfPath(item.newPath)
-                                    : "") +
-                                  item.newFilename
-                                }
-                                user={item?.createdBy}
-                                path={item?.path}
-                                isCheckbox={true}
-                                filePassword={item?.filePassword}
-                                fileType={"image"}
-                                isPublic={
-                                  item?.createdBy?._id === "0" ? true : false
-                                }
-                                name={item?.filename}
-                                newName={item?.newFilename}
-                                cardProps={{
-                                  onDoubleClick: () => {
-                                    // console.log("first");
-                                  },
-                                }}
-                              />
-                            </Fragment>
-                          );
-                        })}
-                      </FileCardContainer>
-                    )}
-                  </Fragment>
-                  <Fragment>
-                    {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
-                      <FileCardContainer>
-                        {dataFolderLinkMemo.map((item, index) => {
-                          return (
-                            <Fragment key={index}>
-                              <FileCardItem
-                                id={item._id}
-                                item={item}
-                                isContainFiles={
-                                  item?.total_size > 0 ? true : false
-                                }
-                                imagePath={
-                                  item?.createdBy?.newName +
-                                  "-" +
-                                  item?.createdBy?._id +
-                                  "/" +
-                                  (item.newPath
-                                    ? removeFileNameOutOfPath(item.newPath)
-                                    : "") +
-                                  item.newFilename
-                                }
-                                user={item?.createdBy}
-                                path={item?.path}
-                                isCheckbox={true}
-                                filePassword={item?.filePassword}
-                                fileType={"folder"}
-                                isPublic={
-                                  item?.createdBy?._id === "0" ? true : false
-                                }
-                                name={item?.folder_name}
-                                newName={item?.newFolder_name}
-                                cardProps={{
-                                  onDoubleClick: () => {
-                                    handleOpenFolder(item);
-                                  },
-                                }}
-                              />
-                            </Fragment>
-                          );
-                        })}
-                      </FileCardContainer>
-                    )}
-                  </Fragment>
+                  {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
+                    <FileCardContainer style={{ marginBottom: "1rem" }}>
+                      {dataFolderLinkMemo.map((item, index) => {
+                        return (
+                          <Fragment key={index}>
+                            <FileCardItem
+                              id={item._id}
+                              item={item}
+                              isContainFiles={
+                                item?.total_size > 0 ? true : false
+                              }
+                              imagePath={
+                                item?.createdBy?.newName +
+                                "-" +
+                                item?.createdBy?._id +
+                                "/" +
+                                (item.newPath
+                                  ? removeFileNameOutOfPath(item.newPath)
+                                  : "") +
+                                item.newFilename
+                              }
+                              user={item?.createdBy}
+                              path={item?.path}
+                              isCheckbox={true}
+                              filePassword={item?.access_password}
+                              fileType={"folder"}
+                              name={item?.folder_name}
+                              newName={item?.newFolder_name}
+                              cardProps={{
+                                onDoubleClick: () => {
+                                  handleOpenFolder(item);
+                                },
+                              }}
+                            />
+                          </Fragment>
+                        );
+                      })}
+                    </FileCardContainer>
+                  )}
+
+                  {dataLinkMemo && dataLinkMemo.length > 0 && (
+                    <FileCardContainer>
+                      {dataLinkMemo.map((item, index) => {
+                        return (
+                          <Fragment key={index}>
+                            <FileCardItem
+                              id={item._id}
+                              item={item}
+                              imagePath={
+                                item?.createdBy?.newName +
+                                "-" +
+                                item?.createdBy?._id +
+                                "/" +
+                                (item.newPath
+                                  ? removeFileNameOutOfPath(item.newPath)
+                                  : "") +
+                                item.newFilename
+                              }
+                              user={item?.createdBy}
+                              path={item?.path}
+                              isCheckbox={true}
+                              filePassword={item?.filePassword}
+                              fileType={"image"}
+                              isPublic={
+                                item?.createdBy?._id === "0" ? true : false
+                              }
+                              name={item?.filename}
+                              newName={item?.newFilename}
+                              cardProps={{
+                                onDoubleClick: () => {
+                                  // console.log("first");
+                                },
+                              }}
+                            />
+                          </Fragment>
+                        );
+                      })}
+                    </FileCardContainer>
+                  )}
                 </Fragment>
               )}
             </Box>
@@ -1679,28 +1717,32 @@ function FileUploader() {
             </Box>
           </MUI.FileListContainer>
         </Box>
-         {/* Feed Admin  */}
-         <Card>
-            <Typography variant="h4" sx={{mt: 4}}>Popular</Typography>
-            <Grid container sx={{mt: 4}}>
-                {[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map((vdo, indx) => (
-                  indx < 4 &&
+        {/* Feed Admin  */}
+        <Card>
+          <Typography variant="h4" sx={{ mt: 4 }}>
+            Popular
+          </Typography>
+          <Grid container sx={{ mt: 4 }}>
+            {[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map(
+              (_, indx) =>
+                indx < 4 && (
                   <Grid item key={indx} xs={12} sm={6} md={4} lg={3}>
-                    <Box sx={{width:'100%'}}>
-                        <VideoCardComponent
-                            title="Lorem ipsum dolor sit amet."
-                            description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod ipsa facilis recusandae vero doloremque cumque."
-                            control={true} 
-                            autoPlay={false}
-                            muted={true}
-                            url='https://static.vecteezy.com/system/resources/previews/043/199/391/mp4/a-vibrant-city-street-illuminated-by-the-lights-of-the-night-video.mp4'
-                            onView={()=>navigate('/video_view')}
-                        />
+                    <Box sx={{ width: "100%" }}>
+                      <VideoCardComponent
+                        title="Lorem ipsum dolor sit amet."
+                        description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod ipsa facilis recusandae vero doloremque cumque."
+                        control={true}
+                        autoPlay={false}
+                        muted={true}
+                        url="https://static.vecteezy.com/system/resources/previews/043/199/391/mp4/a-vibrant-city-street-illuminated-by-the-lights-of-the-night-video.mp4"
+                        onView={() => navigate("/video_view")}
+                      />
                     </Box>
-                </Grid>
-                ))}
-            </Grid>
-          </Card>
+                  </Grid>
+                ),
+            )}
+          </Grid>
+        </Card>
       </MUI.ContainerHome>
       <MUI.FilBoxBottomContainer>
         <Button
