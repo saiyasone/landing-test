@@ -419,34 +419,44 @@ const FileCardItem: React.FC<any> = ({
                       <FolderNotEmptyIcon
                         style={{
                           width: isTablet
-                            ? "130px"
+                            ? "120px"
                             : isMobile
                             ? "50px"
-                            : "150px",
+                            : "130px",
                         }}
                       />
                     ) : (
                       <FolderEmptyIcon
                         style={{
                           width: isTablet
-                            ? "130px"
+                            ? "120px"
                             : isMobile
                             ? "50px"
-                            : "150px",
+                            : "130px",
                         }}
                       />
                     )}
                   </Box>
                 )}
                 {fileType !== "folder" && (
-                  <FileIconContainer>
-                    <FileIcon
-                      extension={getFileType(props.name)}
-                      {...{
-                        ...defaultStyles[getFileType(props.name) as string],
-                      }}
-                    />
-                  </FileIconContainer>
+                  <Fragment>
+                    {props?.filePassword ? (
+                      <LockImage
+                        className="lock-icon-preview"
+                        src={lockIcon}
+                        alt={props.name}
+                      />
+                    ) : (
+                      <FileIconContainer>
+                        <FileIcon
+                          extension={getFileType(props.name)}
+                          {...{
+                            ...defaultStyles[getFileType(props.name) as string],
+                          }}
+                        />
+                      </FileIconContainer>
+                    )}
+                  </Fragment>
                 )}
               </React.Fragment>
             )}
