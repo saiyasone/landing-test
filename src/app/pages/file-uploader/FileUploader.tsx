@@ -300,7 +300,7 @@ function FileUploader() {
 
   useEffect(() => {
     const getLinkData = async () => {
-      try {
+      try { 
         if (linkClient?._id) {
           if (linkClient?.type === "file") {
             setIsLoading(true);
@@ -468,7 +468,7 @@ function FileUploader() {
         setIsLoading(false);
       }
     };
-    // getMultipleFileAndFolder();
+    getMultipleFileAndFolder();
   }, []);
 
   useEffect(() => {
