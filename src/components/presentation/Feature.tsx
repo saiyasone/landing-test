@@ -8,7 +8,6 @@ import { limitContent } from "utils/string.util";
 import { createTheme, useMediaQuery } from "@mui/material";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { ENV_KEYS } from "constants/env.constant";
 
 type FeatureProps = {
   title: string;
@@ -20,7 +19,7 @@ const Future = (props: FeatureProps) => {
   const { title, content, image } = props;
   const theme = createTheme();
   const isMobile = useMediaQuery("(max-width: 600px)");
-  const previewImage = ENV_KEYS.VITE_APP_BUNNY_PREVIEW_IMAGE;
+  const previewImage = "";
 
   return (
     <MUI.CardFeature sx={{ minWidth: 70 }}>
