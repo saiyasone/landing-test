@@ -37,6 +37,7 @@ import "../file-uploader/styles/fileUploader.style.css";
 import ListFolderData from "components/presentation/ListFolderData";
 import BaseNormalButton from "components/BaseNormalButton";
 import ViewMoreAction from "components/presentation/ViewMoreAction";
+import Advertisement from "components/presentation/Advertisement";
 
 function ExtendFolder() {
   const location = useLocation();
@@ -98,12 +99,12 @@ function ExtendFolder() {
   const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
 
   // Deep linking for mobile devices
-  const appScheme = "vshare.app://download?url=" + currentURL;
+  const appScheme = ENV_KEYS.VITE_APP_DEEP_LINK + currentURL;
 
   const [multipleIds, setMultipleIds] = useState<any[]>([]);
   const [multipleFolderIds, setMultipleFolderIds] = useState<any[]>([]);
 
-  const [hideDownload, seHideDownload] = useState(true);
+  const [hideDownload, setHideDownload] = useState(true);
 
   const dataSelector = useSelector(
     selectorAction.checkboxFileAndFolderSelector,
@@ -204,7 +205,9 @@ function ExtendFolder() {
         (data) => data?.productKey === settingKeys.downloadKey,
       );
       if (downloadData) {
-        if (downloadData?.status === "on") seHideDownload(false);
+        if (downloadData?.status === "on") {
+          setHideDownload(false);
+        }
       }
     }
 
@@ -611,13 +614,11 @@ function ExtendFolder() {
   const handleOpenApplication = () => {
     const timeout = setTimeout(() => {
       if (platform === "android") {
-        window.location.href =
-          "https://play.google.com/store/apps/details?id=com.vshare.app.client";
+        window.location.href = ENV_KEYS.VITE_APP_PLAY_STORE;
       }
 
       if (platform === "ios") {
-        window.location.href =
-          "https://apps.apple.com/la/app/vshare-file-transfer-app/id6476536606";
+        window.location.href = ENV_KEYS.VITE_APP_APPLE_STORE;
       }
     }, 1500);
 
@@ -629,6 +630,33 @@ function ExtendFolder() {
   };
 
   const handleDownloadAsZip = async () => {
+    const groupData: any[] = dataLinkMemo.concat(dataFolderLinkMemo);
+
+    const multipleData = groupData.map((item: any) => {
+      const newPath = item?.newPath || "";
+      const newFilename = item?.newFilename || item?.newFolder_name;
+
+      return {
+        newPath,
+        id: item._id,
+        newFilename: newFilename || "",
+        name: item?.filename || item?.folder_name,
+        checkType: item?.isFile ? "file" : "folder",
+        createdBy: item?.createdBy,
+        isPublic: linkClient?._id ? false : true,
+      };
+    });
+
+    manageFile.handleDownloadFile(
+      {
+        multipleData,
+      },
+      {
+        onFailed: () => {},
+        onSuccess: () => {},
+      },
+    );
+
     if (dataLinkMemo?.length > 0) {
       const multipleData = dataLinkMemo.map((file) => {
         const newPath = file.newPath || "";
@@ -663,52 +691,6 @@ function ExtendFolder() {
           handleAdvertisementPopup();
         } else {
           manageFile.handleDownloadFile(
-            {
-              multipleData,
-            },
-            {
-              onFailed: () => {},
-              onSuccess: () => {},
-            },
-          );
-        }
-      }
-    }
-
-    if (dataFolderLinkMemo?.length > 0) {
-      const multipleData = dataFolderLinkMemo.map((file: any) => {
-        const newPath = file.newPath || "";
-
-        return {
-          id: file._id,
-          name: file.folder_name,
-          newFilename: file.newFolder_name,
-          checkType: "folder",
-          newPath,
-          createdBy: file.createdBy,
-        };
-      });
-
-      setTotalClickCount((prevCount) => prevCount + 1);
-      setMultipleType("folder");
-
-      if (totalClickCount >= getActionButton) {
-        setTotalClickCount(0);
-
-        manageFile.handleDownloadFolder(
-          {
-            multipleData,
-          },
-          {
-            onFailed: () => {},
-            onSuccess: () => {},
-          },
-        );
-      } else {
-        if (getAdvertisemment.length) {
-          handleAdvertisementPopup();
-        } else {
-          manageFile.handleDownloadFolder(
             {
               multipleData,
             },
@@ -945,7 +927,7 @@ function ExtendFolder() {
         />
 
         <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem" }}>
-          {/* <Advertisement /> */}
+          <Advertisement />
 
           {(dataFolderLinkMemo?.length > 0 || dataLinkMemo?.length > 0) && (
             <MUI.FileBoxToggle>

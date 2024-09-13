@@ -44,7 +44,7 @@ function BoxSocialShare(props: Props) {
     <FileBoxPopup>
       <FileBoxSocial className="box-social">
         <Box sx={{ padding: "1.5rem" }}>
-          {!props?.isHide && (
+          {props?.isHide && (
             <Box
               className="button-ads"
               sx={{ display: "flex", position: "relative" }}

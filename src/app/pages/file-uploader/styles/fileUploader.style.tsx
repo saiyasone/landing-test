@@ -1005,22 +1005,9 @@ export const FileBoxHeader = styled("div")({
 });
 
 ////Ads
-export const AdsContainer = styled(Box)(({ theme }) => ({
-  background: "#fff",
-  display: "flex",
-  flex: 1,
-  flexDirection: "row",
-  justifyContent: "center",
-  alignItems: "center",
-  width: "50%",
-  margin: "0 auto",
-  padding: ".5rem",
-  [theme.breakpoints.down("sm")]: {
-    width: "100%",
-    padding: "0",
-  },
-  marginBottom: "3rem",
-}));
+export const AdsContainer = styled(Box)({
+  marginBottom: "1rem",
+});
 
 export const AdsContent = styled(Box)(({ theme }) => ({
   padding: "1rem",
