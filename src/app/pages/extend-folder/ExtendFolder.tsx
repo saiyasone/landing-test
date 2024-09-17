@@ -1135,7 +1135,6 @@ function ExtendFolder() {
 
       <MUI.FilBoxBottomContainer>
         <Button
-          sx={{ padding: "0.6rem", borderRadius: "30px" }}
           fullWidth={true}
           size="small"
           variant="contained"
@@ -1152,7 +1151,6 @@ function ExtendFolder() {
         </Button>
         {(platform === "android" || platform === "ios") && (
           <Button
-            sx={{ padding: "0.6rem", borderRadius: "30px" }}
             onClick={handleOpenApplication}
             fullWidth={true}
             size="small"

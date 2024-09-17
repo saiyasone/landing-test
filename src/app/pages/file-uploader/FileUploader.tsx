@@ -43,11 +43,7 @@ import { FaDownload, FaTimes } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import * as selectorAction from "stores/features/selectorSlice";
 import { errorMessage, successMessage } from "utils/alert.util";
-import {
-  combineOldAndNewFileNames,
-  getFileTypeName,
-  removeFileNameOutOfPath,
-} from "utils/file.util";
+import { getFileTypeName, removeFileNameOutOfPath } from "utils/file.util";
 import { decryptDataLink, encryptDataLink } from "utils/secure.util";
 import * as MUI from "./styles/fileUploader.style";
 import "./styles/fileUploader.style.css";
@@ -59,6 +55,8 @@ import {
   BoxAdsAction,
   BoxAdsContainer,
 } from "styles/presentation/presentation.style";
+
+const DATA_LIST_SIZE = 10;
 
 function FileUploader() {
   const location = useLocation();
@@ -86,12 +84,8 @@ function FileUploader() {
   const [getAdvertisemment, setGetAvertisement] = useState<any>([]);
 
   const [usedAds, setUsedAds] = useState<any[]>([]);
-  const [lastClickedButton, setLastClickedButton] = useState<any>([]);
   const [totalClickCount, setTotalClickCount] = useState(0);
   const [adAlive, setAdAlive] = useState(0);
-
-  const [isHide, setIsHide] = useState<any>(false);
-  const [isSuccess, setIsSuccess] = useState<any>(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const [dataValue, setDataValue] = useState<any>(null);
@@ -104,6 +98,10 @@ function FileUploader() {
   const [folderDataSelect, setFolderDataSelect] = useState<any>(null);
   const [dataMultipleFile, setDataMultipleFile] = useState<any[]>([]);
   const [dataMultipleFolder, setDataMultipleFolder] = useState<any[]>([]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [viewMore, setViewMore] = useState(20);
+  const [total, setTotal] = useState(0);
 
   const params = new URLSearchParams(location.search);
   const linkValue = params.get("l");
@@ -304,6 +302,10 @@ function FileUploader() {
     }
   }, [getDataButtonDL, getDataAdvertisement]);
 
+  const handleViewMore = () => {
+    setViewMore((prev) => prev + 10);
+  };
+
   useEffect(() => {
     const getLinkData = async () => {
       try {
@@ -414,9 +416,14 @@ function FileUploader() {
             await getManageLinkDetail({
               variables: {
                 where: { _id: linkClient?._id },
+                limit: toggle === "list" ? DATA_LIST_SIZE : viewMore,
+                skip:
+                  toggle === "list" ? DATA_LIST_SIZE * (currentPage - 1) : null,
               },
               onCompleted: async (values) => {
+                const totalData = values?.getManageLinkDetails?.total || 0;
                 const mainData = values?.getManageLinkDetails?.data || [];
+                setTotal(totalData);
 
                 if (mainData?.length > 0) {
                   if (os.match(/iPhone|iPad|iPod/i)) {
@@ -476,7 +483,7 @@ function FileUploader() {
       }
     };
     getMultipleFileAndFolder();
-  }, []);
+  }, [currentPage, viewMore]);
 
   useEffect(() => {
     function handleDetectPlatform() {
@@ -904,208 +911,6 @@ function FileUploader() {
     }
   };
 
-  const _downloadFiles = async (
-    index,
-    fileId,
-    newFilename,
-    filename,
-    filePassword,
-    newPath,
-    createdBy,
-    dataFile,
-  ) => {
-    setTotalClickCount((prevCount) => prevCount + 1);
-    setFileDataSelect({ ...dataFile, newPath, createdBy });
-    setMultipleType("file");
-
-    if (totalClickCount >= getActionButton) {
-      setLastClickedButton([...lastClickedButton, fileId]);
-      setTotalClickCount(0);
-      const changeFilename = combineOldAndNewFileNames(filename, newFilename);
-
-      try {
-        setFilePasswords(filePassword);
-        setGetNewFileName(newFilename);
-        if (linkClient?._id) {
-          if (filePassword) {
-            handleClickOpen();
-          } else {
-            handleDoneDownloadFiles({
-              index,
-              filename,
-              newFilename,
-              createdBy,
-              dataFile,
-            });
-          }
-        } else {
-          if (filePassword) {
-            handleClickOpen();
-          } else {
-            handleDoneDownloadFilesOnPublic({
-              index,
-              changeFilename,
-              newFilename: dataFile?.newFilename,
-              dataFile,
-            });
-          }
-        }
-      } catch (error: any) {
-        errorMessage(error, 2000);
-      }
-    } else {
-      if (getAdvertisemment.length) {
-        handleAdvertisementPopup();
-      } else {
-        const changeFilename = combineOldAndNewFileNames(filename, newFilename);
-
-        try {
-          setFilePasswords(filePassword);
-          setGetNewFileName(newFilename);
-
-          if (filePassword) {
-            handleClickOpen();
-          } else {
-            if (linkClient?._id) {
-              handleDoneDownloadFiles({
-                index,
-                filename,
-                newFilename,
-                createdBy,
-                dataFile,
-              });
-            } else {
-              handleDoneDownloadFilesOnPublic({
-                index,
-                changeFilename,
-                newFilename,
-                dataFile,
-              });
-            }
-          }
-        } catch (error) {
-          errorMessage("Something wrong try again later!", 2000);
-        }
-      }
-    }
-  };
-
-  const handleDoneDownloadFiles = async ({
-    index,
-    filename,
-    newFilename,
-    createdBy,
-    dataFile,
-  }) => {
-    try {
-      setIsHide((prev) => ({
-        ...prev,
-        [index]: true,
-      }));
-      setIsSuccess((prev) => ({
-        ...prev,
-        [index]: false,
-      }));
-
-      const multipleData = [
-        {
-          id: dataFile._id,
-          name: filename,
-          newFilename: newFilename,
-          checkType: "file",
-          newPath: dataFile.newPath || "",
-          createdBy: createdBy,
-        },
-      ];
-
-      await manageFile.handleDownloadFile(
-        { multipleData },
-        {
-          onSuccess: () => {
-            setIsHide((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-            setIsSuccess((prev) => ({
-              ...prev,
-              [index]: true,
-            }));
-          },
-          onFailed: (error) => {
-            errorMessage(error, 3000);
-            setIsHide((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-            setIsSuccess((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-          },
-        },
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleDoneDownloadFilesOnPublic = async ({
-    index,
-    newFilename,
-    changeFilename,
-    dataFile,
-  }) => {
-    try {
-      setIsHide((prev) => ({
-        ...prev,
-        [index]: true,
-      }));
-      setIsSuccess((prev) => ({
-        ...prev,
-        [index]: false,
-      }));
-
-      const multipleData = [
-        {
-          id: dataFile._id,
-          name: changeFilename,
-          newFilename: newFilename,
-          checkType: "file",
-          newPath: "",
-        },
-      ];
-
-      await manageFile.handleDownloadPublicFile(
-        { multipleData },
-        {
-          onSuccess: () => {
-            setIsHide((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-            setIsSuccess((prev) => ({
-              ...prev,
-              [index]: true,
-            }));
-          },
-          onFailed: (error) => {
-            errorMessage(error, 3000);
-            setIsHide((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-            setIsSuccess((prev) => ({
-              ...prev,
-              [index]: false,
-            }));
-          },
-        },
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const _confirmPasword = async (password) => {
     if (!filePasswords) {
       const modifyPassword = CryptoJS.MD5(password).toString();
@@ -1451,6 +1256,12 @@ function FileUploader() {
                       dataLinks={dataLinkMemo}
                       multipleIds={multipleIds}
                       countAction={adAlive}
+                      total={total}
+                      pagination={{
+                        currentPage: currentPage,
+                        totalPages: Math.ceil(total / DATA_LIST_SIZE),
+                        setCurrentPage: setCurrentPage,
+                      }}
                       setMultipleIds={setMultipleIds}
                       setToggle={handleToggle}
                       handleQRGeneration={handleQRGeneration}
@@ -1589,11 +1400,11 @@ function FileUploader() {
       </MUI.ContainerHome>
       <MUI.FilBoxBottomContainer>
         <Button
-          sx={{ padding: "0.6rem", borderRadius: "30px" }}
           fullWidth={true}
           variant="contained"
           disabled={
             multipleIds.length > 0 ||
+            multipleFolderIds.length > 0 ||
             dataSelector?.selectionFileAndFolderData?.length > 0
               ? false
               : true
@@ -1604,7 +1415,6 @@ function FileUploader() {
         </Button>
         {(platform === "android" || platform === "ios") && (
           <Button
-            sx={{ padding: "0.6rem", borderRadius: "30px" }}
             onClick={handleOpenApplication}
             fullWidth={true}
             variant="contained"

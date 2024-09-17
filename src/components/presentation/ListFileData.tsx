@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import {
   Box,
   Card,
@@ -6,6 +6,7 @@ import {
   Chip,
   IconButton,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { FileBoxDownload } from "app/pages/file-uploader/styles/fileUploader.style";
@@ -66,6 +67,7 @@ type Props = {
 
 function ListFileData(props: Props) {
   const [expireDate, setExpireDate] = useState("");
+  const isMobile = useMediaQuery(`(max-width: 768px)`);
 
   const columns: any = [
     {
@@ -75,6 +77,10 @@ function ListFileData(props: Props) {
       headerAlign: "left",
       renderCell: (params) => {
         const dataFile = params?.row;
+        const size = props?.isFile
+          ? params?.row?.size
+          : params?.row?.total_size;
+
         const filename = props.isFile
           ? dataFile?.filename
           : dataFile?.folder_name;
@@ -96,9 +102,25 @@ function ListFileData(props: Props) {
                   </IconFolderContainer>
                 </Fragment>
               )}
-              <Typography title={dataFile?.filename} component={"span"}>
-                {cutFileName(filename || "", 20)}
-              </Typography>
+
+              <Box sx={{ display: "flex", flexDirection: "column" }}>
+                <Typography
+                  title={dataFile?.filename}
+                  component={"span"}
+                  sx={{ fontSize: isMobile ? 12 : 14 }}
+                >
+                  {cutFileName(filename || "", isMobile ? 8 : 20)}
+                </Typography>
+                {isMobile && (
+                  <Typography
+                    title={dataFile?.filename}
+                    component={"span"}
+                    sx={{ fontSize: isMobile ? 10 : 12 }}
+                  >
+                    {convertBytetoMBandGB(size || 0)}
+                  </Typography>
+                )}
+              </Box>
               {password && (
                 <LockIcon sx={{ color: "#666", fontSize: "1.2rem" }} />
               )}
@@ -166,6 +188,15 @@ function ListFileData(props: Props) {
       },
     },
   ];
+
+  const columnData = useMemo(() => {
+    if (isMobile) {
+      const newColumns = columns.filter((data) => data.field !== "size");
+      return newColumns || [];
+    }
+
+    return columns;
+  }, [isMobile]);
 
   function handleClearSelection() {
     if (props.isFile) {
@@ -241,7 +272,7 @@ function ListFileData(props: Props) {
             autoHeight
             getRowId={(row) => row?._id}
             rows={props?.dataLinks || []}
-            columns={columns}
+            columns={columnData || []}
             disableSelectionOnClick
             disableColumnFilter
             disableColumnMenu

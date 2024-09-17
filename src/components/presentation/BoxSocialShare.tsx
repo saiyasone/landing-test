@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Button, Tooltip, Typography } from "@mui/material";
+import { Box, Button, Tooltip, Typography, useMediaQuery } from "@mui/material";
 import {
   FileBoxPopup,
   FileBoxSocial,
@@ -39,6 +39,7 @@ type Props = {
 function BoxSocialShare(props: Props) {
   const currentUrl = window.location.href;
   const [isMore, setIsMore] = useState(false);
+  const isMobile = useMediaQuery(`(max-width: 768px)`);
 
   return (
     <FileBoxPopup>
@@ -233,10 +234,9 @@ function BoxSocialShare(props: Props) {
           className="appbar appbar-bg-gradient-r"
           sx={{
             display: "flex",
-            flexDirection: { xs: "column", md: "row" },
             justifyContent: "space-between",
             width: "100%",
-            paddingTop: "1.2rem",
+            paddingTop: isMobile ? "0.5rem" : "1.2rem",
           }}
         >
           <Box
@@ -245,22 +245,34 @@ function BoxSocialShare(props: Props) {
               flexDirection: "column",
               color: "#fff",
               padding: ".8rem",
-              textAlign: { xs: "center", md: "start" },
               ml: ".4rem",
             }}
           >
-            <Typography variant={"h4"} sx={{ m: 0, p: 0 }}>
+            <Typography
+              variant={"h4"}
+              sx={{ m: 0, p: 0, fontSize: isMobile ? 16 : 22 }}
+            >
               View on mobile phone
             </Typography>
-            <Typography variant={"h6"} sx={{ my: 4, fontWeight: 400 }}>
-              Scan to view on your mobile
-              <br />
+            <Typography
+              variant={"h6"}
+              sx={{
+                my: isMobile ? 2 : 4,
+                fontWeight: 400,
+                fontSize: isMobile ? 14 : 18,
+              }}
+            >
+              Scan to view on your mobile {!isMobile && <br />}
               phone for faster download
             </Typography>
-            <Typography variant={"h6"} sx={{ fontWeight: 400 }}>
-              Android users cn scan with
-              <br />a browser, and iOS users can
-              <br /> scan with camera
+
+            <Typography
+              variant={"h6"}
+              sx={{ fontWeight: 400, fontSize: isMobile ? 14 : 22 }}
+            >
+              Android users can scan with
+              {!isMobile && <br />} a browser, and iOS users can
+              {!isMobile && <br />} scan with camera
             </Typography>
           </Box>
           <Box
@@ -279,7 +291,7 @@ function BoxSocialShare(props: Props) {
                 borderRadius: "7px",
               }}
               value={currentUrl}
-              size={150}
+              size={isMobile ? 120 : 150}
               level="H"
               fgColor="#000000"
               bgColor="#FFFFFF"

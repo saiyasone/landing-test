@@ -993,6 +993,8 @@ export const FilBoxBottomContainer = styled("div")({
   [theme.breakpoints.down(997)]: {
     display: "flex",
   },
+
+  button: { padding: "0.5rem", borderRadius: "30px" },
 });
 
 export const FileBoxHeader = styled("div")({
