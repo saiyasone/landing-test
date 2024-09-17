@@ -362,11 +362,17 @@ function ListFileData(props: Props) {
                     sx={{
                       padding: (theme) =>
                         `${theme.spacing(1.6)} ${theme.spacing(5)}`,
-                      borderRadius: (theme) => theme.spacing(2),
-                      color: "#828282 !important",
+                      borderRadius: (theme) => theme.spacing(1.5),
+                      color:
+                        props?.multipleIds?.length > 0
+                          ? "#fff"
+                          : "#828282 !important",
                       fontWeight: "bold",
-                      backgroundColor: "#fff",
-                      border: "1px solid #ddd",
+                      border: "1px solid",
+                      backgroundColor:
+                        props?.multipleIds?.length > 0 ? "#17766B" : "#fff",
+                      borderColor:
+                        props?.multipleIds?.length > 0 ? "#17766B" : "#ddd",
                       width: "inherit",
                       outline: "none",
 
@@ -385,11 +391,17 @@ function ListFileData(props: Props) {
                   sx={{
                     padding: (theme) =>
                       `${theme.spacing(1.6)} ${theme.spacing(5)}`,
-                    borderRadius: (theme) => theme.spacing(2),
-                    color: "#828282 !important",
+                    borderRadius: (theme) => theme.spacing(1.5),
+                    color:
+                      props?.multipleIds?.length > 0
+                        ? "#fff"
+                        : "#828282 !important",
                     fontWeight: "bold",
-                    backgroundColor: "#fff",
-                    border: "1px solid #ddd",
+                    border: "1px solid",
+                    backgroundColor:
+                      props?.multipleIds?.length > 0 ? "#17766B" : "#fff",
+                    borderColor:
+                      props?.multipleIds?.length > 0 ? "#17766B" : "#ddd",
                     width: "inherit",
                     outline: "none",
 

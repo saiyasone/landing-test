@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 // components
 import GridIcon from "@mui/icons-material/AppsOutlined";
 import ListIcon from "@mui/icons-material/FormatListBulletedOutlined";
-import { Box, Button, IconButton, useMediaQuery } from "@mui/material";
+import { Box, IconButton, useMediaQuery } from "@mui/material";
 import {
   CREATE_DETAIL_ADVERTISEMENT,
   QUERY_ADVERTISEMENT,
@@ -20,13 +20,12 @@ import BoxSocialShare from "components/presentation/BoxSocialShare";
 import DialogConfirmQRCode from "components/presentation/DialogConfirmQRCode";
 import FileCardContainer from "components/presentation/FileCardContainer";
 import FileCardItem from "components/presentation/FileCardItem";
-import ListFileData from "components/presentation/ListFileData";
+import ListFileData from "components/Downloader/ListFileData";
 import { ENV_KEYS } from "constants/env.constant";
 import CryptoJS from "crypto-js";
 import useManageFiles from "hooks/useManageFile";
 import useManageSetting from "hooks/useManageSetting";
 import Helmet from "react-helmet";
-import { FaTimes } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import * as selectorAction from "stores/features/selectorSlice";
 import { errorMessage, successMessage } from "utils/alert.util";
@@ -34,10 +33,11 @@ import { getFileTypeName, removeFileNameOutOfPath } from "utils/file.util";
 import { decryptDataLink, encryptDataLink } from "utils/secure.util";
 import * as MUI from "../file-uploader/styles/fileUploader.style";
 import "../file-uploader/styles/fileUploader.style.css";
-import ListFolderData from "components/presentation/ListFolderData";
-import BaseNormalButton from "components/BaseNormalButton";
+import ListFolderData from "components/Downloader/ListFolderData";
 import ViewMoreAction from "components/presentation/ViewMoreAction";
 import Advertisement from "components/presentation/Advertisement";
+import BaseDeeplinkDownload from "components/Downloader/BaseDeeplinkDownload";
+import BaseGridDownload from "components/Downloader/BaseGridDownload";
 
 function ExtendFolder() {
   const location = useLocation();
@@ -932,39 +932,15 @@ function ExtendFolder() {
           {(dataFolderLinkMemo?.length > 0 || dataLinkMemo?.length > 0) && (
             <MUI.FileBoxToggle>
               {!isMobileGrid && (
-                <Fragment>
-                  {toggle === "grid" && (
-                    <Fragment>
-                      <BaseNormalButton
-                        title="Download"
-                        disabled={
-                          dataSelector?.selectionFileAndFolderData?.length > 0
-                            ? false
-                            : true
-                        }
-                        handleClick={() => {
-                          if (
-                            dataSelector?.selectionFileAndFolderData?.length > 0
-                          ) {
-                            handleDownloadGridFileAndFolder();
-                          }
-                        }}
-                      />
-                      <BaseNormalButton
-                        title=""
-                        style={{ padding: "9px" }}
-                        disabled={
-                          dataSelector?.selectionFileAndFolderData?.length > 0
-                            ? false
-                            : true
-                        }
-                        handleClick={handleClearSelector}
-                      >
-                        <FaTimes fontSize={12} />
-                      </BaseNormalButton>
-                    </Fragment>
-                  )}
-                </Fragment>
+                <BaseGridDownload
+                  dataFiles={dataSelector?.selectionFileAndFolderData}
+                  adAlive={adAlive}
+                  handleClearSelector={handleClearSelector}
+                  handleToggle={handleToggle}
+                  handleDownloadGridFileAndFolder={
+                    handleDownloadGridFileAndFolder
+                  }
+                />
               )}
 
               <IconButton size="small" onClick={handleToggle}>
@@ -1133,33 +1109,16 @@ function ExtendFolder() {
         </Box>
       </MUI.ContainerHome>
 
-      <MUI.FilBoxBottomContainer>
-        <Button
-          fullWidth={true}
-          size="small"
-          variant="contained"
-          disabled={
-            multipleIds.length > 0 ||
-            multipleFolderIds.length > 0 ||
-            dataSelector?.selectionFileAndFolderData?.length > 0
-              ? false
-              : true
-          }
-          onClick={handleMobileDownloadData}
-        >
-          Download
-        </Button>
-        {(platform === "android" || platform === "ios") && (
-          <Button
-            onClick={handleOpenApplication}
-            fullWidth={true}
-            size="small"
-            variant="contained"
-          >
-            Open app
-          </Button>
-        )}
-      </MUI.FilBoxBottomContainer>
+      <BaseDeeplinkDownload
+        selectionData={
+          multipleIds ||
+          multipleFolderIds ||
+          dataSelector?.selectionFileAndFolderData
+        }
+        platform={platform}
+        onClickOpenApplication={handleOpenApplication}
+        onClickDownloadData={handleMobileDownloadData}
+      />
 
       <DialogPreviewQRcode
         data={fileUrl}

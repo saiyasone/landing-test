@@ -4,17 +4,8 @@ import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 // components
-import GridIcon from "@mui/icons-material/AppsOutlined";
 import ListIcon from "@mui/icons-material/FormatListBulletedOutlined";
-import {
-  Box,
-  Button,
-  Card,
-  Grid,
-  IconButton,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Box, IconButton, useMediaQuery } from "@mui/material";
 import {
   CREATE_DETAIL_ADVERTISEMENT,
   QUERY_ADVERTISEMENT,
@@ -26,20 +17,17 @@ import {
 } from "api/graphql/file.graphql";
 import { QUERY_FOLDER_PUBLIC_LINK } from "api/graphql/folder.graphql";
 import { QUERY_SETTING } from "api/graphql/setting.graphql";
-import { QUERY_USER } from "api/graphql/user.graphql";
 import DialogConfirmPassword from "components/dialog/DialogConfirmPassword";
 import DialogPreviewQRcode from "components/dialog/DialogPreviewQRCode";
 import BoxSocialShare from "components/presentation/BoxSocialShare";
 import DialogConfirmQRCode from "components/presentation/DialogConfirmQRCode";
 import FileCardContainer from "components/presentation/FileCardContainer";
 import FileCardItem from "components/presentation/FileCardItem";
-import ListFileData from "components/presentation/ListFileData";
+import ListFileData from "components/Downloader/ListFileData";
 import { ENV_KEYS } from "constants/env.constant";
 import CryptoJS from "crypto-js";
 import useManageFiles from "hooks/useManageFile";
 import useManageSetting from "hooks/useManageSetting";
-import Helmet from "react-helmet";
-import { FaDownload, FaTimes } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import * as selectorAction from "stores/features/selectorSlice";
 import { errorMessage, successMessage } from "utils/alert.util";
@@ -47,14 +35,11 @@ import { getFileTypeName, removeFileNameOutOfPath } from "utils/file.util";
 import { decryptDataLink, encryptDataLink } from "utils/secure.util";
 import * as MUI from "./styles/fileUploader.style";
 import "./styles/fileUploader.style.css";
-import ListFolderData from "components/presentation/ListFolderData";
-import BaseNormalButton from "components/BaseNormalButton";
-import VideoCardComponent from "components/VideoComponent";
+import ListFolderData from "components/Downloader/ListFolderData";
 import Advertisement from "components/presentation/Advertisement";
-import {
-  BoxAdsAction,
-  BoxAdsContainer,
-} from "styles/presentation/presentation.style";
+import BaseDeeplinkDownload from "components/Downloader/BaseDeeplinkDownload";
+import FeedCard from "components/Downloader/FeedCard";
+import BaseGridDownload from "components/Downloader/BaseGridDownload";
 
 const DATA_LIST_SIZE = 10;
 
@@ -106,7 +91,6 @@ function FileUploader() {
   const params = new URLSearchParams(location.search);
   const linkValue = params.get("l");
   const urlClient = params.get("lc");
-  const userqrcode = params.get("qr");
   const currentURL = window.location.href;
   const navigate = useNavigate();
 
@@ -164,9 +148,6 @@ function FileUploader() {
     downloadKey: "HDLABTO",
   };
   const useDataSetting = useManageSetting();
-  const [getUser] = useLazyQuery(QUERY_USER, {
-    fetchPolicy: "no-cache",
-  });
 
   let linkClient = useMemo(() => ({ _id: "", type: "" }), []);
 
@@ -238,17 +219,6 @@ function FileUploader() {
 
     getDataSetting();
   }, [useDataSetting.data]);
-
-  // get User
-  useEffect(() => {
-    getUser({
-      variables: {
-        where: {
-          newName: userqrcode,
-        },
-      },
-    });
-  }, []);
 
   useEffect(() => {
     handleClearSelector();
@@ -398,10 +368,6 @@ function FileUploader() {
     };
 
     getLinkData();
-
-    return () => {
-      // document.title = "Download folder and file"; // Reset the title when the component unmounts
-    };
   }, [linkValue, dataFileLink]);
 
   useEffect(() => {
@@ -428,15 +394,12 @@ function FileUploader() {
                 if (mainData?.length > 0) {
                   if (os.match(/iPhone|iPad|iPod/i)) {
                     setPlatform("ios");
-                    setTimeout(() => {
-                      setShowBottomDeep(true);
-                    }, 1000);
-                  } else if (os.match(/Android/i)) {
-                    setPlatform("android");
-                    setTimeout(() => {
-                      setShowBottomDeep(true);
-                    }, 1000);
                   }
+
+                  if (os.match(/Android/i)) {
+                    setPlatform("android");
+                  }
+
                   const fileData = mainData?.filter(
                     (file) => file.type === "file",
                   );
@@ -1140,9 +1103,6 @@ function FileUploader() {
 
   return (
     <React.Fragment>
-      <Helmet>
-        <meta name="description" content={_description} />
-      </Helmet>
       <MUI.ContainerHome maxWidth="xl">
         <DialogConfirmPassword
           open={open}
@@ -1156,68 +1116,21 @@ function FileUploader() {
           _confirmPasword={_confirmPasword}
         />
 
-        <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem" }}>
+        <Box sx={{ backgroundColor: "#F8F7FA", padding: "1rem" }}>
           <Advertisement />
 
           {(dataFolderLinkMemo?.length > 0 || dataLinkMemo?.length > 0) && (
             <MUI.FileBoxToggle>
               {toggle === "grid" ? (
-                <Fragment>
-                  <IconButton size="small" onClick={handleToggle}>
-                    <GridIcon />
-                  </IconButton>
-                  <Box sx={{ position: "relative" }}>
-                    {dataSelector?.selectionFileAndFolderData?.length > 0 && (
-                      <Fragment>
-                        {adAlive > 0 && (
-                          <BoxAdsContainer>
-                            <BoxAdsAction
-                              sx={{ padding: "2px 10px", fontSize: "10px" }}
-                            >
-                              {adAlive}
-                            </BoxAdsAction>
-                          </BoxAdsContainer>
-                        )}
-                      </Fragment>
-                    )}
-
-                    <BaseNormalButton
-                      title="Download"
-                      disabled={
-                        dataSelector?.selectionFileAndFolderData?.length > 0
-                          ? false
-                          : true
-                      }
-                      handleClick={() => {
-                        if (dataLinkMemo?.length > 0) {
-                          handleDownloadFileGetLink();
-                        }
-
-                        if (dataFolderLinkMemo?.length > 0) {
-                          handleDownloadFolderGetLink();
-                        }
-                      }}
-                    >
-                      <FaDownload
-                        fontSize={12}
-                        style={{ marginRight: "8px" }}
-                      />
-                    </BaseNormalButton>
-                  </Box>
-
-                  <BaseNormalButton
-                    title=""
-                    style={{ padding: "9px 8px" }}
-                    disabled={
-                      dataSelector?.selectionFileAndFolderData?.length > 0
-                        ? false
-                        : true
-                    }
-                    handleClick={handleClearSelector}
-                  >
-                    <FaTimes fontSize={14} />
-                  </BaseNormalButton>
-                </Fragment>
+                <BaseGridDownload
+                  dataFiles={dataSelector?.selectionFileAndFolderData}
+                  adAlive={adAlive}
+                  handleClearSelector={handleClearSelector}
+                  handleToggle={handleToggle}
+                  handleDownloadGridFileAndFolder={
+                    handleDownloadGridFileAndFolder
+                  }
+                />
               ) : (
                 <IconButton size="small" onClick={handleToggle}>
                   <ListIcon />
@@ -1358,84 +1271,38 @@ function FileUploader() {
               )}
             </Box>
 
-            <Box>
-              {(dataFolderLinkMemo?.length > 0 || dataLinkMemo?.length > 0) && (
-                <BoxSocialShare
-                  isFile={false}
-                  _description={_description}
-                  countAction={adAlive}
-                  isHide={hideDownload}
-                  handleDownloadFolderAsZip={handleDownloadAsZip}
-                />
-              )}
-            </Box>
-          </MUI.FileListContainer>
-        </Box>
-        {/* Feed Admin  */}
-        <Card>
-          <Typography variant="h4" sx={{ mt: 4 }}>
-            Popular
-          </Typography>
-          <Grid container sx={{ mt: 4 }}>
-            {[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map(
-              (_, indx) =>
-                indx < 4 && (
-                  <Grid item key={indx} xs={12} sm={6} md={4} lg={3}>
-                    <Box sx={{ width: "100%" }}>
-                      <VideoCardComponent
-                        title="Lorem ipsum dolor sit amet."
-                        description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod ipsa facilis recusandae vero doloremque cumque."
-                        control={true}
-                        autoPlay={false}
-                        muted={true}
-                        url="https://static.vecteezy.com/system/resources/previews/043/199/391/mp4/a-vibrant-city-street-illuminated-by-the-lights-of-the-night-video.mp4"
-                        onView={() => navigate("/video_view")}
-                      />
-                    </Box>
-                  </Grid>
-                ),
+            {(dataFolderLinkMemo?.length > 0 || dataLinkMemo?.length > 0) && (
+              <BoxSocialShare
+                isFile={false}
+                _description={_description}
+                countAction={adAlive}
+                isHide={hideDownload}
+                handleDownloadFolderAsZip={handleDownloadAsZip}
+              />
             )}
-          </Grid>
-        </Card>
+          </MUI.FileListContainer>
+
+          {/* Feed */}
+          <FeedCard />
+        </Box>
       </MUI.ContainerHome>
-      <MUI.FilBoxBottomContainer>
-        <Button
-          fullWidth={true}
-          variant="contained"
-          disabled={
-            multipleIds.length > 0 ||
-            multipleFolderIds.length > 0 ||
-            dataSelector?.selectionFileAndFolderData?.length > 0
-              ? false
-              : true
-          }
-          onClick={handleMobileDownloadData}
-        >
-          Download
-        </Button>
-        {(platform === "android" || platform === "ios") && (
-          <Button
-            onClick={handleOpenApplication}
-            fullWidth={true}
-            variant="contained"
-          >
-            Open app
-          </Button>
-        )}
-      </MUI.FilBoxBottomContainer>
+
+      <BaseDeeplinkDownload
+        selectionData={
+          multipleIds ||
+          multipleFolderIds ||
+          dataSelector?.selectionFileAndFolderData
+        }
+        platform={platform}
+        onClickOpenApplication={handleOpenApplication}
+        onClickDownloadData={handleMobileDownloadData}
+      />
 
       <DialogPreviewQRcode
         data={fileUrl}
         isOpen={previewOpen}
         onClose={previewHandleClose}
       />
-
-      {/* <DeepLink
-        showBottom={showBottomDeep}
-        platform={platform}
-        scriptScheme={appScheme}
-        onClose={() => setShowBottomDeep(false)}
-      /> */}
 
       <DialogConfirmQRCode
         isOpen={isVerifyQrCode}

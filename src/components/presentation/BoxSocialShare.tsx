@@ -16,7 +16,6 @@ import {
   WhatsappIcon,
   WhatsappShareButton,
 } from "react-share";
-import dottIcon from "assets/images/dott-icon.png";
 import QRCode from "react-qr-code";
 import {
   BoxAdsAction,
@@ -24,6 +23,7 @@ import {
 } from "styles/presentation/presentation.style";
 import { ShareSocial } from "components/social-media";
 import { ENV_KEYS } from "constants/env.constant";
+import { BsThreeDots } from "react-icons/bs";
 
 type Props = {
   _description?: string;
@@ -40,59 +40,59 @@ function BoxSocialShare(props: Props) {
   const currentUrl = window.location.href;
   const [isMore, setIsMore] = useState(false);
   const isMobile = useMediaQuery(`(max-width: 768px)`);
+  const isTablet = useMediaQuery(`(max-width: 1280px)`);
 
   return (
-    <FileBoxPopup>
-      <FileBoxSocial className="box-social">
-        <Box sx={{ padding: "1.5rem" }}>
-          {props?.isHide && (
+    <Box
+      sx={{
+        maxWidth: isTablet ? "1280px" : isMobile ? "100%" : "100%",
+        margin: isTablet ? "0 auto" : "inherit",
+      }}
+    >
+      <FileBoxPopup>
+        <FileBoxSocial className="box-social">
+          <Box sx={{ padding: isMobile ? "1rem" : "1.5rem" }}>
+            {props?.isHide && (
+              <Box
+                className="button-ads"
+                sx={{ display: "flex", position: "relative" }}
+              >
+                {props?.countAction > 0 && (
+                  <BoxAdsContainer>
+                    <BoxAdsAction>{props?.countAction} close ads</BoxAdsAction>
+                  </BoxAdsContainer>
+                )}
+                <Button
+                  variant="contained"
+                  sx={{
+                    width: { xs: "100%", md: "80%" },
+                    mx: "auto !important",
+                  }}
+                  onClick={() => {
+                    props.handleDownloadFolderAsZip?.();
+                  }}
+                >
+                  Download
+                </Button>
+              </Box>
+            )}
             <Box
-              className="button-ads"
-              sx={{ display: "flex", position: "relative" }}
+              sx={{ textAlign: "start", padding: isMobile ? "0" : "1rem 0" }}
             >
-              {props?.countAction > 0 && (
-                <BoxAdsContainer>
-                  <BoxAdsAction>{props?.countAction} close ads</BoxAdsAction>
-                </BoxAdsContainer>
-              )}
-              <Button
-                variant="contained"
+              <Typography variant="h5" sx={{ color: "rgb(0,0,0,0.9)" }}>
+                Social Share
+              </Typography>
+              <Typography
+                lineHeight={1}
                 sx={{
-                  width: { xs: "100%", md: "80%" },
-                  mx: "auto !important",
-                }}
-                onClick={() => {
-                  props.handleDownloadFolderAsZip?.();
+                  mt: 2,
+                  fontWeight: 500,
+                  color: "rgb(0,0,0,0.7)",
                 }}
               >
-                Download
-              </Button>
+                Share this link via
+              </Typography>
             </Box>
-          )}
-          <Box sx={{ textAlign: "start", padding: "1rem 0" }}>
-            <Typography variant="h5" sx={{ color: "rgb(0,0,0,0.9)" }}>
-              Social Share
-            </Typography>
-            <Typography
-              lineHeight={1}
-              sx={{
-                mt: 2,
-                fontWeight: 500,
-                color: "rgb(0,0,0,0.7)",
-              }}
-            >
-              Share this link via
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-              gap: 3,
-              mt: 7,
-            }}
-          >
             <Box
               sx={{
                 display: "flex",
@@ -100,206 +100,221 @@ function BoxSocialShare(props: Props) {
                 flexWrap: "wrap",
                 gap: 3,
                 mt: 7,
-                width: "100%",
               }}
             >
-              <Tooltip title="Facebook" placement="top">
-                <FacebookShareButton
-                  url={currentUrl || ""}
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: "60px",
-                    height: "60px",
-                    borderRadius: "100%",
-                    background: "rgb(221, 221, 221,0.8)",
-                    fontSize: "2rem",
-                  }}
-                >
-                  <FacebookIcon size={40} round />
-                </FacebookShareButton>
-              </Tooltip>
-              <Tooltip title="Messenger" placement="top">
-                <FacebookMessengerShareButton
-                  url={currentUrl || ""}
-                  appId={ENV_KEYS.VITE_APP_FACEBOOk_APP_ID}
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: "60px",
-                    height: "60px",
-                    borderRadius: "100%",
-                    background: "rgb(221, 221, 221,0.8)",
-                    fontSize: "2rem",
-                  }}
-                >
-                  <FacebookMessengerIcon size={40} round />
-                </FacebookMessengerShareButton>
-              </Tooltip>
-              <Tooltip title={"WhatsApp"}>
-                <WhatsappShareButton
-                  url={currentUrl || ""}
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: "60px",
-                    height: "60px",
-                    borderRadius: "100%",
-                    background: "rgb(221, 221, 221,0.8)",
-                    fontSize: "2rem",
-                  }}
-                >
-                  <WhatsappIcon size={40} round />
-                </WhatsappShareButton>
-              </Tooltip>
-              <Tooltip title={"Twitter"}>
-                <TwitterShareButton
-                  url={currentUrl || ""}
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: "60px",
-                    height: "60px",
-                    borderRadius: "100%",
-                    background: "rgb(221, 221, 221,0.8)",
-                    fontSize: "2rem",
-                  }}
-                >
-                  <TwitterIcon size={40} round />
-                </TwitterShareButton>
-              </Tooltip>
-              <Box sx={{ position: "relative" }}>
-                <Button
-                  sx={{
-                    position: "relative",
-                    width: "60px",
-                    height: "60px",
-                    borderRadius: "100%",
-                    background: "rgb(221, 221, 221,0.8)",
-                    fontSize: "2rem",
-                  }}
-                  onClick={() => {
-                    setIsMore(!isMore);
-                  }}
-                >
-                  <img
-                    src={dottIcon}
-                    alt="dott-icon"
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  gap: 3,
+                  mt: 7,
+                  width: "100%",
+                }}
+              >
+                <Tooltip title="Facebook" placement="top">
+                  <FacebookShareButton
+                    url={currentUrl || ""}
                     style={{
-                      objectFit: "cover",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: isMobile ? "40px" : "60px",
+                      height: isMobile ? "40px" : "60px",
+                      borderRadius: "100%",
+                      background: "rgb(221, 221, 221,0.8)",
+                      fontSize: "2rem",
                     }}
-                  />
-                </Button>
-                {isMore && (
-                  <Typography
-                    component={"div"}
-                    onClick={(e) => {
-                      e.stopPropagation();
+                  >
+                    <FacebookIcon size={isMobile ? 25 : 40} round />
+                  </FacebookShareButton>
+                </Tooltip>
+                <Tooltip title="Messenger" placement="top">
+                  <FacebookMessengerShareButton
+                    url={currentUrl || ""}
+                    appId={ENV_KEYS.VITE_APP_FACEBOOk_APP_ID}
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: isMobile ? "40px" : "60px",
+                      height: isMobile ? "40px" : "60px",
+                      borderRadius: "100%",
+                      background: "rgb(221, 221, 221,0.8)",
+                      fontSize: "2rem",
+                    }}
+                  >
+                    <FacebookMessengerIcon size={isMobile ? 25 : 40} round />
+                  </FacebookMessengerShareButton>
+                </Tooltip>
+                <Tooltip title={"WhatsApp"}>
+                  <WhatsappShareButton
+                    url={currentUrl || ""}
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: isMobile ? "40px" : "60px",
+                      height: isMobile ? "40px" : "60px",
+                      borderRadius: "100%",
+                      background: "rgb(221, 221, 221,0.8)",
+                      fontSize: "2rem",
+                    }}
+                  >
+                    <WhatsappIcon size={isMobile ? 25 : 40} round />
+                  </WhatsappShareButton>
+                </Tooltip>
+                <Tooltip title={"Twitter"}>
+                  <TwitterShareButton
+                    url={currentUrl || ""}
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: isMobile ? "40px" : "60px",
+                      height: isMobile ? "40px" : "60px",
+                      borderRadius: "100%",
+                      background: "rgb(221, 221, 221,0.8)",
+                      fontSize: "2rem",
+                    }}
+                  >
+                    <TwitterIcon size={isMobile ? 25 : 40} round />
+                  </TwitterShareButton>
+                </Tooltip>
+                <Box sx={{ position: "relative" }}>
+                  <Box
+                    sx={{
+                      position: "relative",
+                      width: isMobile ? "40px" : "60px",
+                      height: isMobile ? "40px" : "60px",
+                      borderRadius: "30px",
+                      background: "rgb(221, 221, 221,0.8)",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                    onClick={() => {
                       setIsMore(!isMore);
                     }}
                   >
-                    <ShareSocial
-                      title="More Media"
-                      socialTypes={[
-                        "copy",
-                        "facebook",
-                        "twitter",
-                        "line",
-                        "linkedin",
-                        "whatsapp",
-                        "viber",
-                        "telegram",
-                        "reddit",
-                        "instapaper",
-                        "livejournal",
-                        "mailru",
-                        "ok",
-                        "hatena",
-                        "email",
-                        "workspace",
-                      ]}
-                      url={currentUrl || ""}
+                    <BsThreeDots
+                      style={{
+                        padding: "5px",
+                        backgroundColor: "#fff",
+                        width: isMobile ? "25px" : "40px",
+                        height: isMobile ? "25px" : "40px",
+                        borderRadius: "50%",
+                        color: "#17766B",
+                      }}
                     />
-                  </Typography>
-                )}
+                  </Box>
+                  {isMore && (
+                    <Typography
+                      component={"div"}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsMore(!isMore);
+                      }}
+                    >
+                      <ShareSocial
+                        title="More Media"
+                        socialTypes={[
+                          "copy",
+                          "facebook",
+                          "twitter",
+                          "line",
+                          "linkedin",
+                          "whatsapp",
+                          "viber",
+                          "telegram",
+                          "reddit",
+                          "instapaper",
+                          "livejournal",
+                          "mailru",
+                          "ok",
+                          "hatena",
+                          "email",
+                          "workspace",
+                        ]}
+                        url={currentUrl || ""}
+                      />
+                    </Typography>
+                  )}
+                </Box>
               </Box>
             </Box>
           </Box>
-        </Box>
-        <Box
-          className="appbar appbar-bg-gradient-r"
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "100%",
-            paddingTop: isMobile ? "0.5rem" : "1.2rem",
-          }}
-        >
           <Box
+            className="appbar appbar-bg-gradient-r"
             sx={{
               display: "flex",
-              flexDirection: "column",
-              color: "#fff",
-              padding: ".8rem",
-              ml: ".4rem",
+              justifyContent: "space-between",
+              width: "100%",
+              paddingTop: isMobile ? "0.5rem" : "1.2rem",
             }}
           >
-            <Typography
-              variant={"h4"}
-              sx={{ m: 0, p: 0, fontSize: isMobile ? 16 : 22 }}
-            >
-              View on mobile phone
-            </Typography>
-            <Typography
-              variant={"h6"}
+            <Box
               sx={{
-                my: isMobile ? 2 : 4,
-                fontWeight: 400,
-                fontSize: isMobile ? 14 : 18,
+                display: "flex",
+                flexDirection: "column",
+                color: "#fff",
+                padding: ".8rem",
+                ml: ".4rem",
               }}
             >
-              Scan to view on your mobile {!isMobile && <br />}
-              phone for faster download
-            </Typography>
+              <Typography
+                variant={"h4"}
+                sx={{ m: 0, p: 0, fontSize: isMobile ? 16 : 22 }}
+              >
+                View on mobile phone
+              </Typography>
+              <Typography
+                variant={"h6"}
+                sx={{
+                  my: isMobile ? 2 : 4,
+                  fontWeight: 400,
+                  fontSize: isMobile ? 13 : 15,
+                }}
+              >
+                Scan to view on your mobile {!isMobile && <br />}
+                phone for faster download
+              </Typography>
 
-            <Typography
-              variant={"h6"}
-              sx={{ fontWeight: 400, fontSize: isMobile ? 14 : 22 }}
-            >
-              Android users can scan with
-              {!isMobile && <br />} a browser, and iOS users can
-              {!isMobile && <br />} scan with camera
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              padding: ".9rem",
-            }}
-          >
-            <QRCode
-              style={{
-                backgroundColor: "#fff",
-                border: "1px solid gray",
-                padding: "7px",
-                borderRadius: "7px",
+              <Typography
+                variant={"h6"}
+                sx={{ fontWeight: 400, fontSize: isMobile ? 13 : 15 }}
+              >
+                Android users can scan with
+                {!isMobile && <br />} a browser, and iOS users can
+                {!isMobile && <br />} scan with camera
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                padding: ".9rem",
               }}
-              value={currentUrl}
-              size={isMobile ? 120 : 150}
-              level="H"
-              fgColor="#000000"
-              bgColor="#FFFFFF"
-            />
+            >
+              <QRCode
+                style={{
+                  backgroundColor: "#fff",
+                  border: "1px solid gray",
+                  padding: "7px",
+                  borderRadius: "7px",
+                }}
+                value={currentUrl}
+                size={isMobile ? 120 : 150}
+                level="H"
+                fgColor="#000000"
+                bgColor="#FFFFFF"
+              />
+            </Box>
           </Box>
-        </Box>
-      </FileBoxSocial>
-    </FileBoxPopup>
+        </FileBoxSocial>
+      </FileBoxPopup>
+    </Box>
   );
 }
 

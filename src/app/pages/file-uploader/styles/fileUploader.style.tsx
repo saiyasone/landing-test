@@ -963,7 +963,7 @@ export const FileBoxPopup = styled("div")({
 });
 
 export const FileBoxSocial = styled("div")({
-  borderRadius: 1.5,
+  borderRadius: 10,
   boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
   overflow: "hidden",
 
