@@ -920,7 +920,7 @@ export const FileListContainer = styled(Box)(({ theme }) => ({
   gridTemplateColumns: "1.6fr 1fr",
   gap: "1.2rem",
 
-  [theme.breakpoints.down("md")]: {
+  [theme.breakpoints.down(960)]: {
     gridTemplateColumns: "1fr",
   },
 
@@ -990,7 +990,7 @@ export const FilBoxBottomContainer = styled("div")({
   backgroundColor: "#fff",
   boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
 
-  [theme.breakpoints.down(997)]: {
+  [theme.breakpoints.down(960)]: {
     display: "flex",
   },
 

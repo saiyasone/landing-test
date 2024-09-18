@@ -40,6 +40,7 @@ import Advertisement from "components/presentation/Advertisement";
 import BaseDeeplinkDownload from "components/Downloader/BaseDeeplinkDownload";
 import FeedCard from "components/Downloader/FeedCard";
 import BaseGridDownload from "components/Downloader/BaseGridDownload";
+import { Helmet } from "react-helmet-async";
 
 const DATA_LIST_SIZE = 10;
 
@@ -75,8 +76,7 @@ function FileUploader() {
   const [isLoading, setIsLoading] = useState(false);
   const [dataValue, setDataValue] = useState<any>(null);
   const [platform, setPlatform] = useState("");
-  const [showBottomDeep, setShowBottomDeep] = useState(false);
-  const [_description, setDescription] = useState("No description");
+  const [_description, setDescription] = useState("");
 
   const [multipleType, setMultipleType] = useState("");
   const [fileDataSelect, setFileDataSelect] = useState<any>(null);
@@ -304,7 +304,7 @@ function FileUploader() {
               if (dataFileLink?.queryFileGetLinks?.data?.[0]) {
                 setDescription(
                   dataFileLink?.queryFileGetLinks?.data?.[0]?.filename +
-                    " Vshare.net",
+                    " on vshare.net",
                 );
               }
               setGetDataRes(dataFileLink?.queryFileGetLinks?.data || []);
@@ -326,11 +326,11 @@ function FileUploader() {
                   setFolderDownload(folderData || []);
 
                   document.title =
-                    folderData?.[0]?.folder_name || "Vshare download folder";
+                    folderData?.[0]?.folder_name || "vshare download folder";
                   if (folderData && folderData?.[0]?.folder_type) {
                     if (folderData[0]?.folder_name) {
                       setDescription(
-                        folderData[0]?.folder_name + " Vshare.net",
+                        folderData[0]?.folder_name + " on vshare.net",
                       );
                     }
                   }
@@ -352,7 +352,7 @@ function FileUploader() {
             onCompleted: (resData) => {
               const fileData = resData?.filesPublic?.data?.[0];
               document.title = fileData?.filename;
-              setDescription(`${fileData?.filename} Vshare.net`);
+              setDescription(`${fileData?.filename} on vshare.net`);
               setGetDataRes(resData?.filesPublic?.data);
             },
           });
@@ -417,6 +417,11 @@ function FileUploader() {
                       };
                     });
 
+                    if (folderItems.length > 0) {
+                      const title = folderItems?.[0]?.folder_name || "";
+                      document.title = title;
+                      setDescription(`${title} on vshare.net`);
+                    }
                     setDataMultipleFolder(folderItems);
                   }
 
@@ -429,13 +434,16 @@ function FileUploader() {
                       };
                     });
 
+                    if (fileItems.length > 0) {
+                      const title = fileItems?.[0]?.filename || "";
+                      document.title = title;
+                      setDescription(`${title} on vshare.net`);
+                    }
                     setDataMultipleFile(fileItems);
                   }
                 }
 
                 setIsLoading(false);
-                document.title = "Multiple File and folder";
-                setDescription("Multiple File and folder on vshare.net");
               },
             });
           }
@@ -449,6 +457,14 @@ function FileUploader() {
   }, [currentPage, viewMore]);
 
   useEffect(() => {
+    if (dataMultipleFile.length > 0 && dataMultipleFolder.length > 0) {
+      const title = dataMultipleFolder?.[0]?.folder_name || "";
+      document.title = title;
+      setDescription(`${title} on vshare.net`);
+    }
+  }, [dataMultipleFile, dataMultipleFolder]);
+
+  useEffect(() => {
     function handleDetectPlatform() {
       const os = navigator.userAgent;
       try {
@@ -458,15 +474,8 @@ function FileUploader() {
         ) {
           if (os.match(/iPhone|iPad|iPod/i)) {
             setPlatform("ios");
-            setTimeout(() => {
-              setShowBottomDeep(true);
-            }, 1000);
           } else if (os.match(/Android/i)) {
             setPlatform("android");
-            ``;
-            setTimeout(() => {
-              setShowBottomDeep(true);
-            }, 1000);
           }
         }
       } catch (error) {
@@ -1103,6 +1112,9 @@ function FileUploader() {
 
   return (
     <React.Fragment>
+      <Helmet>
+        <meta name="description" content={_description} />
+      </Helmet>
       <MUI.ContainerHome maxWidth="xl">
         <DialogConfirmPassword
           open={open}
@@ -1289,11 +1301,12 @@ function FileUploader() {
 
       <BaseDeeplinkDownload
         selectionData={
-          multipleIds ||
-          multipleFolderIds ||
-          dataSelector?.selectionFileAndFolderData
+          (multipleIds?.length > 0 && true) ||
+          (multipleFolderIds?.length > 0 && true) ||
+          (dataSelector?.selectionFileAndFolderData?.length > 0 && true)
         }
         platform={platform}
+        adAlive={adAlive}
         onClickOpenApplication={handleOpenApplication}
         onClickDownloadData={handleMobileDownloadData}
       />

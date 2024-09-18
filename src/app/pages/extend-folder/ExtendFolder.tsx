@@ -38,6 +38,7 @@ import ViewMoreAction from "components/presentation/ViewMoreAction";
 import Advertisement from "components/presentation/Advertisement";
 import BaseDeeplinkDownload from "components/Downloader/BaseDeeplinkDownload";
 import BaseGridDownload from "components/Downloader/BaseGridDownload";
+import { IFolder } from "models/folder.model";
 
 function ExtendFolder() {
   const location = useLocation();
@@ -70,7 +71,7 @@ function ExtendFolder() {
   const [isLoading, setIsLoading] = useState(false);
   const [dataValue, setDataValue] = useState<any>(null);
   const [platform, setPlatform] = useState("");
-  const [_description, setDescription] = useState("No description");
+  const [_description, setDescription] = useState("");
 
   const [multipleType, setMultipleType] = useState("");
   const [fileDataSelect, setFileDataSelect] = useState<any>(null);
@@ -326,14 +327,6 @@ function ExtendFolder() {
               if (folderData?.[0]?.status === "active") {
                 setGetDataRes(folderData || []);
                 setFolderDownload(folderData || []);
-
-                document.title =
-                  folderData?.[0]?.folder_name || "Vshare download folder";
-                if (folderData && folderData?.[0]?.folder_type) {
-                  if (folderData[0]?.folder_name) {
-                    setDescription(folderData[0]?.folder_name + " Vshare.net");
-                  }
-                }
               }
             },
           });
@@ -887,7 +880,7 @@ function ExtendFolder() {
     return [];
   }, [linkClient]);
 
-  const dataFolderLinkMemo = useMemo(() => {
+  const dataFolderLinkMemo = useMemo<IFolder[]>(() => {
     if (linkClient?._id) {
       const folderData = dataSubFolder?.map((folder, index) => {
         return {
@@ -896,42 +889,46 @@ function ExtendFolder() {
           index,
         };
       });
-      const title = folderData?.[0]?.folder_name || "Folder";
-      document.title = title;
+
       return folderData || [];
     }
 
-    // document.title = "Folder";
-    // setDescription("Folder vshare.net");
     return [];
   }, [linkClient]);
+
+  useEffect(() => {
+    if (dataFolderLinkMemo.length > 0) {
+      const title = dataFolderLinkMemo[0].folder_name || "";
+      document.title = title;
+      setDescription(`${title} on vshare.net`);
+    }
+
+    if (dataLinkMemo.length > 0) {
+      const title = dataLinkMemo[0].filename || "";
+      document.title = dataLinkMemo[0].filename || "";
+      setDescription(`${title} on vshare.net`);
+    }
+
+    if (dataFolderLinkMemo.length > 0 && dataLinkMemo.length > 0) {
+      const title = dataFolderLinkMemo[0].folder_name || "";
+      document.title = title;
+      setDescription(`${title} on vshare.net`);
+    }
+  }, [dataLinkMemo, dataFolderLinkMemo]);
 
   return (
     <React.Fragment>
       <Helmet>
-        <meta name="title" content={"title"} />
-        <meta name="description" content={_description} />
+        <meta name="description" key={"description"} content={_description} />
       </Helmet>
 
       <MUI.ContainerHome maxWidth="xl">
-        <DialogConfirmPassword
-          open={open}
-          isMobile={isMobile}
-          getFilenames={getFilenames}
-          getNewFileName={getNewFileName}
-          password={password}
-          checkModal={checkModal}
-          setPassword={setPassword}
-          handleClose={handleClose}
-          _confirmPasword={_confirmPasword}
-        />
-
         <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem" }}>
           <Advertisement />
 
           {(dataFolderLinkMemo?.length > 0 || dataLinkMemo?.length > 0) && (
             <MUI.FileBoxToggle>
-              {!isMobileGrid && (
+              {toggle === "grid" ? (
                 <BaseGridDownload
                   dataFiles={dataSelector?.selectionFileAndFolderData}
                   adAlive={adAlive}
@@ -941,11 +938,11 @@ function ExtendFolder() {
                     handleDownloadGridFileAndFolder
                   }
                 />
+              ) : (
+                <IconButton size="small" onClick={handleToggle}>
+                  <ListIcon />
+                </IconButton>
               )}
-
-              <IconButton size="small" onClick={handleToggle}>
-                {toggle === "list" ? <ListIcon /> : <GridIcon />}
-              </IconButton>
             </MUI.FileBoxToggle>
           )}
 
@@ -1020,7 +1017,7 @@ function ExtendFolder() {
                                 path={item?.path}
                                 isCheckbox={true}
                                 filePassword={item?.access_password}
-                                fileType={getFileTypeName(item?.folder_type)}
+                                fileType={getFileTypeName(item.folder_type)}
                                 name={item?.folder_name}
                                 newName={item?.newFolder_name}
                                 cardProps={{
@@ -1109,11 +1106,23 @@ function ExtendFolder() {
         </Box>
       </MUI.ContainerHome>
 
+      <DialogConfirmPassword
+        open={open}
+        isMobile={isMobile}
+        getFilenames={getFilenames}
+        getNewFileName={getNewFileName}
+        password={password}
+        checkModal={checkModal}
+        setPassword={setPassword}
+        handleClose={handleClose}
+        _confirmPasword={_confirmPasword}
+      />
+
       <BaseDeeplinkDownload
         selectionData={
-          multipleIds ||
-          multipleFolderIds ||
-          dataSelector?.selectionFileAndFolderData
+          (multipleIds?.length > 0 && true) ||
+          (multipleFolderIds?.length > 0 && true) ||
+          (dataSelector?.selectionFileAndFolderData?.length > 0 && true)
         }
         platform={platform}
         onClickOpenApplication={handleOpenApplication}

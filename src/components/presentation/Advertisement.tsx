@@ -1,9 +1,4 @@
-// import { Box, Button, Typography } from "@mui/material";
-import {
-  // AdsCard,
-  // AdsContent,
-  AdsContainer,
-} from "app/pages/file-uploader/styles/fileUploader.style";
+import { AdsContainer } from "app/pages/file-uploader/styles/fileUploader.style";
 
 function Advertisement() {
   return (

@@ -1,9 +1,14 @@
-import { Button } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { FilBoxBottomContainer } from "app/pages/file-uploader/styles/fileUploader.style";
+import {
+  BoxAdsAction,
+  BoxAdsContainer,
+} from "styles/presentation/presentation.style";
 
 type Props = {
+  adAlive?: number;
   platform?: string;
-  selectionData: any[];
+  selectionData: boolean;
 
   onClickOpenApplication?: () => void;
   onClickDownloadData?: () => void;
@@ -11,14 +16,23 @@ type Props = {
 function BaseDeeplinkDownload(props: Props) {
   return (
     <FilBoxBottomContainer>
-      <Button
-        fullWidth={true}
-        variant="contained"
-        disabled={props?.selectionData?.length > 0 ? false : true}
-        onClick={props.onClickDownloadData}
-      >
-        Download
-      </Button>
+      <Box sx={{ position: "relative", width: "100%" }}>
+        {props.adAlive! > 0 && (
+          <BoxAdsContainer>
+            <BoxAdsAction>
+              {props?.adAlive}
+            </BoxAdsAction>
+          </BoxAdsContainer>
+        )}
+        <Button
+          fullWidth={true}
+          variant="contained"
+          disabled={props?.selectionData ? false : true}
+          onClick={props.onClickDownloadData}
+        >
+          Download
+        </Button>
+      </Box>
       {(props?.platform === "android" || props?.platform === "ios") && (
         <Button
           onClick={props?.onClickOpenApplication}

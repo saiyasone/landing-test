@@ -74,13 +74,14 @@ function App() {
         <Helmet defaultTitle={title} meta={formattedData}>
           <meta name="robots" content={SEOData?.[0]?.indexing || "noindex"} />
           <meta name="title" content={SEOData?.[0]?.title} />
-          <meta name="description" content={SEOData?.[0]?.description} />
+          {currentURL !== "/df/extend" && (
+            <meta name="description" content={SEOData?.[0]?.description} />
+          )}
           <meta name="keywords" content={SEOData?.[0]?.keywords} />
           <meta name="author" content={"vSHARE TECHNOLOGY"} />
           <meta name="publisher" content={"vSHARE TECHNOLOGY"} />
           <link rel="canonical" href={canonicalUrl} />
 
-          {/* sharable info to media platform */}
           <meta property="og:title" content={SEOData?.[0]?.title} />
           <meta property="og:description" content={SEOData?.[0]?.description} />
           <meta property="og:url" content={canonicalUrl} />
