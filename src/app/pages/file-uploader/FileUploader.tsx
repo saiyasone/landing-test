@@ -38,9 +38,10 @@ import "./styles/fileUploader.style.css";
 import ListFolderData from "components/Downloader/ListFolderData";
 import Advertisement from "components/presentation/Advertisement";
 import BaseDeeplinkDownload from "components/Downloader/BaseDeeplinkDownload";
-import FeedCard from "components/Downloader/FeedCard";
+// import FeedCard from "components/Downloader/FeedCard";
 import BaseGridDownload from "components/Downloader/BaseGridDownload";
 import { Helmet } from "react-helmet-async";
+import ListDataItem from "components/Downloader/ListDataItem";
 
 const DATA_LIST_SIZE = 10;
 
@@ -1110,6 +1111,12 @@ function FileUploader() {
     return [];
   }, [linkClient, getDataRes, dataMultipleFolder]);
 
+  const dataFileConcat = useMemo(() => {
+    const result = dataLinkMemo?.concat(dataFolderLinkMemo);
+
+    return result || [];
+  }, [dataLinkMemo, dataFolderLinkMemo]);
+
   return (
     <React.Fragment>
       <Helmet>
@@ -1155,6 +1162,21 @@ function FileUploader() {
             <Box>
               {toggle === "list" && (
                 <Fragment>
+                  {/* {dataFileConcat.length > 0 && (
+                    <ListDataItem
+                      toggle={toggle}
+                      _description={_description}
+                      dataLinks={dataLinkMemo}
+                      multipleIds={multipleIds}
+                      countAction={adAlive}
+                      setMultipleIds={setMultipleIds}
+                      setToggle={handleToggle}
+                      handleQRGeneration={handleQRGeneration}
+                      handleClearFileSelection={handleClearFileSelection}
+                      handleDownloadAsZip={handleDownloadAsZip}
+                      handleDownloadFileGetLink={handleDownloadFileGetLink}
+                    />
+                  )} */}
                   {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
                     <ListFolderData
                       isFile={false}
@@ -1181,12 +1203,6 @@ function FileUploader() {
                       dataLinks={dataLinkMemo}
                       multipleIds={multipleIds}
                       countAction={adAlive}
-                      total={total}
-                      pagination={{
-                        currentPage: currentPage,
-                        totalPages: Math.ceil(total / DATA_LIST_SIZE),
-                        setCurrentPage: setCurrentPage,
-                      }}
                       setMultipleIds={setMultipleIds}
                       setToggle={handleToggle}
                       handleQRGeneration={handleQRGeneration}
@@ -1294,8 +1310,7 @@ function FileUploader() {
             )}
           </MUI.FileListContainer>
 
-          {/* Feed */}
-          <FeedCard />
+          {/* <FeedCard /> */}
         </Box>
       </MUI.ContainerHome>
 

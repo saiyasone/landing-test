@@ -2,9 +2,6 @@ import { useLazyQuery, useMutation } from "@apollo/client";
 import axios from "axios";
 import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
-// components
-import GridIcon from "@mui/icons-material/AppsOutlined";
 import ListIcon from "@mui/icons-material/FormatListBulletedOutlined";
 import { Box, IconButton, useMediaQuery } from "@mui/material";
 import {
@@ -69,6 +66,7 @@ function ExtendFolder() {
   const [adAlive, setAdAlive] = useState(0);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isDownloadLoading, setIsDownloadLoading] = useState(false);
   const [dataValue, setDataValue] = useState<any>(null);
   const [platform, setPlatform] = useState("");
   const [_description, setDescription] = useState("");
@@ -622,54 +620,99 @@ function ExtendFolder() {
     };
   };
 
+  const getAllData = async () => {
+    setIsDownloadLoading(true);
+
+    try {
+      const result = await getFileLink({
+        variables: {
+          where: {
+            folder_id: linkClient._id,
+          },
+          noLimit: true,
+        },
+      });
+      const fileData: any[] = (await result.data?.filesByUID?.data) || [];
+      const fileDataMap = fileData.map((file) => ({
+        ...file,
+        isFile: true,
+      }));
+
+      const folderResult = await await getFolderLink({
+        variables: {
+          where: {
+            _id: linkClient?._id,
+          },
+          noLimit: true,
+        },
+      });
+      const folderData: any[] =
+        (await folderResult.data?.foldersByUID?.data) || [];
+
+      setIsDownloadLoading(false);
+      const mergeData = fileDataMap.concat(folderData);
+      return mergeData;
+    } catch (error: any) {
+      console.log(error.message);
+      setIsDownloadLoading(false);
+    } finally {
+      setIsDownloadLoading(false);
+    }
+  };
+
   const handleDownloadAsZip = async () => {
-    const groupData: any[] = dataLinkMemo.concat(dataFolderLinkMemo);
+    setTotalClickCount((prevCount) => prevCount + 1);
 
-    const multipleData = groupData.map((item: any) => {
-      const newPath = item?.newPath || "";
-      const newFilename = item?.newFilename || item?.newFolder_name;
+    if (totalClickCount >= getActionButton) {
+      setTotalClickCount(0);
+      // const groupData: any[] = (await getAllData()) || [];
+      const groupDataV1: any[] = dataLinkMemo.concat(dataFolderLinkMemo)
 
-      return {
-        newPath,
-        id: item._id,
-        newFilename: newFilename || "",
-        name: item?.filename || item?.folder_name,
-        checkType: item?.isFile ? "file" : "folder",
-        createdBy: item?.createdBy,
-        isPublic: linkClient?._id ? false : true,
-      };
-    });
-
-    manageFile.handleDownloadFile(
-      {
-        multipleData,
-      },
-      {
-        onFailed: () => {},
-        onSuccess: () => {},
-      },
-    );
-
-    if (dataLinkMemo?.length > 0) {
-      const multipleData = dataLinkMemo.map((file) => {
-        const newPath = file.newPath || "";
+      const multipleData = groupDataV1.map((item: any) => {
+        const newPath = item?.newPath || "";
+        const newFilename = item?.newFilename || item?.newFolder_name;
 
         return {
-          id: file._id,
-          name: file.filename,
-          newFilename: file.newFilename,
-          checkType: "file",
           newPath,
-          createdBy: file.createdBy,
+          id: item._id,
+          newFilename: newFilename || "",
+          name: item?.filename || item?.folder_name,
+          checkType: item?.isFile ? "file" : "folder",
+          createdBy: item?.createdBy,
           isPublic: linkClient?._id ? false : true,
         };
       });
 
-      setTotalClickCount((prevCount) => prevCount + 1);
-      setMultipleType("file");
+      manageFile.handleDownloadFile(
+        {
+          multipleData,
+        },
+        {
+          onFailed: () => {},
+          onSuccess: () => {},
+        },
+      );
+    } else {
+      if (getAdvertisemment.length) {
+        handleAdvertisementPopup();
+      } else {
+        const groupData: any[] = (await getAllData()) || [];
 
-      if (totalClickCount >= getActionButton) {
-        setTotalClickCount(0);
+        const multipleData = groupData.map((item: any) => {
+          const newPath = item?.newPath || "";
+          const newFilename = item?.newFilename || item?.newFolder_name;
+
+          return {
+            newPath,
+            id: item._id,
+            newFilename: newFilename || "",
+            name: item?.filename || item?.folder_name,
+            checkType: item?.isFile ? "file" : "folder",
+            createdBy: item?.createdBy,
+            isPublic: linkClient?._id ? false : true,
+          };
+        });
+
         manageFile.handleDownloadFile(
           {
             multipleData,
@@ -679,20 +722,6 @@ function ExtendFolder() {
             onSuccess: () => {},
           },
         );
-      } else {
-        if (getAdvertisemment.length) {
-          handleAdvertisementPopup();
-        } else {
-          manageFile.handleDownloadFile(
-            {
-              multipleData,
-            },
-            {
-              onFailed: () => {},
-              onSuccess: () => {},
-            },
-          );
-        }
       }
     }
   };
@@ -1098,6 +1127,7 @@ function ExtendFolder() {
                   _description={_description}
                   countAction={adAlive}
                   isHide={hideDownload}
+                  loading={isDownloadLoading}
                   handleDownloadFolderAsZip={handleDownloadAsZip}
                 />
               )}

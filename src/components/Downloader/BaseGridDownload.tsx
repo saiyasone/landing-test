@@ -19,6 +19,7 @@ type Props = {
   handleToggle?: () => void;
   handleDownloadGridFileAndFolder?: () => void;
 };
+
 function BaseGridDownload(props: Props) {
   return (
     <Fragment>

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   Box,
-  Button,
   Tooltip,
   Typography,
   useMediaQuery,
@@ -31,6 +30,7 @@ import { ENV_KEYS } from "constants/env.constant";
 import { BsThreeDots } from "react-icons/bs";
 import FacebookIcon from "assets/images/facebook-icon.png";
 import TwitterIcon from "assets/images/twitter-icon.png";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 type Props = {
   _description?: string;
@@ -38,6 +38,7 @@ type Props = {
   isFile?: boolean;
   longUrl?: string;
   isHide?: boolean;
+  loading?: boolean;
 
   handleDownloadAsZip?: () => void;
   handleDownloadFolderAsZip?: () => void;
@@ -76,18 +77,19 @@ function BoxSocialShare(props: Props) {
                     <BoxAdsAction>{props?.countAction} close ads</BoxAdsAction>
                   </BoxAdsContainer>
                 )}
-                <Button
+                <LoadingButton
                   variant="contained"
                   sx={{
                     width: { xs: "100%", md: "80%" },
                     mx: "auto !important",
                   }}
+                  loading={props?.loading || false}
                   onClick={() => {
                     props.handleDownloadFolderAsZip?.();
                   }}
                 >
                   Download
-                </Button>
+                </LoadingButton>
               </Box>
             )}
           </Box>
