@@ -59,6 +59,7 @@ import "./styles/fileUploader.style.css";
 import ListFolderData from "components/presentation/ListFolderData";
 import BaseNormalButton from "components/BaseNormalButton";
 import VideoCardComponent from "components/VideoComponent";
+import { CHECK_GET_LINK, GET_MANAGE_LINK_DETAIL, GET_ONE_TIME_LINK_DETAIL } from "api/graphql/file.new.graphql";
 
 function FileUploader() {
   const location = useLocation();
@@ -67,8 +68,10 @@ function FileUploader() {
   const [getDataRes, setGetDataRes] = useState<any>(null);
   const [folderDownload, setFolderDownload] = useState<any>(null);
   const [open, setOpen] = useState(false);
+  const [openInputPasswod, setOpenInputPasswod] = useState(false);
   const [password, setPassword] = useState("");
   const [filePasswords, setFilePasswords] = useState<any>("");
+  const [linkType, setLinkType] = useState('normal');
   const [getNewFileName, setGetNewFileName] = useState("");
   const [fileQRCodePassword, setFileQRCodePassword] = useState("");
   const [toggle, setToggle] = useState(
@@ -161,6 +164,10 @@ function FileUploader() {
     QUERY_FOLDER_PUBLIC_LINK,
   );
 
+  const [getFilePassword] = useLazyQuery(CHECK_GET_LINK);
+  const [getManageLinkDetails, {data: manageLinkData}] = useLazyQuery(GET_MANAGE_LINK_DETAIL,{fetchPolicy:'cache-and-network'});
+  const [getOneTimeLinkDetail, {data: oneTimeLinkData}] = useLazyQuery(GET_ONE_TIME_LINK_DETAIL,{fetchPolicy:'cache-and-network'});
+
   const [getDataButtonDownload, { data: getDataButtonDL }] = useLazyQuery(
     QUERY_SETTING,
     {
@@ -182,14 +189,14 @@ function FileUploader() {
     fetchPolicy: "no-cache",
   });
 
-  let linkClient = useMemo(() => ({ _id: "", type: "" }), []);
+  let linkClient = useMemo(() => ({ _id: "", type: ""}), []);
 
   try {
     if (urlClient) {
       const decode = handleDecryptFile(urlClient);
       linkClient = {
         _id: decode?._id,
-        type: decode?.type,
+        type: decode?.type
       };
     }
   } catch (error) {
@@ -313,106 +320,221 @@ function FileUploader() {
     }
   }, [getDataButtonDL, getDataAdvertisement]);
 
-  useEffect(() => {
-    const getLinkData = async () => {
-      try {
-        if (linkClient?._id) {
-          if (linkClient?.type === "file") {
-            setIsLoading(true);
+  const handleInputPassword = async(inputPassword:string) => {
+    console.log('Input password=', inputPassword);
 
-            await getFileLink({
-              variables: {
-                where: {
-                  _id: linkClient?._id,
-                },
-              },
-            });
+    if(inputPassword){
+      setOpenInputPasswod(false);
+      await handleListFiles();
+    }
+    else{
+      errorMessage('Input your password', 3000);
+    }
+  }
 
-            setTimeout(() => {
-              setIsLoading(false);
-            }, 500);
+  const handleInputPasswordClose = () => {
+    setOpenInputPasswod(false);
+  }
 
-            if (dataFileLink?.queryFileGetLinks?.data) {
-              document.title =
-                dataFileLink?.queryFileGetLinks?.data?.[0]?.filename ||
-                "Vshare download file";
+  const handleListFiles = async() => {
+    if(!linkType){
+      errorMessage("Omg! something went wrong.", 3000);
+      return;
+    }
 
-              if (dataFileLink?.queryFileGetLinks?.data?.[0]) {
-                setDescription(
-                  dataFileLink?.queryFileGetLinks?.data?.[0]?.filename +
-                    " Vshare.net",
-                );
-              }
-              setGetDataRes(dataFileLink?.queryFileGetLinks?.data || []);
-            }
-          }
+    setIsLoading(true);
 
-          if (linkClient?.type === "folder") {
-            setIsLoading(true);
-            await getFolderLink({
-              variables: {
-                where: {
-                  _id: linkClient?._id,
-                },
-              },
-            });
-            setTimeout(() => {
-              setIsLoading(false);
-            }, 500);
-
-            const folderData = dataFolderLink?.queryfoldersGetLinks?.data || [];
-
-            if (folderData?.[0]?.status === "active") {
-              setGetDataRes(folderData || []);
-              setFolderDownload(folderData || []);
-
-              document.title =
-                folderData?.[0]?.folder_name || "Vshare download folder";
-              if (folderData && folderData?.[0]?.folder_type) {
-                if (folderData[0]?.folder_name) {
-                  setDescription(folderData[0]?.folder_name + " Vshare.net");
-                }
-              }
-            }
-          }
-        } else {
-          setIsLoading(true);
-          getData({
-            variables: {
-              where: {
-                urlAll: linkValue ? String(linkValue) : null,
-              },
+    if(linkType === "one_time_link")
+    {
+      try 
+      {
+        await getOneTimeLinkDetail({
+          variables:{
+            where: {
+              _id: linkClient._id
             },
-          });
-
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 500);
-          if (resPonData) {
-            const fileData = resPonData?.filesPublic?.data?.[0];
-            const title = cutFileName(
-              combineOldAndNewFileNames(
-                fileData?.filename,
-                fileData?.newFilename,
-              ) as string,
-              10,
-            );
-            setDescription(`${title} Vshare.net`);
-            document.title = title;
-            setGetDataRes(resPonData?.filesPublic?.data);
+            orderBy: "desc"
           }
-        }
-      } catch (error: any) {
+        });
+      } 
+      catch (error) 
+      {
         setIsLoading(false);
-        errorMessage(error);
+        errorMessage(error?.message || "Not found data!");
       }
-    };
+    }
+    else
+    {
+      ////manage link files
+      try 
+      {
+        await getManageLinkDetails({
+          variables:{
+            where: {
+              _id: linkClient._id
+            },
+            orderBy: "desc"
+          }
+        });
+      } 
+      catch (error) 
+      {
+        setIsLoading(false);
+        errorMessage(error?.message || "Not found data!");
+      }
+    }
 
-    getLinkData();
+    setIsLoading(false);
+
+  }
+
+  const getManageLinkPassword = async(id: string | number)=>{
+    setIsLoading(true);
+
+      await getFilePassword({
+        variables:{
+            where: {
+              _id: id
+            }
+        },
+        onCompleted: async(response) => {
+            setIsLoading(false);
+
+            if(response && response?.getOneTimeLink?.data && resPonData?.getOneTimeLink?.code === "200")
+            {
+                const result = response?.getOneTimeLink?.data;
+
+                if(result?.type){
+                  setLinkType(result?.type);
+                }
+
+                if(result?.password)
+                {
+                    setOpenInputPasswod(true);
+                }
+                else
+                {
+                  await handleListFiles();
+                }
+            }
+            else
+            {
+              errorMessage(resPonData?.getOneTimeLink?.message || "Not found this link.", 3000)
+            }
+        },
+        onError: (error) => {
+            errorMessage(error?.message || "Can not burn this secret Url.", 3000);
+            setOpenInputPasswod(false);
+            setIsLoading(false);
+        }
+    })
+  }
+
+  useEffect(() => {
+    // const getLinkData = async () => {
+    //   try {
+    //     if (linkClient?._id) {
+    //       if (linkClient?.type === "file") {
+    //         setIsLoading(true);
+
+    //         await getFileLink({
+    //           variables: {
+    //             where: {
+    //               _id: linkClient?._id,
+    //             },
+    //           },
+    //         });
+
+    //         setTimeout(() => {
+    //           setIsLoading(false);
+    //         }, 500);
+
+    //         if (dataFileLink?.queryFileGetLinks?.data) {
+    //           document.title =
+    //             dataFileLink?.queryFileGetLinks?.data?.[0]?.filename ||
+    //             "Vshare download file";
+
+    //           if (dataFileLink?.queryFileGetLinks?.data?.[0]) {
+    //             setDescription(
+    //               dataFileLink?.queryFileGetLinks?.data?.[0]?.filename +
+    //                 " Vshare.net",
+    //             );
+    //           }
+    //           setGetDataRes(dataFileLink?.queryFileGetLinks?.data || []);
+    //         }
+    //       }
+
+    //       if (linkClient?.type === "folder") {
+    //         setIsLoading(true);
+    //         await getFolderLink({
+    //           variables: {
+    //             where: {
+    //               _id: linkClient?._id,
+    //             },
+    //           },
+    //         });
+    //         setTimeout(() => {
+    //           setIsLoading(false);
+    //         }, 500);
+
+    //         const folderData = dataFolderLink?.queryfoldersGetLinks?.data || [];
+
+    //         if (folderData?.[0]?.status === "active") {
+    //           setGetDataRes(folderData || []);
+    //           setFolderDownload(folderData || []);
+
+    //           document.title =
+    //             folderData?.[0]?.folder_name || "Vshare download folder";
+    //           if (folderData && folderData?.[0]?.folder_type) {
+    //             if (folderData[0]?.folder_name) {
+    //               setDescription(folderData[0]?.folder_name + " Vshare.net");
+    //             }
+    //           }
+    //         }
+    //       }
+    //     } else {
+    //       setIsLoading(true);
+    //       getData({
+    //         variables: {
+    //           where: {
+    //             urlAll: linkValue ? String(linkValue) : null,
+    //           },
+    //         },
+    //       });
+
+    //       setTimeout(() => {
+    //         setIsLoading(false);
+    //       }, 500);
+    //       if (resPonData) {
+    //         const fileData = resPonData?.filesPublic?.data?.[0];
+    //         const title = cutFileName(
+    //           combineOldAndNewFileNames(
+    //             fileData?.filename,
+    //             fileData?.newFilename,
+    //           ) as string,
+    //           10,
+    //         );
+    //         setDescription(`${title} Vshare.net`);
+    //         document.title = title;
+    //         setGetDataRes(resPonData?.filesPublic?.data);
+    //       }
+    //     }
+    //   } catch (error: any) {
+    //     setIsLoading(false);
+    //     errorMessage(error);
+    //   }
+    // };
+
+    // getLinkData();
 
     // return () => {
     //   document.title = "Download folder and file"; // Reset the title when the component unmounts
     // };
+  
+    if(urlClient && linkClient && linkClient?._id)
+    {
+      getManageLinkPassword(linkClient?._id);
+    }
   }, [linkValue, urlClient, dataFileLink, dataFolderLink, resPonData]);
 
   useEffect(() => {
@@ -430,7 +552,7 @@ function FileUploader() {
               },
             });
 
-            const mainData =
+            const mainData = 
               dataFileAndFolderLink?.getManageLinkDetails?.data || [];
 
             if (mainData?.length > 0) {
@@ -1520,6 +1642,8 @@ function FileUploader() {
     return [];
   }, [linkClient, getDataRes, dataMultipleFolder]);
 
+console.log({manageLinkData, oneTimeLinkData});
+
   return (
     <React.Fragment>
       <Helmet>
@@ -1537,6 +1661,19 @@ function FileUploader() {
           setPassword={setPassword}
           handleClose={handleClose}
           _confirmPasword={_confirmPasword}
+        />
+
+        {/* one time link password */}
+        <DialogConfirmPassword
+          open={openInputPasswod}
+          isMobile={isMobile}
+          getFilenames={getFilenames}
+          getNewFileName={getNewFileName}
+          password={password}
+          checkModal={checkModal}
+          setPassword={setPassword}
+          handleClose={handleInputPasswordClose}
+          _confirmPasword={handleInputPassword}
         />
 
         <Box sx={{ backgroundColor: "#ECF4F3", padding: "3rem 1rem" }}>
