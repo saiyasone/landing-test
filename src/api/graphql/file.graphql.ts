@@ -80,6 +80,7 @@ export const QUERY_FILE_PUBLIC = gql`
         urlAll
         url
         ip
+        expired
         folder_id {
           _id
           path
@@ -109,17 +110,12 @@ export const QUERY_FILE_PUBLICV2 = gql`
         fileType
         size
         newPath
-        totalDownload
         status
         isPublic
         checkFile
         path
-        detail
         urlAll
         url
-        permissionSharePublic
-        aproveDownloadPublic
-        ip
         folder_id {
           _id
           path
@@ -131,12 +127,7 @@ export const QUERY_FILE_PUBLICV2 = gql`
         }
         shortUrl
         longUrl
-        favorite
-        actionStatus
         expired
-        createdAt
-        updatedAt
-        actionDate
       }
     }
   }
@@ -152,6 +143,7 @@ export const QUERY_FILE_GET_LINK = gql`
         newFilename
         checkFile
         expired
+        fileType
         size
         status
         path
@@ -174,11 +166,10 @@ export const QUERY_SUB_FILE = gql`
   query GetFileByUID(
     $where: FilesWhereInput
     $noLimit: Boolean
+    $limit: Int
+    $skip: Int
   ) {
-    filesByUID(
-      where: $where
-      noLimit: $noLimit
-    ) {
+    filesByUID(where: $where, noLimit: $noLimit, limit: $limit, skip: $skip) {
       data {
         _id
         filename

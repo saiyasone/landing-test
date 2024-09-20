@@ -11,6 +11,9 @@ import { FileBoxDownload } from "app/pages/file-uploader/styles/fileUploader.sty
 import NormalButton from "components/NormalButton";
 import { Fragment, useEffect, useState } from "react";
 
+import ResponsivePagination from "react-responsive-pagination";
+import "styles/pagination.style.css";
+
 // Icons
 import InfoIcon from "@mui/icons-material/Info";
 
@@ -40,6 +43,12 @@ type Props = {
   countAction: number;
   isFile?: boolean;
   toggle?: string;
+  total?: number;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    setCurrentPage: (index) => void;
+  };
 
   setToggle?: () => void;
   setMultipleIds?: (value: any[]) => void;
@@ -64,13 +73,9 @@ function ListFolderData(props: Props) {
       headerAlign: "left",
       renderCell: (params) => {
         const dataFile = params?.row;
-        const filename = props.isFile
-          ? dataFile?.filename
-          : dataFile?.folder_name;
+        const filename = dataFile?.folder_name;
 
-        const password = props.isFile
-          ? dataFile?.filePassword
-          : dataFile?.access_password;
+        const password = dataFile?.access_password;
         return (
           <Fragment>
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -103,9 +108,7 @@ function ListFolderData(props: Props) {
       headerAlign: "center",
       align: "center",
       renderCell: (params) => {
-        const size = props?.isFile
-          ? params?.row?.size
-          : params?.row?.total_size;
+        const size = params?.row?.total_size;
         return <span>{convertBytetoMBandGB(size || 0)}</span>;
       },
     },
@@ -162,7 +165,7 @@ function ListFolderData(props: Props) {
   }, [props]);
 
   return (
-    <FileBoxDownload className="box-download">
+    <FileBoxDownload className="box-download" sx={{ mb: 2 }}>
       <Card
         sx={{
           boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
@@ -181,13 +184,7 @@ function ListFolderData(props: Props) {
             sx={{ textAlign: "start", padding: "1rem .5rem" }}
           >
             Application apply (
-            {cutFileName(
-              props?.dataLinks?.[0]?.filename ||
-                props?.dataLinks?.[0]?.folder_name ||
-                "",
-              20,
-            )}
-            )
+            {cutFileName(props?.dataLinks?.[0]?.folder_name || "", 20)})
           </Typography>
         </Box>
 
@@ -232,6 +229,20 @@ function ListFolderData(props: Props) {
               props?.setMultipleIds?.(ids);
             }}
           />
+
+          {props.total! > 10 && (
+            <Box
+              sx={{ my: 2, mx: 4, display: "flex", justifyContent: "flex-end" }}
+            >
+              <ResponsivePagination
+                current={props.pagination?.currentPage || 1}
+                total={props.pagination?.totalPages || 10}
+                onPageChange={(index) => {
+                  props.pagination?.setCurrentPage?.(index);
+                }}
+              />
+            </Box>
+          )}
 
           {props?.dataLinks!.length > 0 && (
             <Fragment>
@@ -300,18 +311,22 @@ function ListFolderData(props: Props) {
                     sx={{
                       padding: (theme) =>
                         `${theme.spacing(1.6)} ${theme.spacing(5)}`,
-                      borderRadius: (theme) => theme.spacing(2),
-                      color: "#828282 !important",
+                      borderRadius: (theme) => theme.spacing(1.5),
+                      color:
+                        props?.multipleIds?.length > 0
+                          ? "#fff"
+                          : "#828282 !important",
                       fontWeight: "bold",
-                      backgroundColor: "#fff",
-                      border: "1px solid #ddd",
+                      backgroundColor:
+                        props?.multipleIds?.length > 0 ? "#17766B" : "#fff",
+                      border: "1px solid",
+                      borderColor:
+                        props?.multipleIds?.length > 0 ? "#17766B" : "#ddd",
                       width: "inherit",
                       outline: "none",
 
                       ":disabled": {
                         cursor: "context-menu",
-                        backgroundColor: "#D6D6D6",
-                        color: "#ddd",
                       },
                     }}
                   >
@@ -320,19 +335,25 @@ function ListFolderData(props: Props) {
                 </Box>
                 <NormalButton
                   onClick={props?.handleClearGridSelection}
+                  disabled={props?.multipleIds?.length > 0 ? false : true}
                   sx={{
                     padding: (theme) =>
                       `${theme.spacing(1.6)} ${theme.spacing(5)}`,
-                    borderRadius: (theme) => theme.spacing(2),
-                    color: "#828282 !important",
+                    borderRadius: (theme) => theme.spacing(1.5),
+                    color:
+                      props?.multipleIds?.length > 0
+                        ? "#fff"
+                        : "#828282 !important",
                     fontWeight: "bold",
-                    backgroundColor: "#fff",
-                    border: "1px solid #ddd",
+                    backgroundColor:
+                      props?.multipleIds?.length > 0 ? "#17766B" : "#fff",
+                    border: "1px solid",
+                    borderColor:
+                      props?.multipleIds?.length > 0 ? "#17766B" : "#ddd",
                     width: "inherit",
                     outline: "none",
 
                     ":disabled": {
-                      border: "2px solid #ddd",
                       cursor: "not-allowed",
                     },
                   }}

@@ -8,7 +8,7 @@ import {
   split,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
-import './styles/global.font.css';
+import "./styles/global.font.css";
 import "animate.css/animate.min.css";
 import { ENV_KEYS } from "constants/env.constant.ts";
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
@@ -81,7 +81,6 @@ export const clientMockup = new ApolloClient({
 const wsLink = new GraphQLWsLink(
   createClient({
     url: `wss://${ENV_KEYS.VITE_APP_SUBSCRIPTION_URL}`,
-
   }),
 );
 
