@@ -40,7 +40,6 @@ import { IFolder } from "models/folder.model";
 function ExtendFolder() {
   const location = useLocation();
   const isMobile = useMediaQuery("(max-width: 600px)");
-  const isMobileGrid = useMediaQuery("(max-width: 997px)");
   const [checkConfirmPassword, setConfirmPassword] = useState(false);
   const [getDataRes, setGetDataRes] = useState<any>(null);
   const [folderDownload, setFolderDownload] = useState<any>(null);
