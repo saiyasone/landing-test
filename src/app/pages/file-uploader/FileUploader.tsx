@@ -57,7 +57,7 @@ function FileUploader() {
   const [open, setOpen] = useState(false);
   const [password, setPassword] = useState("");
   const [filePasswords, setFilePasswords] = useState<any>("");
-  const [openInputPasswod, setOpenInputPasswod] = useState(false);
+  const [openInputPasswod, setOpenInputPassword] = useState(false);
   const [linkType, setLinkType] = useState("normal");
   const [linkExpirdAt, setLinkExpirdAt] = useState("");
   const [getNewFileName, setGetNewFileName] = useState("");
@@ -318,10 +318,7 @@ function FileUploader() {
   };
 
   const handleInputPassword = async (inputPassword: string) => {
-    console.log("Input password=", inputPassword, "=", password);
-
     if (inputPassword && password) {
-      setOpenInputPasswod(false);
       await handleListFiles();
     } else {
       errorMessage("Input your password", 3000);
@@ -329,7 +326,7 @@ function FileUploader() {
   };
 
   const handleInputPasswordClose = () => {
-    setOpenInputPasswod(false);
+    setOpenInputPassword(false);
   };
 
   const handleListFiles = async () => {
@@ -372,6 +369,7 @@ function FileUploader() {
               const totalData = values?.getManageLinkDetails?.total || 0;
               const mainData = values?.getManageLinkDetails?.data || [];
               setTotal(totalData);
+              setOpenInputPassword(false);
 
               if (mainData?.length > 0) {
                 if (os.match(/iPhone|iPad|iPod/i)) {
@@ -426,6 +424,10 @@ function FileUploader() {
               }
 
               setIsLoading(false);
+            },
+
+            onError: () => {
+              errorMessage("Not found data!", 3000);
             },
           });
         }
@@ -514,6 +516,10 @@ function FileUploader() {
 
               setIsLoading(false);
             },
+
+            onError: () => {
+              errorMessage("Not found data!");
+            },
           });
         }
     } catch (error) {
@@ -534,7 +540,6 @@ function FileUploader() {
       },
       onCompleted: async (response) => {
         setIsLoading(false);
-
         if (
           response &&
           response?.getManageLinks?.data &&
@@ -552,21 +557,15 @@ function FileUploader() {
           }
 
           if (result?.password) {
-            setOpenInputPasswod(true);
+            setOpenInputPassword(true);
           } else {
             await handleListFiles();
           }
-        } else {
-          errorMessage(
-            response?.getManageLinks?.message || "Not found this link.",
-            3000,
-          );
         }
       },
       onError: (error) => {
-        console.log({ getLinkError: error });
         errorMessage(error?.message || "Can not burn this secret Url.", 3000);
-        setOpenInputPasswod(false);
+        setOpenInputPassword(false);
         setIsLoading(false);
       },
     });
