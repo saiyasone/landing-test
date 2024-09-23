@@ -289,8 +289,6 @@ function FileUploader() {
   };
 
   const handleInputPassword = async(inputPassword:string) => {
-    console.log('Input password=', inputPassword, '=',password);
-
     if(inputPassword && password){
       setOpenInputPasswod(false);
       await handleListFiles();
@@ -345,6 +343,13 @@ function FileUploader() {
                 toggle === "list" ? DATA_LIST_SIZE * (currentPage - 1) : null,
             },
             onCompleted: async (values) => {
+
+              if(!values || values?.getManageLinkDetails?.code !== "200")
+              {
+                errorMessage(values?.getManageLinkDetails?.message || "Not found data!");
+                return;
+              }
+
               const totalData = values?.getManageLinkDetails?.total || 0;
               const mainData = values?.getManageLinkDetails?.data || [];
               setTotal(totalData);
@@ -432,6 +437,13 @@ function FileUploader() {
                 toggle === "list" ? DATA_LIST_SIZE * (currentPage - 1) : null,
             },
             onCompleted: async (values) => {
+
+              if(!values || values?.getOneTimeLinkDetails?.code !== "200")
+              {
+                errorMessage(values?.getOneTimeLinkDetails?.message || "Not found data!");
+                return;
+              }
+
               const totalData = values?.getOneTimeLinkDetails?.total || 0;
               const mainData = values?.getOneTimeLinkDetails?.data || [];
               setTotal(totalData);
