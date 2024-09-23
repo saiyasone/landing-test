@@ -1,21 +1,21 @@
 import { gql } from "@apollo/client";
 
 export const CHECK_GET_LINK = gql`
-query GetOneTimeLink($where: OneTimeLinkWhereInput) {
-    getOneTimeLink(where: $where) {
-      code
-      message
-      data {
-        _id
-        shortLink
-        longLink
-        status
-        createdAt
-        password
-        type
-      }
+query GetManageLinks($where: ManageLinkWhereInput) {
+  getManageLinks(where: $where) {
+    code
+    message
+    data {
+       _id
+      shortLink
+      status
+      createdAt
+      password
+      type
+      expiredAt
     }
-  }`;
+  }
+}`;
 
 export const  GET_ONE_TIME_LINK_DETAIL =gql`
 query GetOneTimeLinkDetails($where: OneTimeLinkDetailsWhereInput, $orderBy: OrderBy, $skip: Int, $limit: Int) {

@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 // components
 import ListIcon from "@mui/icons-material/FormatListBulletedOutlined";
-import { Box, IconButton, useMediaQuery } from "@mui/material";
+import { Box, IconButton, Typography, useMediaQuery } from "@mui/material";
 import {
   CREATE_DETAIL_ADVERTISEMENT,
   QUERY_ADVERTISEMENT,
@@ -41,8 +41,10 @@ import BaseDeeplinkDownload from "components/Downloader/BaseDeeplinkDownload";
 // import FeedCard from "components/Downloader/FeedCard";
 import BaseGridDownload from "components/Downloader/BaseGridDownload";
 import { Helmet } from "react-helmet-async";
-import ListDataItem from "components/Downloader/ListDataItem";
-import { CHECK_GET_LINK, GET_MANAGE_LINK_DETAIL, GET_ONE_TIME_LINK_DETAIL } from "api/graphql/file.new.graphql";
+import { CHECK_GET_LINK, GET_ONE_TIME_LINK_DETAIL } from "api/graphql/file.new.graphql";
+import InfoIcon from "@mui/icons-material/Info";
+import moment from "moment";
+
 
 const DATA_LIST_SIZE = 10;
 
@@ -53,10 +55,11 @@ function FileUploader() {
   const [getDataRes, setGetDataRes] = useState<any>(null);
   const [folderDownload, setFolderDownload] = useState<any>(null);
   const [open, setOpen] = useState(false);
-  const [openInputPasswod, setOpenInputPasswod] = useState(false);
   const [password, setPassword] = useState("");
   const [filePasswords, setFilePasswords] = useState<any>("");
+  const [openInputPasswod, setOpenInputPasswod] = useState(false);
   const [linkType, setLinkType] = useState('normal');
+  const [linkExpirdAt, setLinkExpirdAt] = useState('');
   const [getNewFileName, setGetNewFileName] = useState("");
   const [fileQRCodePassword, setFileQRCodePassword] = useState("");
 
@@ -135,10 +138,6 @@ function FileUploader() {
     QUERY_FOLDER_PUBLIC_LINK,
   );
 
-  const [getFilePassword] = useLazyQuery(CHECK_GET_LINK);
-  const [getManageLinkDetails, {data: manageLinkData}] = useLazyQuery(GET_MANAGE_LINK_DETAIL,{fetchPolicy:'cache-and-network'});
-  const [getOneTimeLinkDetail, {data: oneTimeLinkData}] = useLazyQuery(GET_ONE_TIME_LINK_DETAIL,{fetchPolicy:'cache-and-network'});
-
   const [getDataButtonDownload, { data: getDataButtonDL }] = useLazyQuery(
     QUERY_SETTING,
     {
@@ -152,19 +151,24 @@ function FileUploader() {
       fetchPolicy: "cache-and-network",
     },
   );
+
+  const [getFilePassword] = useLazyQuery(CHECK_GET_LINK);
+  // const [getManageLinkDetails] = useLazyQuery(GET_MANAGE_LINK_DETAIL,{fetchPolicy:'cache-and-network'});
+  const [getOneTimeLinkDetails] = useLazyQuery(GET_ONE_TIME_LINK_DETAIL,{fetchPolicy:'no-cache'});
+
   const settingKeys = {
     downloadKey: "HDLABTO",
   };
   const useDataSetting = useManageSetting();
 
-  let linkClient = useMemo(() => ({ _id: "", type: ""}), []);
+  let linkClient = useMemo(() => ({ _id: "", type: "" }), []);
 
   try {
     if (urlClient) {
       const decode = handleDecryptFile(urlClient);
       linkClient = {
         _id: decode?._id,
-        type: decode?.type
+        type: decode?.type,
       };
     }
   } catch (error) {
@@ -280,10 +284,14 @@ function FileUploader() {
     }
   }, [getDataButtonDL, getDataAdvertisement]);
 
-  const handleInputPassword = async(inputPassword:string) => {
-    console.log('Input password=', inputPassword);
+  const handleViewMore = () => {
+    setViewMore((prev) => prev + 10);
+  };
 
-    if(inputPassword){
+  const handleInputPassword = async(inputPassword:string) => {
+    console.log('Input password=', inputPassword, '=',password);
+
+    if(inputPassword && password){
       setOpenInputPasswod(false);
       await handleListFiles();
     }
@@ -306,66 +314,212 @@ function FileUploader() {
 
     if(linkType === "one_time_link")
     {
-      try 
-      {
-        await getOneTimeLinkDetail({
-          variables:{
-            where: {
-              _id: linkClient._id
-            },
-            orderBy: "desc"
-          }
-        });
-      } 
-      catch (error) 
-      {
-        setIsLoading(false);
-        errorMessage(error?.message || "Not found data!");
-      }
+      await handleOneTimeLinkDetails();
     }
     else
     {
-      ////manage link files
-      try 
-      {
-        await getManageLinkDetails({
-          variables:{
-            where: {
-              _id: linkClient._id
-            },
-            orderBy: "desc"
-          }
-        });
-      } 
-      catch (error) 
-      {
-        setIsLoading(false);
-        errorMessage(error?.message || "Not found data!");
-      }
+      ////manage link files / get link files
+      await handleManageLinkDetails();
     }
 
     setIsLoading(false);
 
   }
 
+  const handleManageLinkDetails = async()=>{
+    const os = navigator.userAgent;
+
+    try {
+      if (linkClient?._id)
+        if (linkClient?.type === "multiple") {
+          setIsLoading(true);
+
+          await getManageLinkDetail({
+            variables: {
+              where: { 
+                _id: linkClient?._id,
+              ...(password && {password})
+              },
+              limit: toggle === "list" ? DATA_LIST_SIZE : viewMore,
+              skip:
+                toggle === "list" ? DATA_LIST_SIZE * (currentPage - 1) : null,
+            },
+            onCompleted: async (values) => {
+              const totalData = values?.getManageLinkDetails?.total || 0;
+              const mainData = values?.getManageLinkDetails?.data || [];
+              setTotal(totalData);
+
+              if (mainData?.length > 0) {
+                if (os.match(/iPhone|iPad|iPod/i)) {
+                  setPlatform("ios");
+                }
+
+                if (os.match(/Android/i)) {
+                  setPlatform("android");
+                }
+
+                const fileData = mainData?.filter(
+                  (file) => file.type === "file",
+                );
+
+                const folderData = mainData?.filter(
+                  (folder) => folder.type === "folder",
+                );
+
+                if (folderData?.length > 0) {
+                  const folderItems = folderData?.map((folder, index) => {
+                    return {
+                      ...folder?.folderData,
+                      _id: folder?.folderId,
+                      index,
+                    };
+                  });
+
+                  if (folderItems.length > 0) {
+                    const title = folderItems?.[0]?.folder_name || "";
+                    document.title = title+" | VSHARE";
+                    setDescription(`${title} on vshare.net`);
+                  }
+                  setDataMultipleFolder(folderItems);
+                }
+
+                if (fileData?.length > 0) {
+                  const fileItems = fileData?.map((file, index) => {
+                    return {
+                      ...file?.fileData,
+                      _id: file?.fileId,
+                      index,
+                    };
+                  });
+
+                  if (fileItems.length > 0) {
+                    const title = fileItems?.[0]?.filename || "";
+                    document.title = title+" | VSHARE";
+                    setDescription(`${title} on vshare.net`);
+                  }
+                  setDataMultipleFile(fileItems);
+                }
+              }
+
+              setIsLoading(false);
+            },
+          });
+        }
+    } catch (error) {
+      document.title = "No documents found"+" | VSHARE";
+      setDescription("No documents found on vshare.net");
+      setIsLoading(false);
+    }
+  }
+
+  const handleOneTimeLinkDetails = async()=>{
+    const os = navigator.userAgent;
+
+    try {
+      if (linkClient?._id)
+        if (linkClient?.type === "multiple") {
+          setIsLoading(true);
+
+          await getOneTimeLinkDetails({
+            variables: {
+              where: { 
+                _id: linkClient?._id,
+                ...(password && {password})
+              },
+              orderBy: "desc",
+              limit: toggle === "list" ? DATA_LIST_SIZE : viewMore,
+              skip:
+                toggle === "list" ? DATA_LIST_SIZE * (currentPage - 1) : null,
+            },
+            onCompleted: async (values) => {
+              const totalData = values?.getOneTimeLinkDetails?.total || 0;
+              const mainData = values?.getOneTimeLinkDetails?.data || [];
+              setTotal(totalData);
+
+              if (mainData?.length > 0) {
+                if (os.match(/iPhone|iPad|iPod/i)) {
+                  setPlatform("ios");
+                }
+
+                if (os.match(/Android/i)) {
+                  setPlatform("android");
+                }
+
+                const fileData = mainData?.filter(
+                  (file) => file.type === "file",
+                );
+
+                const folderData = mainData?.filter(
+                  (folder) => folder.type === "folder",
+                );
+
+                if (folderData?.length > 0) {
+                  const folderItems = folderData?.map((folder, index) => {
+                    return {
+                      ...folder?.folderData,
+                      _id: folder?.folderId,
+                      index,
+                    };
+                  });
+
+                  if (folderItems.length > 0) {
+                    const title = folderItems?.[0]?.folder_name || "";
+                    document.title = title+" | VSHARE";
+                    setDescription(`${title} on vshare.net`);
+                  }
+                  setDataMultipleFolder(folderItems);
+                }
+
+                if (fileData?.length > 0) {
+                  const fileItems = fileData?.map((file, index) => {
+                    return {
+                      ...file?.fileData,
+                      _id: file?.fileId,
+                      index,
+                    };
+                  });
+
+                  if (fileItems.length > 0) {
+                    const title = fileItems?.[0]?.filename || ""+" | VSHARE";
+                    document.title = title;
+                    setDescription(`${title} on vshare.net`);
+                  }
+                  setDataMultipleFile(fileItems);
+                }
+              }
+
+              setIsLoading(false);
+            },
+          });
+        }
+    } catch (error) {
+      document.title = "No documents found"+" | VSHARE";
+      setDescription("No documents found on vshare.net");
+      setIsLoading(false);
+    }
+  }
+
   const getManageLinkPassword = async(id: string | number)=>{
     setIsLoading(true);
-
       await getFilePassword({
         variables:{
             where: {
-              _id: id
+              _id: id,
+              status: "active"
             }
         },
         onCompleted: async(response) => {
             setIsLoading(false);
 
-            if(response && response?.getOneTimeLink?.data && resPonData?.getOneTimeLink?.code === "200")
+            if(response && response?.getManageLinks?.data && response?.getManageLinks?.code === "200")
             {
-                const result = response?.getOneTimeLink?.data;
-
+                const result = response?.getManageLinks?.data[0];
                 if(result?.type){
                   setLinkType(result?.type);
+                }
+
+                if(result?.expiredAt){
+                  setLinkExpirdAt(moment(result.expiredAt).format('DD/MM/YYYY HH:MM A'));
                 }
 
                 if(result?.password)
@@ -379,10 +533,11 @@ function FileUploader() {
             }
             else
             {
-              errorMessage(resPonData?.getOneTimeLink?.message || "Not found this link.", 3000)
+              errorMessage(response?.getManageLinks?.message || "Not found this link.", 3000)
             }
         },
         onError: (error) => {
+          console.log({getLinkError: error});
             errorMessage(error?.message || "Can not burn this secret Url.", 3000);
             setOpenInputPasswod(false);
             setIsLoading(false);
@@ -403,6 +558,7 @@ function FileUploader() {
     //               _id: linkClient?._id,
     //             },
     //           },
+    //           // onCompleted: () => {},
     //         });
 
     //         setTimeout(() => {
@@ -417,7 +573,7 @@ function FileUploader() {
     //           if (dataFileLink?.queryFileGetLinks?.data?.[0]) {
     //             setDescription(
     //               dataFileLink?.queryFileGetLinks?.data?.[0]?.filename +
-    //                 " Vshare.net",
+    //                 " on vshare.net",
     //             );
     //           }
     //           setGetDataRes(dataFileLink?.queryFileGetLinks?.data || []);
@@ -432,25 +588,27 @@ function FileUploader() {
     //               _id: linkClient?._id,
     //             },
     //           },
+    //           onCompleted: (data) => {
+    //             const folderData = data?.queryfoldersGetLinks?.data || [];
+    //             if (folderData?.[0]?.status === "active") {
+    //               setGetDataRes(folderData || []);
+    //               setFolderDownload(folderData || []);
+
+    //               document.title =
+    //                 folderData?.[0]?.folder_name || "vshare download folder";
+    //               if (folderData && folderData?.[0]?.folder_type) {
+    //                 if (folderData[0]?.folder_name) {
+    //                   setDescription(
+    //                     folderData[0]?.folder_name + " on vshare.net",
+    //                   );
+    //                 }
+    //               }
+    //             }
+    //           },
     //         });
     //         setTimeout(() => {
     //           setIsLoading(false);
     //         }, 500);
-
-    //         const folderData = dataFolderLink?.queryfoldersGetLinks?.data || [];
-
-    //         if (folderData?.[0]?.status === "active") {
-    //           setGetDataRes(folderData || []);
-    //           setFolderDownload(folderData || []);
-
-    //           document.title =
-    //             folderData?.[0]?.folder_name || "Vshare download folder";
-    //           if (folderData && folderData?.[0]?.folder_type) {
-    //             if (folderData[0]?.folder_name) {
-    //               setDescription(folderData[0]?.folder_name + " Vshare.net");
-    //             }
-    //           }
-    //         }
     //       }
     //     } else {
     //       setIsLoading(true);
@@ -460,24 +618,17 @@ function FileUploader() {
     //             urlAll: linkValue ? String(linkValue) : null,
     //           },
     //         },
+    //         onCompleted: (resData) => {
+    //           const fileData = resData?.filesPublic?.data?.[0];
+    //           document.title = fileData?.filename;
+    //           setDescription(`${fileData?.filename} on vshare.net`);
+    //           setGetDataRes(resData?.filesPublic?.data);
+    //         },
     //       });
 
     //       setTimeout(() => {
     //         setIsLoading(false);
     //       }, 500);
-    //       if (resPonData) {
-    //         const fileData = resPonData?.filesPublic?.data?.[0];
-    //         const title = cutFileName(
-    //           combineOldAndNewFileNames(
-    //             fileData?.filename,
-    //             fileData?.newFilename,
-    //           ) as string,
-    //           10,
-    //         );
-    //         setDescription(`${title} Vshare.net`);
-    //         document.title = title;
-    //         setGetDataRes(resPonData?.filesPublic?.data);
-    //       }
     //     }
     //   } catch (error: any) {
     //     setIsLoading(false);
@@ -487,101 +638,98 @@ function FileUploader() {
 
     // getLinkData();
 
-    // return () => {
-    //   document.title = "Download folder and file"; // Reset the title when the component unmounts
-    // };
-  
     if(urlClient && linkClient && linkClient?._id)
     {
       getManageLinkPassword(linkClient?._id);
     }
-  }, [linkValue, urlClient, dataFileLink, dataFolderLink, resPonData]);
 
-  useEffect(() => {
-    const getMultipleFileAndFolder = async () => {
-      const os = navigator.userAgent;
+  }, [linkValue, dataFileLink]);
 
-      try {
-        if (linkClient?._id)
-          if (linkClient?.type === "multiple") {
-            setIsLoading(true);
+  // useEffect(() => {
+  //   const getMultipleFileAndFolder = async () => {
+  //     const os = navigator.userAgent;
 
-            await getManageLinkDetail({
-              variables: {
-                where: { _id: linkClient?._id },
-                limit: toggle === "list" ? DATA_LIST_SIZE : viewMore,
-                skip:
-                  toggle === "list" ? DATA_LIST_SIZE * (currentPage - 1) : null,
-              },
-              onCompleted: async (values) => {
-                const totalData = values?.getManageLinkDetails?.total || 0;
-                const mainData = values?.getManageLinkDetails?.data || [];
-                setTotal(totalData);
+  //     try {
+  //       if (linkClient?._id)
+  //         if (linkClient?.type === "multiple") {
+  //           setIsLoading(true);
 
-                if (mainData?.length > 0) {
-                  if (os.match(/iPhone|iPad|iPod/i)) {
-                    setPlatform("ios");
-                  }
+  //           await getManageLinkDetail({
+  //             variables: {
+  //               where: { _id: linkClient?._id },
+  //               limit: toggle === "list" ? DATA_LIST_SIZE : viewMore,
+  //               skip:
+  //                 toggle === "list" ? DATA_LIST_SIZE * (currentPage - 1) : null,
+  //             },
+  //             onCompleted: async (values) => {
+  //               const totalData = values?.getManageLinkDetails?.total || 0;
+  //               const mainData = values?.getManageLinkDetails?.data || [];
+  //               setTotal(totalData);
 
-                  if (os.match(/Android/i)) {
-                    setPlatform("android");
-                  }
+  //               if (mainData?.length > 0) {
+  //                 if (os.match(/iPhone|iPad|iPod/i)) {
+  //                   setPlatform("ios");
+  //                 }
 
-                  const fileData = mainData?.filter(
-                    (file) => file.type === "file",
-                  );
+  //                 if (os.match(/Android/i)) {
+  //                   setPlatform("android");
+  //                 }
 
-                  const folderData = mainData?.filter(
-                    (folder) => folder.type === "folder",
-                  );
+  //                 const fileData = mainData?.filter(
+  //                   (file) => file.type === "file",
+  //                 );
 
-                  if (folderData?.length > 0) {
-                    const folderItems = folderData?.map((folder, index) => {
-                      return {
-                        ...folder?.folderData,
-                        _id: folder?.folderId,
-                        index,
-                      };
-                    });
+  //                 const folderData = mainData?.filter(
+  //                   (folder) => folder.type === "folder",
+  //                 );
 
-                    if (folderItems.length > 0) {
-                      const title = folderItems?.[0]?.folder_name || "";
-                      document.title = title;
-                      setDescription(`${title} on vshare.net`);
-                    }
-                    setDataMultipleFolder(folderItems);
-                  }
+  //                 if (folderData?.length > 0) {
+  //                   const folderItems = folderData?.map((folder, index) => {
+  //                     return {
+  //                       ...folder?.folderData,
+  //                       _id: folder?.folderId,
+  //                       index,
+  //                     };
+  //                   });
 
-                  if (fileData?.length > 0) {
-                    const fileItems = fileData?.map((file, index) => {
-                      return {
-                        ...file?.fileData,
-                        _id: file?.fileId,
-                        index,
-                      };
-                    });
+  //                   if (folderItems.length > 0) {
+  //                     const title = folderItems?.[0]?.folder_name || "";
+  //                     document.title = title;
+  //                     setDescription(`${title} on vshare.net`);
+  //                   }
+  //                   setDataMultipleFolder(folderItems);
+  //                 }
 
-                    if (fileItems.length > 0) {
-                      const title = fileItems?.[0]?.filename || "";
-                      document.title = title;
-                      setDescription(`${title} on vshare.net`);
-                    }
-                    setDataMultipleFile(fileItems);
-                  }
-                }
+  //                 if (fileData?.length > 0) {
+  //                   const fileItems = fileData?.map((file, index) => {
+  //                     return {
+  //                       ...file?.fileData,
+  //                       _id: file?.fileId,
+  //                       index,
+  //                     };
+  //                   });
 
-                setIsLoading(false);
-              },
-            });
-          }
-      } catch (error) {
-        document.title = "No documents found";
-        setDescription("No documents found on vshare.net");
-        setIsLoading(false);
-      }
-    };
-    getMultipleFileAndFolder();
-  }, [currentPage, viewMore]);
+  //                   if (fileItems.length > 0) {
+  //                     const title = fileItems?.[0]?.filename || "";
+  //                     document.title = title;
+  //                     setDescription(`${title} on vshare.net`);
+  //                   }
+  //                   setDataMultipleFile(fileItems);
+  //                 }
+  //               }
+
+  //               setIsLoading(false);
+  //             },
+  //           });
+  //         }
+  //     } catch (error) {
+  //       document.title = "No documents found";
+  //       setDescription("No documents found on vshare.net");
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   getMultipleFileAndFolder();
+  // }, [currentPage, viewMore]);
 
   useEffect(() => {
     if (dataMultipleFile.length > 0 && dataMultipleFolder.length > 0) {
@@ -620,6 +768,7 @@ function FileUploader() {
       }
     }
   }, [getDataRes]);
+
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -1255,6 +1404,19 @@ function FileUploader() {
           _confirmPasword={_confirmPasword}
         />
 
+        {/* one time link or manage lin new  */}
+        <DialogConfirmPassword
+          open={openInputPasswod}
+          isMobile={isMobile}
+          getFilenames={getFilenames}
+          getNewFileName={getNewFileName}
+          password={password}
+          checkModal={checkModal}
+          setPassword={setPassword}
+          handleClose={handleInputPasswordClose}
+          _confirmPasword={handleInputPassword}
+        />
+
         <Box sx={{ backgroundColor: "#F8F7FA", padding: "1rem" }}>
           <Advertisement />
 
@@ -1297,12 +1459,13 @@ function FileUploader() {
                       handleDownloadFileGetLink={handleDownloadFileGetLink}
                     />
                   )} */}
-                  {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
+                  {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 ? (
                     <ListFolderData
                       isFile={false}
                       toggle={toggle}
                       _description={_description}
                       dataLinks={dataFolderLinkMemo}
+                      linkExpired={linkExpirdAt}
                       multipleIds={multipleFolderIds}
                       countAction={adAlive}
                       setMultipleIds={setMultipleFolderIds}
@@ -1313,7 +1476,21 @@ function FileUploader() {
                       handleDownloadFolder={handleDownloadFolderGetLink}
                       handleDoubleClick={handleOpenFolder}
                     />
-                  )}
+                  )
+                  :
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      color: "#FF9F43",
+                    }}
+                  >
+                    <InfoIcon sx={{ fontSize: "0.9rem", mr: 1 }} />
+                    <Typography variant="h2" sx={{ fontSize: "0.8rem" }}>
+                      This link was not found or expired.
+                    </Typography>
+                  </Box>
+                  }
 
                   {dataLinkMemo && dataLinkMemo.length > 0 && (
                     <ListFileData

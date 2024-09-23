@@ -109,7 +109,7 @@ const client = new ApolloClient({
 });
 
 // demo 
-consoleText();
+// consoleText();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
