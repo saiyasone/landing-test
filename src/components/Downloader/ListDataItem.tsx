@@ -44,6 +44,7 @@ type Props = {
   multipleIds?: any[];
   countAction: number;
   isFile?: boolean;
+  linkExpired?: string;
   toggle?: string;
   total?: number;
   selectionFileAndFolderData: any[];
@@ -140,7 +141,7 @@ function ListDataItem(props: Props) {
                     component={"span"}
                     sx={{ fontSize: isMobile ? 12 : 14 }}
                   >
-                    {cutFileName(filename || "", isMobile ? 8 : 20)}
+                    {cutFileName(filename || "", isMobile ? 8 : 12)}
                   </Typography>
                   {isMobile && dataFile?.isFile && (
                     <Typography
@@ -239,8 +240,9 @@ function ListDataItem(props: Props) {
   }
 
   useEffect(() => {
-    if (props?.dataLinks?.[0]?.expired) {
-      setExpireDate(props?.dataLinks?.[0]?.expired || "");
+    if (props?.linkExpired) {
+      console.log(props?.linkExpired);
+      setExpireDate(props?.linkExpired || "");
     }
   }, [props]);
 
@@ -263,14 +265,12 @@ function ListDataItem(props: Props) {
             variant="h4"
             sx={{ textAlign: "start", padding: "1rem .5rem" }}
           >
-            Application apply (
             {cutFileName(
               props?.dataLinks?.[0]?.filename ||
                 props?.dataLinks?.[0]?.folder_name ||
                 "",
               20,
             )}
-            )
           </Typography>
         </Box>
 
@@ -294,8 +294,9 @@ function ListDataItem(props: Props) {
               "& .MuiDataGrid-cell:focus": {
                 outline: "none",
               },
-              " .css-cemoa4-MuiButtonBase-root-MuiCheckbox-root": {
-                color: "rgba(0, 0, 0, 0.3)",
+
+              "& .MuiDataGrid-columnHeader--moving": {
+                backgroundColor: "transparent",
               },
             }}
             onCellDoubleClick={(value) => {
@@ -345,7 +346,7 @@ function ListDataItem(props: Props) {
                 >
                   <Typography component={"p"}>Expiration Date</Typography>
                   <Chip
-                    label={expireDate ? formatDate(expireDate) : "Never"}
+                    label={expireDate ? expireDate : "Never"}
                     size="small"
                     sx={{ padding: "0 1rem" }}
                   />

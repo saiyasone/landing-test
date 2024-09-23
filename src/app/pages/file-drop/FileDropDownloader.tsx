@@ -117,7 +117,6 @@ function FileDropDownloader() {
   const [newPath, setNewPath] = useState("");
   const [folderNewName, setFolderNewName] = useState("");
   const [status, setStatus] = useState("");
-  const [isUploadMultiples, setIsUploadMultiples] = useState(false);
   const [getActionButton, setGetActionButton] = useState<any>();
   const [getAdvertisemment, setGetAvertisement] = useState<any>([]);
   const [usedAds, setUsedAds] = useState<any[]>([]);
@@ -141,6 +140,7 @@ function FileDropDownloader() {
   const [timeLeft, setTimeLeft] = useState("");
   const [multiId, setMultiId] = useState<any>([]);
   const [platform, setPlatform] = useState("");
+  const [isUploadMultiples, setIsUploadMultiples] = useState(false);
   // const [selectedRow, setSelectedRow] = React.useState([]);
   const [getDataButtonDownload, { data: getDataButtonDL }] = useLazyQuery(
     QUERY_SETTING,
