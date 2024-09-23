@@ -169,13 +169,13 @@ function FileUploader() {
     return decryptedData;
   }
 
-  function handleClearFileSelection() {
-    setMultipleIds([]);
-  }
+  // function handleClearFileSelection() {
+  //   setMultipleIds([]);
+  // }
 
-  function handleClearFolderSelection() {
-    setMultipleFolderIds([]);
-  }
+  // function handleClearFolderSelection() {
+  //   setMultipleFolderIds([]);
+  // }
 
   const handleEscKey = (event: KeyboardEvent): void => {
     if (event.key === "Escape") {
@@ -188,6 +188,33 @@ function FileUploader() {
 
   function handleClearSelector() {
     dispatch(selectorAction.setRemoveFileAndFolderData());
+  }
+
+  function handleMultipleListData(id: string) {
+    const item = dataFileConcat.find((data) => data._id === id);
+    const name = !item?.isFile ? item?.folder_name : item?.filename;
+    const newFilename = !item.isFile ? item?.newFolder_name : item?.newFilename;
+    const checkType = !item.isFile ? "folder" : "file";
+
+    const value = {
+      id: item?._id,
+      name,
+      newPath: item?.newPath || "",
+      newFilename,
+      checkType,
+      dataPassword: item?.filePassword || item?.access_password,
+      shortLink: item?.shortUrl,
+      createdBy: {
+        _id: item?.createdBy?._id,
+        newName: item?.createdBy?.newName,
+      },
+    };
+
+    dispatch(
+      selectorAction.setFileAndFolderData({
+        data: value,
+      }),
+    );
   }
 
   function handleToggle() {
@@ -504,13 +531,7 @@ function FileUploader() {
   };
 
   const handleMobileDownloadData = () => {
-    if (toggle === "list") {
-      handleDownloadAsZip();
-    }
-
-    if (toggle === "grid") {
-      handleDownloadGridFileAndFolder();
-    }
+    handleDownloadGridFileAndFolder();
   };
 
   const handleDownloadGridFileAndFolder = async () => {
@@ -1107,7 +1128,6 @@ function FileUploader() {
 
   const dataFileConcat = useMemo(() => {
     const result = dataLinkMemo?.concat(dataFolderLinkMemo);
-
     return result || [];
   }, [dataLinkMemo, dataFolderLinkMemo]);
 
@@ -1156,22 +1176,25 @@ function FileUploader() {
             <Box>
               {toggle === "list" && (
                 <Fragment>
-                  {/* {dataFileConcat.length > 0 && (
+                  {dataFileConcat.length > 0 && (
                     <ListDataItem
                       toggle={toggle}
                       _description={_description}
-                      dataLinks={dataLinkMemo}
-                      multipleIds={multipleIds}
+                      dataLinks={dataFileConcat}
+                      handleSelection={handleMultipleListData}
+                      selectionFileAndFolderData={
+                        dataSelector.selectionFileAndFolderData || []
+                      }
                       countAction={adAlive}
                       setMultipleIds={setMultipleIds}
                       setToggle={handleToggle}
                       handleQRGeneration={handleQRGeneration}
-                      handleClearFileSelection={handleClearFileSelection}
-                      handleDownloadAsZip={handleDownloadAsZip}
-                      handleDownloadFileGetLink={handleDownloadFileGetLink}
+                      handleClearFileSelection={handleClearSelector}
+                      handleDownloadAsZip={handleDownloadGridFileAndFolder}
+                      handleDoubleClick={handleOpenFolder}
                     />
-                  )} */}
-                  {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
+                  )}
+                  {/* {dataFolderLinkMemo && dataFolderLinkMemo.length > 0 && (
                     <ListFolderData
                       isFile={false}
                       toggle={toggle}
@@ -1204,7 +1227,7 @@ function FileUploader() {
                       handleDownloadAsZip={handleDownloadAsZip}
                       handleDownloadFileGetLink={handleDownloadFileGetLink}
                     />
-                  )}
+                  )} */}
                 </Fragment>
               )}
 
@@ -1310,9 +1333,7 @@ function FileUploader() {
 
       <BaseDeeplinkDownload
         selectionData={
-          (multipleIds?.length > 0 && true) ||
-          (multipleFolderIds?.length > 0 && true) ||
-          (dataSelector?.selectionFileAndFolderData?.length > 0 && true)
+          dataSelector?.selectionFileAndFolderData?.length > 0 && true
         }
         platform={platform}
         adAlive={adAlive}
