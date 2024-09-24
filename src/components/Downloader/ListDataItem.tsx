@@ -23,7 +23,6 @@ import QrCodeIcon from "@mui/icons-material/QrCodeOutlined";
 import LockIcon from "@mui/icons-material/Lock";
 import { convertBytetoMBandGB } from "utils/storage.util";
 
-import { formatDate } from "utils/date.util";
 import {
   BoxAdsAction,
   BoxAdsContainer,
@@ -241,7 +240,6 @@ function ListDataItem(props: Props) {
 
   useEffect(() => {
     if (props?.linkExpired) {
-      console.log(props?.linkExpired);
       setExpireDate(props?.linkExpired || "");
     }
   }, [props]);
@@ -310,9 +308,6 @@ function ListDataItem(props: Props) {
             disableColumnFilter
             disableColumnMenu
             hideFooter
-            onSelectionModelChange={(ids) => {
-              props?.setMultipleIds?.(ids);
-            }}
           />
 
           {props.total! > 10 && (

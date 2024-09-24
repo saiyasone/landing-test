@@ -1008,7 +1008,7 @@ export const FileBoxHeader = styled("div")({
 
 ////Ads
 export const AdsContainer = styled(Box)({
-  marginBottom: "1rem",
+  // marginBottom: "1rem",
 });
 
 export const AdsContent = styled(Box)(({ theme }) => ({

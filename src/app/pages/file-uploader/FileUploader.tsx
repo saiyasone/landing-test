@@ -4,7 +4,7 @@ import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 // components
-import { Box, IconButton, useMediaQuery } from "@mui/material";
+import { Box, IconButton, Typography, useMediaQuery } from "@mui/material";
 import {
   CREATE_DETAIL_ADVERTISEMENT,
   QUERY_ADVERTISEMENT,
@@ -35,8 +35,8 @@ import * as MUI from "./styles/fileUploader.style";
 import "./styles/fileUploader.style.css";
 import Advertisement from "components/presentation/Advertisement";
 import BaseDeeplinkDownload from "components/Downloader/BaseDeeplinkDownload";
-// import FeedCard from "components/Downloader/FeedCard";
 import BaseGridDownload from "components/Downloader/BaseGridDownload";
+import { TiInfoOutline } from "react-icons/ti";
 import { Helmet } from "react-helmet-async";
 import {
   CHECK_GET_LINK,
@@ -59,6 +59,7 @@ function FileUploader() {
   const [filePasswords, setFilePasswords] = useState<any>("");
   const [openInputPasswod, setOpenInputPassword] = useState(false);
   const [linkType, setLinkType] = useState("normal");
+
   const [linkExpirdAt, setLinkExpirdAt] = useState("");
   const [getNewFileName, setGetNewFileName] = useState("");
   const [fileQRCodePassword, setFileQRCodePassword] = useState("");
@@ -106,8 +107,7 @@ function FileUploader() {
   // Deep linking for mobile devices
   const appScheme = ENV_KEYS.VITE_APP_DEEP_LINK + currentURL;
 
-  const [multipleIds, setMultipleIds] = useState<string[]>([]);
-  const [multipleFolderIds, setMultipleFolderIds] = useState<any[]>([]);
+  const [isPassword, setIsPassword] = useState(false);
 
   // const [qrcodeUser, setQrcodeUser] = useState([]);
   const [hideDownload, setHideDownload] = useState(true);
@@ -182,14 +182,6 @@ function FileUploader() {
     return decryptedData;
   }
 
-  // function handleClearFileSelection() {
-  //   setMultipleIds([]);
-  // }
-
-  // function handleClearFolderSelection() {
-  //   setMultipleFolderIds([]);
-  // }
-
   const handleEscKey = (event: KeyboardEvent): void => {
     if (event.key === "Escape") {
       handleClearSelector();
@@ -231,8 +223,6 @@ function FileUploader() {
   }
 
   function handleToggle() {
-    setMultipleIds([]);
-    setMultipleFolderIds([]);
     handleClearSelector();
     if (toggle === "list") {
       setToggle("grid");
@@ -340,7 +330,6 @@ function FileUploader() {
     if (linkType === "one_time_link") {
       await handleOneTimeLinkDetails();
     } else {
-      ////manage link files / get link files
       await handleManageLinkDetails();
     }
 
@@ -425,9 +414,8 @@ function FileUploader() {
 
               setIsLoading(false);
             },
-
-            onError: () => {
-              errorMessage("Not found data!", 3000);
+            onError: (error) => {
+              errorMessage(error?.message, 3000);
             },
           });
         }
@@ -442,10 +430,9 @@ function FileUploader() {
     const os = navigator.userAgent;
 
     try {
-      if (linkClient?._id)
+      if (linkClient?._id) {
         if (linkClient?.type === "multiple") {
           setIsLoading(true);
-
           await getOneTimeLinkDetails({
             variables: {
               where: {
@@ -460,6 +447,14 @@ function FileUploader() {
             onCompleted: async (values) => {
               const totalData = values?.getOneTimeLinkDetails?.total || 0;
               const mainData = values?.getOneTimeLinkDetails?.data || [];
+              const dataError = values?.getOneTimeLinkDetails?.message;
+              const codeError = values?.getOneTimeLinkDetails?.code;
+
+              if (dataError && codeError === "500") {
+                errorMessage(dataError, 3000);
+                return;
+              }
+
               setTotal(totalData);
 
               if (mainData?.length > 0) {
@@ -515,16 +510,15 @@ function FileUploader() {
               }
 
               setIsLoading(false);
-            },
-
-            onError: () => {
-              errorMessage("Not found data!");
+              setOpenInputPassword(false);
             },
           });
         }
+      }
     } catch (error) {
       document.title = "No documents found" + " | VSHARE";
       setDescription("No documents found on vshare.net");
+      errorMessage("error", 3000);
       setIsLoading(false);
     }
   };
@@ -557,6 +551,7 @@ function FileUploader() {
           }
 
           if (result?.password) {
+            setIsPassword(true);
             setOpenInputPassword(true);
           } else {
             await handleListFiles();
@@ -688,7 +683,7 @@ function FileUploader() {
     if (urlClient && linkClient && linkClient?._id) {
       getManageLinkPassword(linkClient?._id);
     }
-  }, [linkValue, dataFileLink]);
+  }, [linkValue, linkType]);
 
   // useEffect(() => {
   //   const getMultipleFileAndFolder = async () => {
@@ -838,109 +833,6 @@ function FileUploader() {
           checkType: file?.checkType || "file",
           newPath,
           createdBy: file.createdBy,
-        };
-      });
-
-      setTotalClickCount((prevCount) => prevCount + 1);
-
-      if (totalClickCount >= getActionButton) {
-        setTotalClickCount(0);
-        manageFile.handleDownloadFile(
-          {
-            multipleData,
-          },
-          {
-            onFailed: () => {},
-            onSuccess: () => {},
-          },
-        );
-      } else {
-        if (getAdvertisemment.length) {
-          handleAdvertisementPopup();
-        } else {
-          manageFile.handleDownloadFile(
-            {
-              multipleData,
-            },
-            {
-              onFailed: () => {},
-              onSuccess: () => {},
-            },
-          );
-        }
-      }
-    }
-  };
-
-  const handleDownloadFileGetLink = async () => {
-    if (multipleIds?.length > 0) {
-      const newModelData = multipleIds.map((value) => {
-        const newVal = dataLinkMemo?.find((file) => file._id === value);
-
-        if (newVal) {
-          return newVal;
-        }
-
-        return "";
-      });
-
-      const multipleData = newModelData.map((file) => {
-        const newPath = file.newPath || "";
-
-        return {
-          id: file._id,
-          name: file.filename,
-          newFilename: file.newFilename,
-          checkType: "file",
-          newPath,
-          createdBy: file.createdBy,
-          isPublic: linkClient?._id ? false : true,
-        };
-      });
-
-      setTotalClickCount((prevCount) => prevCount + 1);
-
-      if (totalClickCount >= getActionButton) {
-        setTotalClickCount(0);
-        manageFile.handleDownloadFile(
-          {
-            multipleData,
-          },
-          {
-            onFailed: () => {},
-            onSuccess: () => {},
-          },
-        );
-      } else {
-        if (getAdvertisemment.length) {
-          handleAdvertisementPopup();
-        } else {
-          manageFile.handleDownloadFile(
-            {
-              multipleData,
-            },
-            {
-              onFailed: () => {},
-              onSuccess: () => {},
-            },
-          );
-        }
-      }
-    }
-
-    if (dataSelector?.selectionFileAndFolderData?.length > 0) {
-      const newModelData = dataSelector?.selectionFileAndFolderData || [];
-
-      const multipleData = newModelData.map((file) => {
-        const newPath = file.newPath || "";
-
-        return {
-          id: file.id,
-          name: file.name,
-          newFilename: file.newFilename,
-          checkType: "file",
-          newPath,
-          createdBy: file.createdBy,
           isPublic: file.createdBy?._id === "0" ? true : false,
         };
       });
@@ -963,111 +855,6 @@ function FileUploader() {
           handleAdvertisementPopup();
         } else {
           manageFile.handleDownloadFile(
-            {
-              multipleData,
-            },
-            {
-              onFailed: () => {},
-              onSuccess: () => {},
-            },
-          );
-        }
-      }
-    }
-  };
-
-  const handleDownloadFolderGetLink = async () => {
-    if (multipleFolderIds?.length > 0) {
-      const newModelData = multipleFolderIds.map((value: any) => {
-        const newVal = dataFolderLinkMemo?.find(
-          (file: any) => file?._id === value,
-        );
-
-        if (newVal) {
-          return newVal;
-        }
-
-        return "";
-      });
-
-      const multipleData = newModelData.map((file: any) => {
-        const newPath = file.newPath || "";
-
-        return {
-          id: file._id,
-          name: file.folder_name,
-          newFilename: file.newFolder_name,
-          checkType: "folder",
-          newPath,
-          createdBy: file.createdBy,
-        };
-      });
-
-      setTotalClickCount((prevCount) => prevCount + 1);
-      setMultipleType("file");
-
-      if (totalClickCount >= getActionButton) {
-        setTotalClickCount(0);
-        manageFile.handleDownloadFolder(
-          {
-            multipleData,
-          },
-          {
-            onFailed: () => {},
-            onSuccess: () => {},
-          },
-        );
-      } else {
-        if (getAdvertisemment.length) {
-          handleAdvertisementPopup();
-        } else {
-          manageFile.handleDownloadFolder(
-            {
-              multipleData,
-            },
-            {
-              onFailed: () => {},
-              onSuccess: () => {},
-            },
-          );
-        }
-      }
-    }
-    if (dataSelector?.selectionFileAndFolderData?.length > 0) {
-      const newModelData = dataSelector?.selectionFileAndFolderData || [];
-
-      const multipleData = newModelData.map((file: any) => {
-        const newPath = file.newPath || "";
-
-        return {
-          id: file.id,
-          name: file.name,
-          newFilename: file.newFilename,
-          checkType: "folder",
-          newPath,
-          createdBy: file.createdBy,
-        };
-      });
-
-      setTotalClickCount((prevCount) => prevCount + 1);
-      setMultipleType("folder");
-
-      if (totalClickCount >= getActionButton) {
-        setTotalClickCount(0);
-        manageFile.handleDownloadFolder(
-          {
-            multipleData,
-          },
-          {
-            onFailed: () => {},
-            onSuccess: () => {},
-          },
-        );
-      } else {
-        if (getAdvertisemment.length) {
-          handleAdvertisementPopup();
-        } else {
-          manageFile.handleDownloadFolder(
             {
               multipleData,
             },
@@ -1385,6 +1172,7 @@ function FileUploader() {
       const fileData = getDataRes?.map((file, index) => ({
         ...file,
         index,
+        isFile: true,
       }));
 
       return fileData || [];
@@ -1430,9 +1218,40 @@ function FileUploader() {
       </Helmet>
       <MUI.ContainerHome maxWidth="xl">
         <Box sx={{ backgroundColor: "#F8F7FA", padding: "1rem" }}>
+          {!dataFileConcat.length && isPassword && (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <TiInfoOutline
+                style={{ fontSize: 22, color: "#D8930C", fontWeight: "bold" }}
+              />
+              <Typography
+                variant="h1"
+                sx={{
+                  fontSize: isMobile ? "0.8rem" : "1.1rem",
+                  ml: 2,
+                  color: "#4B465C",
+                  textAlign: "center",
+                }}
+              >
+                To view this information,{" "}
+                {isMobile && (
+                  <>
+                    <br />
+                  </>
+                )}{" "}
+                please provide your password.
+              </Typography>
+            </Box>
+          )}
+
           <Advertisement />
 
-          {(dataFolderLinkMemo?.length > 0 || dataLinkMemo?.length > 0) && (
+          {dataFileConcat?.length > 0 && (
             <MUI.FileBoxToggle>
               {toggle === "grid" ? (
                 <BaseGridDownload
@@ -1467,7 +1286,6 @@ function FileUploader() {
                         dataSelector.selectionFileAndFolderData || []
                       }
                       countAction={adAlive}
-                      setMultipleIds={setMultipleIds}
                       setToggle={handleToggle}
                       handleQRGeneration={handleQRGeneration}
                       handleClearFileSelection={handleClearSelector}
@@ -1495,7 +1313,7 @@ function FileUploader() {
                   )
                   :
                   <Box
-                    sx={{
+                    sx={{.
                       display: "flex",
                       alignItems: "center",
                       color: "#FF9F43",
