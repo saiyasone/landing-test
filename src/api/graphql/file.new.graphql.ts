@@ -59,6 +59,8 @@ export const GET_ONE_TIME_LINK_DETAIL = gql`
         folder_name
         newFolder_name
         total_size
+        path
+        newPath
         is_public
         checkFolder
         show_download_link
@@ -93,6 +95,8 @@ export const GET_ONE_TIME_LINK_DETAIL = gql`
         filePassword
         fileType
         size
+        path
+        newPath
         totalFile
         status
         isPublic
@@ -158,6 +162,8 @@ export const GET_MANAGE_LINK_DETAIL = gql`
         folder_name
         newFolder_name
         total_size
+        path
+        newPath
         is_public
         checkFolder
         show_download_link
@@ -192,6 +198,8 @@ export const GET_MANAGE_LINK_DETAIL = gql`
         filePassword
         fileType
         size
+        path
+        newPath
         totalFile
         status
         isPublic
