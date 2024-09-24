@@ -18,6 +18,7 @@ export const CHECK_GET_LINK = gql`
   }
 `;
 
+
 export const GET_ONE_TIME_LINK_DETAIL = gql`
   query GetOneTimeLinkDetails(
     $where: OneTimeLinkDetailsWhereInput
