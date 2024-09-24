@@ -76,6 +76,31 @@ query GetOneTimeLinkDetails($where: OneTimeLinkDetailsWhereInput, $orderBy: Orde
         }
         createdAt
       }
+      fileData {
+        _id
+        type_id {
+          _id
+          titile
+          status
+        }
+        folder_id {
+          _id
+          folder_name
+        }
+        filename
+        newFilename
+        filePassword
+        fileType
+        size
+        totalFile
+        status
+        isPublic
+        checkFile
+        shortUrl
+        longUrl
+        expired
+        createdAt
+      }
     }
   }
 }`;
