@@ -21,9 +21,9 @@ export const QUERY_FOLDER = gql`
           _id
           newName
         }
-        parentkey {
-          _id
-        }
+        # parentkey {
+        #   _id
+        # }
       }
     }
   }

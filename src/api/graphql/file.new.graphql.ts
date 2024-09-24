@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 export const CHECK_GET_LINK = gql`
-query GetManageLinks($where: ManageLinkWhereInput) {
+  query GetManageLinks($where: ManageLinkWhereInput) {
   getManageLinks(where: $where) {
     code
     message
@@ -15,10 +15,11 @@ query GetManageLinks($where: ManageLinkWhereInput) {
       expiredAt
     }
   }
-}`;
+}
+`;
 
-export const  GET_ONE_TIME_LINK_DETAIL =gql`
-query GetOneTimeLinkDetails($where: OneTimeLinkDetailsWhereInput, $orderBy: OrderBy, $skip: Int, $limit: Int) {
+export const GET_ONE_TIME_LINK_DETAIL = gql`
+  query GetOneTimeLinkDetails($where: OneTimeLinkDetailsWhereInput, $orderBy: OrderBy, $skip: Int, $limit: Int) {
   getOneTimeLinkDetails(where: $where, orderBy: $orderBy, skip: $skip, limit: $limit) {
     code
     message
@@ -103,15 +104,26 @@ query GetOneTimeLinkDetails($where: OneTimeLinkDetailsWhereInput, $orderBy: Orde
       }
     }
   }
-}`;
+}
+`;
 
 export const GET_MANAGE_LINK_DETAIL = gql`
-query GetManageLinkDetails($where: ManageLinkWhereInput, $orderBy: OrderBy, $skip: Int, $limit: Int) {
-  getManageLinkDetails(where: $where, orderBy: $orderBy, skip: $skip, limit: $limit) {
-    message
-    code
-    total
-    data {
+  query GetManageLinkDetails(
+    $where: ManageLinkWhereInput
+    $orderBy: OrderBy
+    $skip: Int
+    $limit: Int
+  ) {
+    getManageLinkDetails(
+      where: $where
+      orderBy: $orderBy
+      skip: $skip
+      limit: $limit
+    ) {
+      message
+      code
+      total
+      data {
       _id
       fileId
       folderId
@@ -164,6 +176,32 @@ query GetManageLinkDetails($where: ManageLinkWhereInput, $orderBy: OrderBy, $ski
         }
         createdAt
       }
+      fileData {
+        _id
+        type_id {
+          _id
+          titile
+          status
+        }
+        folder_id {
+          _id
+          folder_name
+        }
+        filename
+        newFilename
+        filePassword
+        fileType
+        size
+        totalFile
+        status
+        isPublic
+        checkFile
+        shortUrl
+        longUrl
+        expired
+        createdAt
+      }
+    }
     }
   }
-}`;
+`;

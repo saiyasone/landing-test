@@ -40,7 +40,6 @@ import { IFolder } from "models/folder.model";
 function ExtendFolder() {
   const location = useLocation();
   const isMobile = useMediaQuery("(max-width: 600px)");
-  const isMobileGrid = useMediaQuery("(max-width: 997px)");
   const [checkConfirmPassword, setConfirmPassword] = useState(false);
   const [getDataRes, setGetDataRes] = useState<any>(null);
   const [folderDownload, setFolderDownload] = useState<any>(null);
@@ -660,10 +659,10 @@ function ExtendFolder() {
 
     if (totalClickCount >= getActionButton) {
       setTotalClickCount(0);
-      // const groupData: any[] = (await getAllData()) || [];
-      const groupDataV1: any[] = dataLinkMemo.concat(dataFolderLinkMemo)
+      const groupData: any[] = (await getAllData()) || [];
+      // const groupDataV1: any[] = dataLinkMemo.concat(dataFolderLinkMemo)
 
-      const multipleData = groupDataV1.map((item: any) => {
+      const multipleData = groupData.map((item: any) => {
         const newPath = item?.newPath || "";
         const newFilename = item?.newFilename || item?.newFolder_name;
 

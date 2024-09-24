@@ -161,7 +161,11 @@ function ListFolderData(props: Props) {
 
   useEffect(() => {
     if (props?.linkExpired || props?.dataLinks?.[0]?.expired) {
-      setExpireDate(props?.linkExpired || moment(props?.dataLinks?.[0]?.expired).format('DD/MM/YYYY HH:MM A') || "");
+      setExpireDate(
+        props?.linkExpired ||
+          moment(props?.dataLinks?.[0]?.expired).format("DD/MM/YYYY HH:MM A") ||
+          "",
+      );
     }
   }, [props]);
 
