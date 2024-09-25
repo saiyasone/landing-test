@@ -31,7 +31,8 @@ function BaseGridDownload(props: Props) {
         sx={{
           display: "flex",
           gap: "1rem",
-          position: "relative",
+          // position: "relative",
+          justifyContent: "flex-end",
           [theme.breakpoints.down(960)]: {
             display: "none",
           },
