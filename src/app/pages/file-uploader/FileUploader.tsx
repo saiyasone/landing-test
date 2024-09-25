@@ -153,7 +153,7 @@ function FileUploader() {
   );
 
   const [getFilePassword] = useLazyQuery(CHECK_GET_LINK);
-  // const [getManageLinkDetails] = useLazyQuery(GET_MANAGE_LINK_DETAIL,{fetchPolicy:'cache-and-network'});
+  // const [getManageLinkDetails] = useLazyQuery(GET_MANAGE_LINK_DETAIL);
   const [getOneTimeLinkDetails] = useLazyQuery(GET_ONE_TIME_LINK_DETAIL, {
     fetchPolicy: "no-cache",
   });
@@ -571,72 +571,136 @@ function FileUploader() {
     });
   };
 
+  const getFolders = async() => {
+    try 
+    {
+            setIsLoading(true);
+            await getFolderLink({
+              variables: {
+                where: {
+                  _id: linkClient?._id,
+                },
+              },
+              onCompleted: (data) => {
+                const folderData = data?.queryfoldersGetLinks?.data || [];
+                if (folderData?.[0]?.status === "active") {
+                  setGetDataRes(folderData || []);
+                  setFolderDownload(folderData || []);
+
+                  document.title =
+                    folderData?.[0]?.folder_name || "vshare download folder";
+                  if (folderData && folderData?.[0]?.folder_type) {
+                    if (folderData[0]?.folder_name) {
+                      setDescription(
+                        folderData[0]?.folder_name + " on vshare.net",
+                      );
+                    }
+                  }
+                }
+              },
+            });
+            setTimeout(() => {
+              setIsLoading(false);
+            }, 500);
+    } 
+    catch (error: any) 
+    {
+      setIsLoading(false);
+      errorMessage(error);
+    }
+  }
+
+  const getFiles = async() => {
+    try 
+    {
+            setIsLoading(true);
+
+            await getFileLink({
+              variables: {
+                where: {
+                  _id: linkClient?._id,
+                },
+              },
+              // onCompleted: () => {},
+            });
+
+            setTimeout(() => {
+              setIsLoading(false);
+            }, 500);
+
+            if (dataFileLink?.queryFileGetLinks?.data) {
+              document.title =
+                dataFileLink?.queryFileGetLinks?.data?.[0]?.filename ||
+                "Vshare download file";
+
+              if (dataFileLink?.queryFileGetLinks?.data?.[0]) {
+                setDescription(
+                  dataFileLink?.queryFileGetLinks?.data?.[0]?.filename +
+                    " on vshare.net",
+                );
+              }
+              setGetDataRes(dataFileLink?.queryFileGetLinks?.data || []);
+            }
+    } 
+    catch (error: any) {
+      setIsLoading(false);
+      errorMessage(error);
+    }
+  }
+
+  const getPublicLink = async() => {
+    try 
+    {
+      setIsLoading(true);
+          getData({
+            variables: {
+              where: {
+                urlAll: linkValue ? String(linkValue) : null,
+              },
+            },
+            onCompleted: (resData) => {
+              const fileData = resData?.filesPublic?.data?.[0];
+              document.title = fileData?.filename;
+              setDescription(`${fileData?.filename} on vshare.net`);
+              setGetDataRes(resData?.filesPublic?.data);
+            },
+          });
+
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 500);
+    } 
+    catch (error: any) {
+      setIsLoading(false);
+      errorMessage(error);
+    }
+  }
+
   useEffect(() => {
     const getLinkData = async () => {
-      try {
-        // if (linkClient?._id) {
-        //   if (linkClient?.type === "file") {
-        //     setIsLoading(true);
+        if (linkClient?._id) 
+        {
+          if (linkClient?.type === "file") 
+          {
+            await getFiles();
+          }
 
-        //     await getFileLink({
-        //       variables: {
-        //         where: {
-        //           _id: linkClient?._id,
-        //         },
-        //       },
-        //       // onCompleted: () => {},
-        //     });
+          if (linkClient?.type === "folder") 
+          {
+            await getFolders();
+          }
 
-        //     setTimeout(() => {
-        //       setIsLoading(false);
-        //     }, 500);
+          if(linkClient?.type === "multiple")
+          {
+            await getManageLinkPassword(linkClient?._id);
+          }
+        }
+        else 
+        {
+          await getPublicLink();
+        }
 
-        //     if (dataFileLink?.queryFileGetLinks?.data) {
-        //       document.title =
-        //         dataFileLink?.queryFileGetLinks?.data?.[0]?.filename ||
-        //         "Vshare download file";
-
-        //       if (dataFileLink?.queryFileGetLinks?.data?.[0]) {
-        //         setDescription(
-        //           dataFileLink?.queryFileGetLinks?.data?.[0]?.filename +
-        //             " on vshare.net",
-        //         );
-        //       }
-        //       setGetDataRes(dataFileLink?.queryFileGetLinks?.data || []);
-        //     }
-        //   }
-
-        //   if (linkClient?.type === "folder") {
-        //     setIsLoading(true);
-        //     await getFolderLink({
-        //       variables: {
-        //         where: {
-        //           _id: linkClient?._id,
-        //         },
-        //       },
-        //       onCompleted: (data) => {
-        //         const folderData = data?.queryfoldersGetLinks?.data || [];
-        //         if (folderData?.[0]?.status === "active") {
-        //           setGetDataRes(folderData || []);
-        //           setFolderDownload(folderData || []);
-
-        //           document.title =
-        //             folderData?.[0]?.folder_name || "vshare download folder";
-        //           if (folderData && folderData?.[0]?.folder_type) {
-        //             if (folderData[0]?.folder_name) {
-        //               setDescription(
-        //                 folderData[0]?.folder_name + " on vshare.net",
-        //               );
-        //             }
-        //           }
-        //         }
-        //       },
-        //     });
-        //     setTimeout(() => {
-        //       setIsLoading(false);
-        //     }, 500);
-        //   }
-        // } else {
+        // if (!linkClient?._id) {
         //   setIsLoading(true);
         //   getData({
         //     variables: {
@@ -656,38 +720,13 @@ function FileUploader() {
         //     setIsLoading(false);
         //   }, 500);
         // }
-
-        if (!linkClient?._id) {
-          setIsLoading(true);
-          getData({
-            variables: {
-              where: {
-                urlAll: linkValue ? String(linkValue) : null,
-              },
-            },
-            onCompleted: (resData) => {
-              const fileData = resData?.filesPublic?.data?.[0];
-              document.title = fileData?.filename;
-              setDescription(`${fileData?.filename} on vshare.net`);
-              setGetDataRes(resData?.filesPublic?.data);
-            },
-          });
-
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 500);
-        }
-      } catch (error: any) {
-        setIsLoading(false);
-        errorMessage(error);
-      }
     };
 
     getLinkData();
 
-    if (urlClient && linkClient && linkClient?._id) {
-      getManageLinkPassword(linkClient?._id);
-    }
+    // if (urlClient && linkClient && linkClient?._id) {
+    //   getManageLinkPassword(linkClient?._id);
+    // }
   }, [linkValue, linkType]);
 
   // useEffect(() => {
