@@ -699,27 +699,6 @@ function FileUploader() {
         {
           await getPublicLink();
         }
-
-        // if (!linkClient?._id) {
-        //   setIsLoading(true);
-        //   getData({
-        //     variables: {
-        //       where: {
-        //         urlAll: linkValue ? String(linkValue) : null,
-        //       },
-        //     },
-        //     onCompleted: (resData) => {
-        //       const fileData = resData?.filesPublic?.data?.[0];
-        //       document.title = fileData?.filename;
-        //       setDescription(`${fileData?.filename} on vshare.net`);
-        //       setGetDataRes(resData?.filesPublic?.data);
-        //     },
-        //   });
-
-        //   setTimeout(() => {
-        //     setIsLoading(false);
-        //   }, 500);
-        // }
     };
 
     getLinkData();
