@@ -568,6 +568,7 @@ function ExtendFolder() {
           newWindow.closed ||
           typeof newWindow.closed == "undefined"
         ) {
+          history.pushState(null, "", window.location.href);
           window.location.href = httpData;
         }
       }
