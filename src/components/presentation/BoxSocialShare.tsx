@@ -152,7 +152,7 @@ function BoxSocialShare(props: Props) {
               <Tooltip title="Messenger" placement="top">
                 <FacebookMessengerShareButton
                   url={currentUrl || ""}
-                  appId={ENV_KEYS.VITE_APP_FACEBOOk_APP_ID}
+                  appId={ENV_KEYS.VITE_APP_FACEBOOK}
                   style={{
                     display: "flex",
                     justifyContent: "center",
