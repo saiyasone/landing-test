@@ -165,7 +165,7 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
   window.location.protocol === "http:"
     ? (link = ENV_KEYS.VITE_APP_DOWNLOAD_URL_SERVER)
     : (link = ENV_KEYS.VITE_APP_DOWNLOAD_URL_SERVER);
-  const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
+  // const LOAD_GET_IP_URL = ENV_KEYS.VITE_APP_LOAD_GETIP_URL;
   const LOAD_UPLOAD_URL = ENV_KEYS.VITE_APP_LOAD_UPLOAD_URL;
 
   const [value, setValue] = useState<string | null>(link);
@@ -186,9 +186,9 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
   useEffect(() => {
     if (dataExpire) {
       setExpired({
-        title: dataExpire?.title,
-        action: dataExpire?.action,
-        productKey: dataExpire?.productKey,
+        title: dataExpire?.title || "",
+        action: dataExpire?.action || "",
+        productKey: dataExpire?.productKey || "",
       });
     }
   }, [dataExpire]);
@@ -236,6 +236,7 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
         //     `https://pro.ip-api.com/json/${ip}?key=x0TWf62F7ukWWpQ`,
         //   );
         //   if (res) {
+        //     console.log(res.data)
         //     setCountry(res?.data?.countryCode);
         //   }
         // }
@@ -699,50 +700,52 @@ export default function DialogShowFIle(props: CustomizedDialogProps) {
                 sx={{ width: hidePasswordLink ? "50%" : "100%" }}
               >
                 <Typography component="span">Auto delete file</Typography>
-                <FormControl fullWidth>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    sx={{
-                      width: "95%",
-                      borderRadius: "20px",
-                      fontSize: "0.8rem",
-                    }}
-                    size="small"
-                    value={expired?.productKey}
-                    onChange={(e) => {
-                      const dataExp = dataExpires?.find(
-                        (exp: any) => exp?.productKey === e.target.value,
-                      );
+                {dataExpires && dataExpires?.length > 0 && (
+                  <FormControl fullWidth>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      sx={{
+                        width: "95%",
+                        borderRadius: "20px",
+                        fontSize: "0.8rem",
+                      }}
+                      size="small"
+                      onChange={(e) => {
+                        const dataExp = dataExpires?.find(
+                          (exp: any) => exp?.productKey === e.target.value,
+                        );
 
-                      if (dataExp) {
-                        setExpired({
-                          title: dataExp.title,
-                          productKey: dataExp.productKey,
-                          action: dataExp.action,
-                        });
-                      }
-                    }}
-                    fullWidth
-                    variant="standard"
-                  >
-                    {dataExpires?.map((data: any, index: number) => {
-                      return (
-                        <MenuItem key={index} value={data?.productKey}>
-                          <Fragment>
-                            {data?.productKey === autoProductKey ? (
-                              "Auto delete"
-                            ) : (
-                              <Fragment>
-                                {data?.action} {data?.title}
-                              </Fragment>
-                            )}
-                          </Fragment>
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                </FormControl>
+                        if (dataExp) {
+                          setExpired({
+                            title: dataExp.title,
+                            productKey: dataExp.productKey,
+                            action: dataExp.action,
+                          });
+                        }
+                      }}
+                      value={expired?.productKey || ""}
+                      fullWidth
+                      variant="standard"
+                    >
+                      {dataExpires?.map((data: any, index: number) => {
+                        return (
+                          <MenuItem key={index} value={data?.productKey}>
+                            <Fragment>
+                              {data?.productKey === autoProductKey ? (
+                                "Auto delete"
+                              ) : (
+                                <Fragment>
+                                  {data?.action} {data?.title}
+                                </Fragment>
+                              )}
+                            </Fragment>
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                )}
               </MUI.BoxLimitTime>
 
               {/* Gen password link */}
