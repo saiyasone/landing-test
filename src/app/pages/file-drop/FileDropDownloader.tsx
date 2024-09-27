@@ -773,7 +773,7 @@ function FileDropDownloader() {
                   <Typography component="span">
                     
                     {
-                      dataFromUrl?.allowUpload 
+                      dataFromUrl?.allowUpload || dataFromUrl?.allowMultiples 
                       ? 'Drag and drop your files here to upload'
                       : <Typography component={'span'} sx={{color: '#e31f09 !important', fontWeight: '300 !important'}}>Admin has not enable to upload file</Typography>
                     }
