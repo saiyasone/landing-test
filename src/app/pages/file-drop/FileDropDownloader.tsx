@@ -425,10 +425,6 @@ function FileDropDownloader() {
         setStatus("expired");
         const cutErr = err?.message?.replace(/(ApolloError: )?Error: /, "");
 
-        if (err?.message === "Url not allow to upload") {
-          setStatus("locked");
-        }
-
         errorMessage(
           manageGraphqlError.handleErrorMessage(
             cutErr || err?.message || "Something went wrong, Please try again",
@@ -626,7 +622,7 @@ function FileDropDownloader() {
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     multiple: isUploadMultiples,
-    noClick: dataFromUrl?.allowUpload === false
+    noClick: dataFromUrl?.allowUpload === true ? false : isUploadMultiples === true ? false : true
   });
 
   useEffect(() => {
@@ -707,7 +703,7 @@ function FileDropDownloader() {
                   fontFamily="Arial"
                   fontWeight="bold"
                 >
-                  OMG!
+                  ( •̀_•́ )
                 </text>
               </svg>
             </Typography>
@@ -774,7 +770,7 @@ function FileDropDownloader() {
                   <Typography component="span">
                     
                     {
-                      dataFromUrl?.allowUpload 
+                      dataFromUrl?.allowUpload || dataFromUrl?.allowMultiples 
                       ? 'Drag and drop your files here to upload'
                       : <Typography component={'span'} sx={{color: '#e31f09 !important', fontWeight: '300 !important'}}>Admin has not enable to upload file</Typography>
                     }
@@ -828,7 +824,7 @@ function FileDropDownloader() {
                 data.push(updatedFile);
                 return <Fragment key={index}></Fragment>;
               })}
-              {data.length > 0 && dataFromUrl?.allowUpload ? (
+              {data.length > 0 && (dataFromUrl?.allowUpload || dataFromUrl?.allowMultiples) ? (
                 <DialogShowFiledrop
                   open={open}
                   files={data}
