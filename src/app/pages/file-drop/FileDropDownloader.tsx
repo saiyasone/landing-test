@@ -706,7 +706,7 @@ function FileDropDownloader() {
                   fontFamily="Arial"
                   fontWeight="bold"
                 >
-                  OMG!
+                  ( •̀_•́ )
                 </text>
               </svg>
             </Typography>
