@@ -56,7 +56,7 @@ const NotFound = (props: Props) => {
         </Typography>
         {
             props?.msg ? props?.msg
-            : `Unfortunately, the link was expired or not ofound.`
+            : `Unfortunately, the link was expired or not found.`
         }
       </Box>
       <Box
